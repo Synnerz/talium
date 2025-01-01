@@ -6,6 +6,9 @@ import com.github.synnerz.talium.utils.Renderer.bind
 import com.github.synnerz.talium.utils.Renderer.unbind
 import java.awt.Color
 
+/**
+ * * Makes an outline-like effect surrounding the specified [component]
+ */
 open class OutlineEffect @JvmOverloads constructor(
     var width: Double = 1.0,
     var color: Color = Color(255, 255, 255, 255),
