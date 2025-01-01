@@ -1,5 +1,6 @@
 package com.github.synnerz.talium.components
 
+import com.github.synnerz.talium.effects.UIEffect
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -27,7 +28,7 @@ open class UIBase @JvmOverloads constructor(
      * * This is a list of effects that the current component uses
      * * i.e. OutlineEffect
      */
-    private val effects = mutableListOf<Any>()
+    private val effects = mutableListOf<UIEffect>()
     /**
      * * These are listeners made by the component itself
      */
@@ -193,6 +194,20 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
+     * * Adds a single [UIEffect] to this component
+     */
+    open fun addEffect(effect: UIEffect) = apply {
+        effects.add(effect)
+    }
+
+    /**
+     * * Adds multiple [UIEffect] to this component
+     */
+    open fun addEffects(vararg effects: UIEffect) = apply {
+        this.effects.addAll(effects)
+    }
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
@@ -249,18 +264,21 @@ open class UIBase @JvmOverloads constructor(
         GlStateManager.disableTexture2D()
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
         GlStateManager.disableCull()
-        GlStateManager.color(bgColor.red.toFloat(), bgColor.green.toFloat(), bgColor.blue.toFloat(), bgColor.alpha.toFloat())
+        if (!effects.any { it.forceColor }) GlStateManager.color(bgColor.red.toFloat(), bgColor.green.toFloat(), bgColor.blue.toFloat(), bgColor.alpha.toFloat())
 
         try {
-            // TODO: add effect pre/post draws
             // TODO: add mouse and keyboard event handlers here
+            effects.forEach { it.preDraw() }
             preDraw()
             render()
+            effects.forEach { it.preChildDraw() }
             preChildDraw()
             // If the component was marked as dirty let's update it
             if (dirty) update()
             children.forEach { it.draw() }
+            effects.forEach { it.postChildDraw() }
             postChildDraw()
+            effects.forEach { it.postDraw() }
             postDraw()
         } catch (e: Exception) {
             e.printStackTrace()
