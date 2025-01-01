@@ -49,7 +49,8 @@ open class UIBase @JvmOverloads constructor(
      * * Used internally to scale the position and size of the component
      * as well as to trigger the [onResize] hook/listener
      */
-    private var scaledResolution: ScaledResolution? = null
+    var scaledResolution: ScaledResolution? = null
+        internal set
     /** * Note: if you call the setter it will not mark the component as dirty */
     var x: Double = 0.0
     /** * Note: if you call the setter it will not mark the component as dirty */

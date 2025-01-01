@@ -6,7 +6,7 @@ import com.github.synnerz.talium.utils.Renderer.bind
 import com.github.synnerz.talium.utils.Renderer.unbind
 import java.awt.Color
 
-open class UIOutline @JvmOverloads constructor(
+open class OutlineEffect @JvmOverloads constructor(
     var width: Double = 1.0,
     var color: Color = Color(255, 255, 255, 255),
     var radius: Double = 0.0,
