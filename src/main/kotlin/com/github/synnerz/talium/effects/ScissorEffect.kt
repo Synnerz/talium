@@ -4,7 +4,7 @@ import com.github.synnerz.talium.components.UIBase
 import org.lwjgl.opengl.GL11
 
 /**
- * * Enables scissor effect to be bound to the specified component's bounds
+ * * Enables scissor effect to be bound to the specified [component]'s bounds
  */
 open class ScissorEffect(
     component: UIBase
