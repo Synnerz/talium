@@ -198,6 +198,7 @@ open class UIBase @JvmOverloads constructor(
      * * Adds a single [UIEffect] to this component
      */
     open fun addEffect(effect: UIEffect) = apply {
+        effect.component = this
         effects.add(effect)
     }
 
@@ -205,8 +206,19 @@ open class UIBase @JvmOverloads constructor(
      * * Adds multiple [UIEffect] to this component
      */
     open fun addEffects(vararg effects: UIEffect) = apply {
+        effects.forEach { it.component = this }
         this.effects.addAll(effects)
     }
+
+    /**
+     * * Removes the specified [effect] from this component
+     */
+    open fun removeEffect(effect: UIEffect): Boolean = effects.remove(effect)
+
+    /**
+     * * Removes the [UIEffect]s that are instance of the specified [clazz]
+     */
+    open fun <T: UIEffect> removeEffects(clazz: Class<T>): Boolean = effects.removeIf { clazz.isInstance(it) }
 
     /**
      * * This is the update method, whenever the [dirty] variable is set to true
