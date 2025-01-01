@@ -9,7 +9,7 @@ import java.awt.Color
  * * Makes an inverse-like color effect using the color that is behind this component as its color
  * * i.e. component behind is red then this one will be blue
  */
-open class InverseEffect() : UIEffect(null) {
+open class InverseEffect : UIEffect() {
     private val color = Color(1f, 1f, 1f, 1f)
     override var forceColor: Boolean = true
 
