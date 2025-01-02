@@ -1,5 +1,6 @@
 package com.github.synnerz.talium.components
 
+import com.github.synnerz.talium.effects.OutlineEffect
 import com.github.synnerz.talium.effects.UIEffect
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
@@ -34,18 +35,22 @@ open class UIBase @JvmOverloads constructor(
     private val children = mutableListOf<UIBase>()
     /**
      * * This is a list of effects that the current component uses
-     * * i.e. OutlineEffect
+     * * i.e. [OutlineEffect]
      */
     private val effects = mutableListOf<UIEffect>()
     /**
-     * * These are listeners made by the component itself
-     */
-    private val listeners = object {}
-    /**
-     * * These are the same as [listeners] but made by the user
+     * * These are listeners made by the user
      * * i.e. if i want to listen for a mouseClick on a component, i'll add a click hook
      */
-    private val hooks = object {}
+    private val hooks = object {
+        var onMouseScroll: ((event: UIScrollEvent) -> Unit)? = null
+        var onMouseClick: ((event: UIClickEvent) -> Unit)? = null
+        var onMouseRelease: ((event: UIClickEvent) -> Unit)? = null
+        var onMouseEnter: ((event: UIMouseEvent) -> Unit)? = null
+        var onMouseHover: ((event: UIMouseEvent) -> Unit)? = null
+        var onMouseLeave: ((event: UIMouseEvent) -> Unit)? = null
+        var onMouseDrag: ((event: UIDragEvent) -> Unit)? = null
+    }
     /**
      * * Field to check whether this component is dirty or not
      * * When a component is marked as dirty this means that
@@ -388,9 +393,12 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseScroll(x: Double, y: Double, delta: Int) {
         val event = UIScrollEvent(x, y, delta, this)
         onMouseScroll(event)
+        hooks.onMouseScroll?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            if (!child.inBounds(x, y)) continue
             child.onMouseScroll(event)
+            child.hooks.onMouseScroll?.invoke(event)
             if (!event.propagate) break
         }
     }
@@ -398,9 +406,12 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseClick(x: Double, y: Double, button: Int) {
         val event = UIClickEvent(x, y, button, this)
         onMouseClick(event)
+        hooks.onMouseClick?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            if (!child.inBounds(x, y)) continue
             child.onMouseClick(event)
+            child.hooks.onMouseClick?.invoke(event)
             if (!event.propagate) break
         }
     }
@@ -408,9 +419,12 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseRelease(x: Double, y: Double, button: Int) {
         val event = UIClickEvent(x, y, button, this)
         onMouseRelease(event)
+        hooks.onMouseRelease?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            if (!child.inBounds(x, y)) continue
             child.onMouseRelease(event)
+            child.hooks.onMouseRelease?.invoke(event)
             if (!event.propagate) break
         }
     }
@@ -418,9 +432,12 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseEnter(x: Double, y: Double) {
         val event = UIMouseEvent(x, y, this)
         onMouseEnter(event)
+        hooks.onMouseEnter?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            if (!child.inBounds(x, y)) continue
             child.onMouseEnter(event)
+            child.hooks.onMouseEnter?.invoke(event)
             if (!event.propagate) break
         }
     }
@@ -428,9 +445,12 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseLeave(x: Double, y: Double) {
         val event = UIMouseEvent(x, y, this)
         onMouseLeave(event)
+        hooks.onMouseLeave?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            if (!child.inBounds(x, y)) continue
             child.onMouseLeave(event)
+            child.hooks.onMouseLeave?.invoke(event)
             if (!event.propagate) break
         }
     }
@@ -438,9 +458,12 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseHover(x: Double, y: Double) {
         val event = UIMouseEvent(x, y, this)
         onMouseHover(event)
+        hooks.onMouseHover?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            if (!child.inBounds(x, y)) continue
             child.onMouseHover(event)
+            child.hooks.onMouseHover?.invoke(event)
             if (!event.propagate) break
         }
     }
@@ -448,9 +471,12 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseDrag(dx: Double, dy: Double, x: Double, y: Double, button: Int) {
         val event = UIDragEvent(dx, dy, x, y, button, this)
         onMouseDrag(event)
+        hooks.onMouseDrag?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            if (!child.inBounds(x, y)) continue
             child.onMouseDrag(event)
+            child.hooks.onMouseDrag?.invoke(event)
             if (!event.propagate) break
         }
     }
@@ -468,12 +494,33 @@ open class UIBase @JvmOverloads constructor(
     open fun onError(trace: Array<out StackTraceElement>) = apply {}
     // Mouse events
     open fun onMouseClick(event: UIClickEvent) = apply {}
+    open fun onMouseClick(cb: (event: UIClickEvent) -> Unit) = apply {
+        hooks.onMouseClick = cb
+    }
     open fun onMouseDrag(event: UIDragEvent) = apply {}
+    open fun onMouseDrag(cb: (event: UIDragEvent) -> Unit) = apply {
+        hooks.onMouseDrag = cb
+    }
     open fun onMouseRelease(event: UIClickEvent) = apply {}
+    open fun onMouseRelease(cb: (event: UIClickEvent) -> Unit) = apply {
+        hooks.onMouseRelease = cb
+    }
     open fun onMouseEnter(event: UIMouseEvent) = apply {}
+    open fun onMouseEnter(cb: (event: UIMouseEvent) -> Unit) = apply {
+        hooks.onMouseEnter = cb
+    }
     open fun onMouseHover(event: UIMouseEvent) = apply {}
+    open fun onMouseHover(cb: (event: UIMouseEvent) -> Unit) = apply {
+        hooks.onMouseHover = cb
+    }
     open fun onMouseLeave(event: UIMouseEvent) = apply {}
+    open fun onMouseLeave(cb: (event: UIMouseEvent) -> Unit) = apply {
+        hooks.onMouseLeave = cb
+    }
     open fun onMouseScroll(event: UIScrollEvent) = apply {}
+    open fun onMouseScroll(cb: (event: UIScrollEvent) -> Unit) = apply {
+        hooks.onMouseScroll = cb
+    }
     // TODO: keyboard events
 
     /**
