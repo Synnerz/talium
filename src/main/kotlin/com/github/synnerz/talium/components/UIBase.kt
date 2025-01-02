@@ -1,10 +1,18 @@
 package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.UIEffect
+import com.github.synnerz.talium.events.UIClickEvent
+import com.github.synnerz.talium.events.UIDragEvent
+import com.github.synnerz.talium.events.UIMouseEvent
+import com.github.synnerz.talium.events.UIScrollEvent
+import com.github.synnerz.talium.utils.Renderer
+import com.github.synnerz.talium.utils.Renderer.bind
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.input.Mouse
 import java.awt.Color
+import kotlin.math.sign
 
 /**
  * * Base component that every other component _should_ extend to
@@ -60,7 +68,12 @@ open class UIBase @JvmOverloads constructor(
     /** * Note: if you call the setter it will not mark the component as dirty */
     var height: Double = 0.0
     var bounds: Boundaries = Boundaries(-1.0, -1.0, -1.0, -1.0)
-    var bgColor: Color = Color(0, 0, 0, 0)
+    open var bgColor: Color = Color(0, 0, 0, 0)
+    private var mouseInBounds: Boolean = false
+    private val mouseState = mutableMapOf<Int, Boolean>()
+    private val draggedState = mutableMapOf<Int, State>()
+
+    data class State(var x: Double, var y: Double)
 
     init {
         // Adds [this] component as a children for the specified parent
@@ -71,17 +84,23 @@ open class UIBase @JvmOverloads constructor(
      * * Sets the [dirty] variable of this component to the specified state
      */
     @JvmOverloads
-    open fun setDirty(state: Boolean = true) = apply {
+    open fun setDirty(state: Boolean = true): UIBase = apply {
         dirty = state
+        children.forEach { it.setDirty(state) }
     }
 
     /**
      * * Marks this component as dirty, so it can recalculate positions next render
      */
-    open fun markDirty() = apply {
+    open fun markDirty(): UIBase = apply {
         dirty = true
+        children.forEach { it.markDirty() }
     }
 
+    /**
+     * * Sets the color of this component
+     * * Note: if there is a color effect it will override this color
+     */
     open fun setColor(color: Color) = apply {
         bgColor = color
     }
@@ -265,9 +284,9 @@ open class UIBase @JvmOverloads constructor(
         val sr = ScaledResolution(Minecraft.getMinecraft())
         if (scaledResolution == null) {
             scaledResolution = sr
-        } else if(
-            scaledResolution!!.scaledWidth != sr.scaledWidth &&
-            scaledResolution!!.scaledHeight != sr.scaledHeight &&
+        } else if (
+            scaledResolution!!.scaledWidth != sr.scaledWidth ||
+            scaledResolution!!.scaledHeight != sr.scaledHeight ||
             scaledResolution!!.scaleFactor != sr.scaleFactor) {
             scaledResolution = sr
             handleResize(this, sr)
@@ -277,13 +296,17 @@ open class UIBase @JvmOverloads constructor(
         GlStateManager.disableTexture2D()
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
         GlStateManager.disableCull()
-        if (!effects.any { it.forceColor }) GlStateManager.color(bgColor.red.toFloat(), bgColor.green.toFloat(), bgColor.blue.toFloat(), bgColor.alpha.toFloat())
+        if (!effects.any { it.forceColor }) bgColor.bind()
 
         try {
-            // TODO: add mouse and keyboard event handlers here
+            // TODO: add keyboard event handlers here
             effects.forEach { it.preDraw() }
             preDraw()
             render()
+            // Handle mouse inputs if the component does not have a parent
+            // this _should_ mean that the component is at the top of the hierarchy
+            // so only this component needs to handle the inputs and pass them through
+            if (parent == null) handleMouseInput()
             effects.forEach { it.preChildDraw() }
             preChildDraw()
             // If the component was marked as dirty let's update it
@@ -303,7 +326,137 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
+    open fun handleKeyboardInput() {}
+
+    open fun handleMouseInput() {
+        if (scaledResolution == null) return
+
+        val mx = Renderer.getMouseX(scaledResolution!!)
+        val my = Renderer.getMouseY(scaledResolution!!)
+        val mxd = mx.toDouble()
+        val myd = my.toDouble()
+        val insideBounds = inBounds(mxd, myd)
+
+        // Handle scroll
+        val scroll = Mouse.getDWheel()
+        if (scroll != 0 && insideBounds)
+            propagateMouseScroll(mxd, myd, scroll.sign)
+
+        // Handle mouseEnter/Hover/Leave
+        if (insideBounds) {
+            if (!mouseInBounds) propagateMouseEnter(mxd, myd)
+            propagateMouseHover(mxd, myd)
+        } else if (mouseInBounds) propagateMouseLeave(mxd, myd)
+
+        mouseInBounds = insideBounds
+
+        // Handle mouse click/release/drag
+        // without chick it couldn't be
+        for (btn in 0..Mouse.getButtonCount()) {
+            val oldState = mouseState[btn] ?: false
+            val btnState = Mouse.isButtonDown(btn)
+            if (oldState != btnState) {
+                mouseState[btn] = btnState
+
+                if (insideBounds) {
+                    if (oldState) propagateMouseRelease(mxd, myd, btn)
+                    else propagateMouseClick(mxd, myd, btn)
+                }
+
+                if (btnState) draggedState[btn] = State(mxd, myd)
+                else draggedState.remove(btn)
+            }
+
+            if (btn !in draggedState) continue
+            val state = draggedState[btn]
+            if (state!!.x == mxd && state.y == myd) continue
+
+            if (insideBounds) {
+                propagateMouseDrag(
+                    x - state.x,
+                    y - state.y,
+                    x,
+                    y,
+                    btn
+                )
+            }
+
+            draggedState[btn] = State(mxd, myd)
+        }
+    }
+
+    open fun propagateMouseScroll(x: Double, y: Double, delta: Int) {
+        val event = UIScrollEvent(x, y, delta, this)
+        onMouseScroll(event)
+        if (!event.propagate) return
+        for (child in children) {
+            child.onMouseScroll(event)
+            if (!event.propagate) break
+        }
+    }
+
+    open fun propagateMouseClick(x: Double, y: Double, button: Int) {
+        val event = UIClickEvent(x, y, button, this)
+        onMouseClick(event)
+        if (!event.propagate) return
+        for (child in children) {
+            child.onMouseClick(event)
+            if (!event.propagate) break
+        }
+    }
+
+    open fun propagateMouseRelease(x: Double, y: Double, button: Int) {
+        val event = UIClickEvent(x, y, button, this)
+        onMouseRelease(event)
+        if (!event.propagate) return
+        for (child in children) {
+            child.onMouseRelease(event)
+            if (!event.propagate) break
+        }
+    }
+
+    open fun propagateMouseEnter(x: Double, y: Double) {
+        val event = UIMouseEvent(x, y, this)
+        onMouseEnter(event)
+        if (!event.propagate) return
+        for (child in children) {
+            child.onMouseEnter(event)
+            if (!event.propagate) break
+        }
+    }
+
+    open fun propagateMouseLeave(x: Double, y: Double) {
+        val event = UIMouseEvent(x, y, this)
+        onMouseLeave(event)
+        if (!event.propagate) return
+        for (child in children) {
+            child.onMouseLeave(event)
+            if (!event.propagate) break
+        }
+    }
+
+    open fun propagateMouseHover(x: Double, y: Double) {
+        val event = UIMouseEvent(x, y, this)
+        onMouseHover(event)
+        if (!event.propagate) return
+        for (child in children) {
+            child.onMouseHover(event)
+            if (!event.propagate) break
+        }
+    }
+
+    open fun propagateMouseDrag(dx: Double, dy: Double, x: Double, y: Double, button: Int) {
+        val event = UIDragEvent(dx, dy, x, y, button, this)
+        onMouseDrag(event)
+        if (!event.propagate) return
+        for (child in children) {
+            child.onMouseDrag(event)
+            if (!event.propagate) break
+        }
+    }
+
     open fun handleResize(comp: UIBase, scaledResolution: ScaledResolution) {
+        markDirty()
         onResize(comp, scaledResolution)
         children.forEach { it.onResize(comp, scaledResolution) }
     }
@@ -311,9 +464,17 @@ open class UIBase @JvmOverloads constructor(
         onError(trace)
         children.forEach { it.onError(trace) }
     }
-    open fun handleMouseInputs() {}
     open fun onResize(comp: UIBase, scaledResolution: ScaledResolution) = apply {}
     open fun onError(trace: Array<out StackTraceElement>) = apply {}
+    // Mouse events
+    open fun onMouseClick(event: UIClickEvent) = apply {}
+    open fun onMouseDrag(event: UIDragEvent) = apply {}
+    open fun onMouseRelease(event: UIClickEvent) = apply {}
+    open fun onMouseEnter(event: UIMouseEvent) = apply {}
+    open fun onMouseHover(event: UIMouseEvent) = apply {}
+    open fun onMouseLeave(event: UIMouseEvent) = apply {}
+    open fun onMouseScroll(event: UIScrollEvent) = apply {}
+    // TODO: keyboard events
 
     /**
      * * This class represents the current boundaries of the component
