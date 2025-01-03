@@ -1,5 +1,6 @@
 package com.github.synnerz.talium.effects
 
+import com.github.synnerz.talium.shaders.ui.RoundedRectOutline
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
 import com.github.synnerz.talium.utils.Renderer.unbind
@@ -27,8 +28,14 @@ open class OutlineEffect @JvmOverloads constructor(
             )
             return
         }
-        // TODO: make the rounded rect logic here
-        // whenever shaders are done
+
+        RoundedRectOutline.drawRoundedRectOutline(
+            (component!!.x - width).toFloat(),
+            (component!!.y - width).toFloat(),
+            (component!!.width + width * 2).toFloat(),
+            (component!!.height + width * 2).toFloat(),
+            radius.toFloat()
+        )
     }
 
     override fun postDraw() {
