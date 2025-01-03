@@ -19,6 +19,7 @@ open class OutlineEffect @JvmOverloads constructor(
         if (width == 0.0 || color.alpha == 0) return
 
         color.bind()
+
         if (radius == 0.0) {
             Renderer.drawRect(
                 component!!.x - width,
@@ -34,11 +35,10 @@ open class OutlineEffect @JvmOverloads constructor(
             (component!!.y - width).toFloat(),
             (component!!.width + width * 2).toFloat(),
             (component!!.height + width * 2).toFloat(),
-            radius.toFloat()
+            radius.toFloat(),
+            width.toFloat()
         )
-    }
 
-    override fun postDraw() {
         color.unbind()
     }
 }
