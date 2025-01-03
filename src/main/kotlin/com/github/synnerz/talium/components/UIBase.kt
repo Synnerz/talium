@@ -6,6 +6,7 @@ import com.github.synnerz.talium.events.*
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Mouse
@@ -49,6 +50,7 @@ open class UIBase @JvmOverloads constructor(
         var onMouseDrag: ((event: UIDragEvent) -> Unit)? = null
         var onFocus: ((event: UIFocusEvent) -> Unit)? = null
         var onUnfocus: ((event: UIFocusEvent) -> Unit)? = null
+        var onKeyType: ((event: UIKeyType) -> Unit)? = null
     }
     /**
      * * Field to check whether this component is dirty or not
@@ -304,14 +306,13 @@ open class UIBase @JvmOverloads constructor(
         if (!effects.any { it.forceColor }) bgColor.bind()
 
         try {
-            // TODO: add keyboard event handlers here
-            effects.forEach { it.preDraw() }
-            preDraw()
-            render()
             // Handle mouse inputs if the component does not have a parent
             // this _should_ mean that the component is at the top of the hierarchy
             // so only this component needs to handle the inputs and pass them through
             if (parent == null) handleMouseInput()
+            effects.forEach { it.preDraw() }
+            preDraw()
+            render()
             effects.forEach { it.preChildDraw() }
             preChildDraw()
             // If the component was marked as dirty let's update it
@@ -331,7 +332,15 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
-    open fun handleKeyboardInput() {}
+    /**
+     * * Call this method inside a [GuiScreen]'s [GuiScreen.keyTyped]
+     * this will handle all the keytyped as well as only trigger if it's the highest component
+     * in the hierarchy
+     */
+    open fun handleKeyInput(keycode: Int, char: Char) {
+        if (parent != null || !focused) return
+        propagateKeyTyped(keycode, char)
+    }
 
     open fun handleMouseInput() {
         if (scaledResolution == null) return
@@ -499,6 +508,7 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
+    // TODO: fix whenever the parent gets called focus more than once it triggers multiple times
     open fun propagateFocus(x: Double, y: Double) {
         val event = UIFocusEvent(focused, this)
         onFocus(event)
@@ -529,6 +539,21 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
+    open fun propagateKeyTyped(keycode: Int, char: Char) {
+        val event = UIKeyType(keycode, char, this)
+        onKeyTyped(event)
+        onKeyType(event)
+        hooks.onKeyType?.invoke(event)
+        if (!event.propagate) return
+        for (child in children) {
+            if (!child.focused) continue
+            child.onKeyTyped(event)
+            child.onKeyType(event)
+            child.hooks.onKeyType?.invoke(event)
+            if (!event.propagate) break
+        }
+    }
+
     open fun handleResize(comp: UIBase, scaledResolution: ScaledResolution) {
         markDirty()
         onResize(comp, scaledResolution)
@@ -540,7 +565,7 @@ open class UIBase @JvmOverloads constructor(
     }
     open fun onResize(comp: UIBase, scaledResolution: ScaledResolution) = apply {}
     open fun onError(trace: Array<out StackTraceElement>) = apply {}
-    // Mouse events
+
     open fun onMouseClick(event: UIClickEvent) = apply {}
     open fun onMouseClick(cb: (event: UIClickEvent) -> Unit) = apply {
         hooks.onMouseClick = cb
@@ -581,7 +606,15 @@ open class UIBase @JvmOverloads constructor(
     open fun onLostFocus(cb: (event: UIFocusEvent) -> Unit) = apply {
         hooks.onUnfocus = cb
     }
-    // TODO: keyboard events
+
+    open fun onKeyType(event: UIKeyType) = apply {}
+    open fun onKeyType(cb: (event: UIKeyType) -> Unit) = apply {
+        hooks.onKeyType = cb
+    }
+    open fun onKeyTyped(event: UIKeyType) = apply {}
+    open fun onKeyTyped(cb: (event: UIKeyType) -> Unit) = apply {
+        hooks.onKeyType = cb
+    }
 
     /**
      * * This class represents the current boundaries of the component
