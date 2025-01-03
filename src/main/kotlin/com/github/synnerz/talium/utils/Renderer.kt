@@ -25,10 +25,10 @@ object Renderer {
 
     fun Color.bind() {
         GlStateManager.color(
-            this.red.toFloat(),
-            this.green.toFloat(),
-            this.blue.toFloat(),
-            this.alpha.toFloat()
+            this.red.toFloat() / 255f,
+            this.green.toFloat() / 255f,
+            this.blue.toFloat() / 255f,
+            this.alpha.toFloat() / 255f
         )
     }
 
