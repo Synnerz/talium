@@ -1,5 +1,6 @@
 package com.github.synnerz.talium.components
 
+import com.github.synnerz.talium.shaders.ui.RoundedRect
 import com.github.synnerz.talium.utils.Renderer
 
 open class UIRect @JvmOverloads constructor(
@@ -16,6 +17,6 @@ open class UIRect @JvmOverloads constructor(
             return
         }
 
-        // TODO: make rounded rect render whenever shaders are done
+        RoundedRect.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), radius.toFloat())
     }
 }
