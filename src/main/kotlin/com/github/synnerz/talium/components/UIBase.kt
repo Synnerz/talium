@@ -311,7 +311,6 @@ open class UIBase @JvmOverloads constructor(
         GlStateManager.disableTexture2D()
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
         GlStateManager.disableCull()
-        if (!effects.any { it.forceColor }) bgColor.bind()
 
         try {
             // Handle mouse inputs if the component does not have a parent
@@ -319,6 +318,7 @@ open class UIBase @JvmOverloads constructor(
             // so only this component needs to handle the inputs and pass them through
             if (parent == null) handleMouseInput()
             effects.forEach { it.preDraw() }
+            if (!effects.any { it.forceColor }) bgColor.bind()
             preDraw()
             render()
             effects.forEach { it.preChildDraw() }
