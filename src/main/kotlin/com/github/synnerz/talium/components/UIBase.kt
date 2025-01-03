@@ -2,10 +2,7 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.OutlineEffect
 import com.github.synnerz.talium.effects.UIEffect
-import com.github.synnerz.talium.events.UIClickEvent
-import com.github.synnerz.talium.events.UIDragEvent
-import com.github.synnerz.talium.events.UIMouseEvent
-import com.github.synnerz.talium.events.UIScrollEvent
+import com.github.synnerz.talium.events.*
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
 import net.minecraft.client.Minecraft
@@ -50,6 +47,8 @@ open class UIBase @JvmOverloads constructor(
         var onMouseHover: ((event: UIMouseEvent) -> Unit)? = null
         var onMouseLeave: ((event: UIMouseEvent) -> Unit)? = null
         var onMouseDrag: ((event: UIDragEvent) -> Unit)? = null
+        var onFocus: ((event: UIFocusEvent) -> Unit)? = null
+        var onUnfocus: ((event: UIFocusEvent) -> Unit)? = null
     }
     /**
      * * Field to check whether this component is dirty or not
@@ -58,6 +57,9 @@ open class UIBase @JvmOverloads constructor(
      * * i.e. if the window is resized this _should_ be marked as dirty, so it can recalculate the position etc
      */
     private var dirty: Boolean = true
+    private var mouseInBounds: Boolean = false
+    private val mouseState = mutableMapOf<Int, Boolean>()
+    private val draggedState = mutableMapOf<Int, State>()
     /**
      * * Used internally to scale the position and size of the component
      * as well as to trigger the [onResize] hook/listener
@@ -74,9 +76,7 @@ open class UIBase @JvmOverloads constructor(
     var height: Double = 0.0
     var bounds: Boundaries = Boundaries(-1.0, -1.0, -1.0, -1.0)
     open var bgColor: Color = Color(0, 0, 0, 0)
-    private var mouseInBounds: Boolean = false
-    private val mouseState = mutableMapOf<Int, Boolean>()
-    private val draggedState = mutableMapOf<Int, State>()
+    open var focused: Boolean = false
 
     data class State(var x: Double, var y: Double)
 
@@ -365,7 +365,25 @@ open class UIBase @JvmOverloads constructor(
 
                 if (insideBounds) {
                     if (oldState) propagateMouseRelease(mxd, myd, btn)
-                    else propagateMouseClick(mxd, myd, btn)
+                    else {
+                        propagateMouseClick(mxd, myd, btn)
+                        focused = true
+                        propagateFocus(mxd, myd)
+                    }
+                }
+                if (focused && !insideBounds) {
+                    focused = false
+                    propagateUnfocus(mxd, myd)
+                } else {
+                    val event = UIFocusEvent(false, this)
+                    for (child in children) {
+                        if (!child.focused || child.inBounds(mxd, myd)) continue
+                        child.focused = false
+                        child.onUnfocus(event)
+                        child.onLostFocus(event)
+                        child.hooks.onUnfocus?.invoke(event)
+                        if (!event.propagate) break
+                    }
                 }
 
                 if (btnState) draggedState[btn] = State(mxd, myd)
@@ -481,6 +499,36 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
+    open fun propagateFocus(x: Double, y: Double) {
+        val event = UIFocusEvent(focused, this)
+        onFocus(event)
+        hooks.onFocus?.invoke(event)
+        if (!event.propagate) return
+        for (child in children) {
+            if (child.focused || !child.inBounds(x, y)) continue
+            child.focused = focused
+            child.onFocus(event)
+            child.hooks.onFocus?.invoke(event)
+            if (!event.propagate) break
+        }
+    }
+
+    open fun propagateUnfocus(x: Double, y: Double) {
+        val event = UIFocusEvent(focused, this)
+        onUnfocus(event)
+        onLostFocus(event)
+        hooks.onUnfocus?.invoke(event)
+        if (!event.propagate) return
+        for (child in children) {
+            if (!child.focused) continue
+            child.focused = focused
+            child.onUnfocus(event)
+            child.onLostFocus(event)
+            child.hooks.onUnfocus?.invoke(event)
+            if (!event.propagate) break
+        }
+    }
+
     open fun handleResize(comp: UIBase, scaledResolution: ScaledResolution) {
         markDirty()
         onResize(comp, scaledResolution)
@@ -520,6 +568,18 @@ open class UIBase @JvmOverloads constructor(
     open fun onMouseScroll(event: UIScrollEvent) = apply {}
     open fun onMouseScroll(cb: (event: UIScrollEvent) -> Unit) = apply {
         hooks.onMouseScroll = cb
+    }
+    open fun onFocus(event: UIFocusEvent) = apply {}
+    open fun onFocus(cb: (event: UIFocusEvent) -> Unit) = apply {
+        hooks.onFocus = cb
+    }
+    open fun onUnfocus(event: UIFocusEvent) = apply {}
+    open fun onUnfocus(cb: (event: UIFocusEvent) -> Unit) = apply {
+        hooks.onUnfocus = cb
+    }
+    open fun onLostFocus(event: UIFocusEvent) = apply {}
+    open fun onLostFocus(cb: (event: UIFocusEvent) -> Unit) = apply {
+        hooks.onUnfocus = cb
     }
     // TODO: keyboard events
 
