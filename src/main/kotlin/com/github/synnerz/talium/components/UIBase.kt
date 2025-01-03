@@ -1,6 +1,7 @@
 package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.OutlineEffect
+import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.effects.UIEffect
 import com.github.synnerz.talium.events.*
 import com.github.synnerz.talium.utils.Renderer
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Mouse
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.sign
 
@@ -335,6 +337,10 @@ open class UIBase @JvmOverloads constructor(
             GlStateManager.enableTexture2D()
             GlStateManager.disableBlend()
             GlStateManager.enableCull()
+            if (ScissorEffect.scissorState) {
+                ScissorEffect.scissorState = false
+                GL11.glDisable(GL11.GL_SCISSOR_TEST)
+            }
         }
     }
 

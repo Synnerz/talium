@@ -20,9 +20,15 @@ open class ScissorEffect : UIEffect() {
             (x2 - x1).toInt() * scaleFactor,
             (y2 - y1).toInt() * scaleFactor
         )
+        scissorState = true
     }
 
     override fun postDraw() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST)
+        scissorState = false
+    }
+
+    companion object {
+        var scissorState: Boolean = false
     }
 }
