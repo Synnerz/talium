@@ -78,6 +78,7 @@ open class UIBase @JvmOverloads constructor(
     var height: Double = 0.0
     var bounds: Boundaries = Boundaries(-1.0, -1.0, -1.0, -1.0)
     open var bgColor: Color = Color(0, 0, 0, 0)
+    /** * Variable that lets the component be known if its focused or not, mostly used for keyboard inputs */
     open var focused: Boolean = false
 
     data class State(var x: Double, var y: Double)
@@ -247,6 +248,11 @@ open class UIBase @JvmOverloads constructor(
     open fun <T: UIEffect> removeEffects(clazz: Class<T>): Boolean = effects.removeIf { clazz.isInstance(it) }
 
     /**
+     * * Checks whether this component's [focused] variable is true or false
+     */
+    open fun hasFocus(): Boolean = focused
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
@@ -376,8 +382,7 @@ open class UIBase @JvmOverloads constructor(
                     if (oldState) propagateMouseRelease(mxd, myd, btn)
                     else {
                         propagateMouseClick(mxd, myd, btn)
-                        focused = true
-                        propagateFocus(mxd, myd)
+                        propagateFocus(true, mxd, myd)
                     }
                 }
                 if (focused && !insideBounds) {
@@ -508,11 +513,13 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
-    // TODO: fix whenever the parent gets called focus more than once it triggers multiple times
-    open fun propagateFocus(x: Double, y: Double) {
-        val event = UIFocusEvent(focused, this)
-        onFocus(event)
-        hooks.onFocus?.invoke(event)
+    open fun propagateFocus(state: Boolean, x: Double, y: Double) {
+        val event = UIFocusEvent(state, this)
+        if (focused != state) {
+            onFocus(event)
+            hooks.onFocus?.invoke(event)
+            focused = state
+        }
         if (!event.propagate) return
         for (child in children) {
             if (child.focused || !child.inBounds(x, y)) continue
