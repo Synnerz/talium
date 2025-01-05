@@ -19,12 +19,10 @@ open class Animation @JvmOverloads constructor(
         shouldAnimate = false
     }
 
-    open fun render() {
+    open fun preDraw() {
         if (!shouldAnimate) return
         if (System.currentTimeMillis() - animationStart >= maxTime) {
-            shouldAnimate = false
-            animationStart = 0L
-            return
+            stop()
         }
     }
 
