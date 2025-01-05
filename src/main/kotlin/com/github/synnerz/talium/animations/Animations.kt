@@ -171,5 +171,12 @@ enum class Animations : IAnimation {
 
             return (-(2f).pow(-10f * --n) + 2f) * 0.5f
         }
+    };
+
+    companion object {
+        fun getParameterByName(name: String): Animations {
+            return Animations.entries.find { it.name == name.uppercase().replace(" ", "_") }
+                ?: throw IllegalArgumentException("Talium Animations: unknown parameter \"$name\"")
+        }
     }
 }
