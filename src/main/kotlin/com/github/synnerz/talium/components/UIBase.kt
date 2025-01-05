@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import java.awt.Color
-import kotlin.jvm.Throws
 import kotlin.math.sign
 
 /**
