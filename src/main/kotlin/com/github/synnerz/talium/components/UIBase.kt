@@ -271,6 +271,7 @@ open class UIBase @JvmOverloads constructor(
         width = _width / 100 * parentWidth
         height = _height / 100 * parentHeight
         bounds = Boundaries(x, y, x + width, y + height)
+        onUpdate()
     }
 
     /**
@@ -370,9 +371,10 @@ open class UIBase @JvmOverloads constructor(
 
         // Handle mouseEnter/Hover/Leave
         if (insideBounds) {
-            if (!mouseInBounds) propagateMouseEnter(mxd, myd)
+            propagateMouseEnter(mxd, myd)
             propagateMouseHover(mxd, myd)
-        } else if (mouseInBounds) propagateMouseLeave(mxd, myd)
+        }
+        propagateMouseLeave(mxd, myd)
 
         mouseInBounds = insideBounds
 
@@ -469,11 +471,15 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateMouseEnter(x: Double, y: Double) {
         val event = UIMouseEvent(x, y, this)
-        onMouseEnter(event)
-        hooks.onMouseEnter?.invoke(event)
+        if (!mouseInBounds) {
+            onMouseEnter(event)
+            hooks.onMouseEnter?.invoke(event)
+            mouseInBounds = true
+        }
         if (!event.propagate) return
         for (child in children) {
-            if (!child.inBounds(x, y)) continue
+            if (!child.inBounds(x, y) || child.mouseInBounds) continue
+            child.mouseInBounds = true
             child.onMouseEnter(event)
             child.hooks.onMouseEnter?.invoke(event)
             if (!event.propagate) break
@@ -482,11 +488,15 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateMouseLeave(x: Double, y: Double) {
         val event = UIMouseEvent(x, y, this)
-        onMouseLeave(event)
-        hooks.onMouseLeave?.invoke(event)
+        if (mouseInBounds && !inBounds(x, y)) {
+            onMouseLeave(event)
+            hooks.onMouseLeave?.invoke(event)
+            mouseInBounds = false
+        }
         if (!event.propagate) return
         for (child in children) {
-            if (!child.inBounds(x, y)) continue
+            if (!child.mouseInBounds || child.inBounds(x, y)) continue
+            child.mouseInBounds = false
             child.onMouseLeave(event)
             child.hooks.onMouseLeave?.invoke(event)
             if (!event.propagate) break
@@ -628,6 +638,9 @@ open class UIBase @JvmOverloads constructor(
     open fun onKeyTyped(cb: (event: UIKeyType) -> Unit) = apply {
         hooks.onKeyType = cb
     }
+
+    open fun onUpdate() = apply {}
+    // TODO: maybe make a callback method for this too
 
     /**
      * * This class represents the current boundaries of the component
