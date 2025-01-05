@@ -1,5 +1,7 @@
 package com.github.synnerz.talium.components
 
+import com.github.synnerz.talium.animations.Animation
+import com.github.synnerz.talium.animations.Animations
 import com.github.synnerz.talium.effects.OutlineEffect
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.effects.UIEffect
@@ -13,6 +15,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import kotlin.jvm.Throws
 import kotlin.math.sign
 
 /**
@@ -82,6 +85,19 @@ open class UIBase @JvmOverloads constructor(
     open var bgColor: Color = Color(0, 0, 0, 0)
     /** * Variable that lets the component be known if its focused or not, mostly used for keyboard inputs */
     open var focused: Boolean = false
+    /**
+     * * These are the animations that this [UIBase] component will handle
+     * * Depending on where you want to use them or how to use them the base _should_
+     * handle some of the basics for you
+     */
+    /** * _Should_ be used whenever the component goes left-right or right-left */
+    open var xAnimation: Animation? = null
+    /** * _Should_ be used whenever the component goes top-bottom or bottom-top */
+    open var yAnimation: Animation? = null
+    /** * _Should_ be used whenever the component grows or shrinks in width */
+    open var widthAnimation: Animation? = null
+    /** * _Should_ be used whenever the component grows or shrinks in height */
+    open var heightAnimation: Animation? = null
 
     data class State(var x: Double, var y: Double)
 
@@ -255,6 +271,48 @@ open class UIBase @JvmOverloads constructor(
     open fun hasFocus(): Boolean = focused
 
     /**
+     * * Sets the [xAnimation] to the given [Animation] [name]
+     * * Note: If the animation was not found it will throw an [IllegalArgumentException]
+     * @param maxTime Maximum time the animation should last for in milliseconds
+     */
+    @JvmOverloads
+    open fun setXAnimation(name: String, maxTime: Float = 500f) = apply {
+        xAnimation = Animation(Animations.getParameterByName(name), maxTime)
+    }
+
+    /**
+     * * Sets the [yAnimation] to the given [Animation] [name]
+     * * Note: If the animation was not found it will throw an [IllegalArgumentException]
+     * @param maxTime Maximum time the animation should last for in milliseconds
+     */
+    open fun setYAnimation(name: String, maxTime: Float = 500f) = apply {
+        yAnimation = Animation(Animations.getParameterByName(name), maxTime)
+    }
+
+    /**
+     * * Sets the [widthAnimation] to the given [Animation] [name]
+     * * Note: If the animation was not found it will throw an [IllegalArgumentException]
+     * @param maxTime Maximum time the animation should last for in milliseconds
+     */
+    open fun setWidthAnimation(name: String, maxTime: Float = 500f) = apply {
+        widthAnimation = Animation(Animations.getParameterByName(name), maxTime)
+    }
+
+    /**
+     * * Sets the [heightAnimation] to the given [Animation] [name]
+     * * Note: If the animation was not found it will throw an [IllegalArgumentException]
+     * @param maxTime Maximum time the animation should last for in milliseconds
+     */
+    open fun setHeightAnimation(name: String, maxTime: Float = 500f) = apply {
+        heightAnimation = Animation(Animations.getParameterByName(name), maxTime)
+    }
+
+    /**
+     * * Checks whether this [UIBase] component is dirty
+     */
+    open fun isDirty(): Boolean = dirty
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
@@ -320,6 +378,12 @@ open class UIBase @JvmOverloads constructor(
             if (parent == null) handleMouseInput()
             effects.forEach { it.preDraw() }
             if (!effects.any { it.forceColor }) bgColor.bind()
+            // Prepare animations here so the user does not need to do so
+            xAnimation?.preDraw()
+            yAnimation?.preDraw()
+            widthAnimation?.preDraw()
+            heightAnimation?.preDraw()
+            // End
             preDraw()
             render()
             effects.forEach { it.preChildDraw() }
