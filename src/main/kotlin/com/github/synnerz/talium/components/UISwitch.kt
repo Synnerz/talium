@@ -9,6 +9,9 @@ import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
 import java.awt.Color
 
+/**
+ * * Switch component that handles the state as well as the animation and colors
+ */
 open class UISwitch @JvmOverloads constructor(
     _x: Double,
     _y: Double,
@@ -18,35 +21,39 @@ open class UISwitch @JvmOverloads constructor(
     var state: Boolean = false,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
-    var enabledColor: Color? = null
-    var knob = UIKnobSwitch(radius = radius)
-    // TODO: make animation be handled in the [UIBase] component
-    var xAnimation = Animation(Animations.QUAD_IN_OUT)
+    open var enabledColor: Color? = null
+    open var knob = UIKnobSwitch(radius = radius, parent = this)
+        set(value) {
+            // Make sure that the [knob] has [this] switch as a parent
+            // In case the [UIKnobSwitch] was miss-constructed
+            if (!value.hasParent()) value.setChildOf(this)
+            field = value
+        }
+    open var initial: Boolean = true
+    override var xAnimation: Animation? = Animation(Animations.QUAD_IN_OUT)
 
     override fun onUpdate() = apply {
-        knob.x = -1.0
-        // knob.height = -1.0
+        initial = true
     }
 
     override fun render() {
         if (enabledColor == null) enabledColor = bgColor.brighter()
         if (state) enabledColor!!.bind()
         else bgColor.bind()
-        // TODO: remove this whenever [UIBase] handles animations
-        xAnimation.render()
         // Draw the background rect
         if (radius == 0.0) Renderer.drawRect(x, y, width, height)
         else RoundedRect.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), radius.toFloat())
 
         // Draw the knob
-        if (knob.x == -1.0) {
+        if (initial) {
             if (state) knob.x = x + 2 + (width - (width / 5)) - 4
             else knob.x = x + 2
+            initial = false
         }
         if (knob.height <= 0.0) knob.height = height / 2
 
-        if (xAnimation.shouldAnimate) {
-            val ease = xAnimation.getEase()
+        if (xAnimation!!.shouldAnimate) {
+            val ease = xAnimation!!.getEase()
 
             knob.x =
                 if (state) rescale(ease, 0.0, 1.0, knob.x, x + 2 + (width - (width / 5)) - 4)
@@ -72,18 +79,24 @@ open class UISwitch @JvmOverloads constructor(
 
     override fun onMouseClick(event: UIClickEvent) = apply {
         state = !state
-        xAnimation.start()
+        xAnimation!!.start()
     }
 }
 
-// TODO: make this a component or something as well as making the height % based
+/**
+ * * This is the `knob` of the [UISwitch] component.
+ * * Only the [_height] is taken into consideration since it centers the knob based off of that
+ * inside the [UISwitch] component
+ * * You can change the [enabledColor] and/or [disabledColor]
+ * @param _height Height in percent `0-100`
+ */
 open class UIKnobSwitch @JvmOverloads constructor(
-    var height: Double = -1.0,
-    var radius: Double = 0.0
-) {
-    var enabledColor: Color = Color(0, 255, 0,  255)
-    var disabledColor: Color = Color(255, 0, 0,  255)
-    var x: Double = -1.0
-    var y: Double = 0.0
-    var width: Double = 0.0
+    _height: Double = -1.0,
+    var radius: Double = 0.0,
+    parent: UIBase? = null
+) : UIBase(0.0, 0.0, 0.0, _height, parent) {
+    /** * The color of this `knob` whenever the [UISwitch.state] is `true` */
+    open var enabledColor: Color = Color(0, 255, 0,  255)
+    /** * The color of this `knob` whenever the [UISwitch.state] is `false` */
+    open var disabledColor: Color = Color(255, 0, 0,  255)
 }
