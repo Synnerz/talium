@@ -37,7 +37,6 @@ open class UITextInput @JvmOverloads constructor(
 
     override fun render() {
         // TODO: add wrapped text or scissors effect to not go off bound
-        // TODO: fix text scale on blinking `_`/`|` being offset by too much
         if (radius == 0.0) {
             Renderer.drawRect(x, y, width, height)
             if (textScale != 1f) {
@@ -53,10 +52,6 @@ open class UITextInput @JvmOverloads constructor(
                 (y + heightCenter).toFloat() / textScale
                 )
 
-            if (textScale != 1f) {
-                GlStateManager.popMatrix()
-            }
-
             if (focused) {
                 if (cursorAnimation.shouldAnimate) {
                     val ease = cursorAnimation.getEase()
@@ -66,22 +61,33 @@ open class UITextInput @JvmOverloads constructor(
                     shouldBlink = ease >= 1.4f
                 } else cursorAnimation.start()
 
-                val n = text.substring(0, cursorPos).getWidth() + 2.0 / textScale
+                val n = (text.substring(0, cursorPos).getWidth() + 2f) * textScale
                 // Check whether the current [cursorPos] is equals to the max string length
                 // this means that the cursor is at the end, so we can change the rendering to be `_` instead of `|`
                 if (cursorPos == text.length) {
                     // Scuffed blinking but it works i guess
                     if (!shouldBlink)
-                        Renderer.drawString("_", ((x + n) / textScale).toFloat(), ((y + 2.0) / textScale).toFloat(), color = cursorColorText)
+                        Renderer.drawString(
+                            "_",
+                            (x.toFloat() + n) / textScale,
+                            (y + heightCenter).toFloat() / textScale,
+                            color = cursorColorText)
                 }
                 // Else we render the blinking `|`
                 else {
                     GlStateManager.color(0f, 0f, 255f, cursorAlpha.toFloat())
                     GlStateManager.enableColorLogic()
                     GlStateManager.colorLogicOp(5387)
-                    Renderer.drawRect((x + n) / textScale, (y + 2.0) / textScale, 1.0, height - 4.0)
+                    Renderer.drawRect(
+                        (x + n) / textScale,
+                        (y + heightCenter) / textScale,
+                        1.0,
+                        height - 4.0)
                     GlStateManager.disableColorLogic()
                 }
+            }
+            if (textScale != 1f) {
+                GlStateManager.popMatrix()
             }
             return
         }
