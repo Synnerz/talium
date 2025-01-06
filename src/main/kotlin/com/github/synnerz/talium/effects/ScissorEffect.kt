@@ -13,7 +13,7 @@ open class ScissorEffect : UIEffect() {
         val ( x1, y1, x2, y2 ) = component!!.bounds
         if (x1 == -1.0) return
 
-        GL11.glEnable(GL11.GL_SCISSOR_TEST)
+        if (!scissorState) GL11.glEnable(GL11.GL_SCISSOR_TEST)
         GL11.glScissor(
             x1.toInt() * scaleFactor,
             ((component!!.scaledResolution?.scaledHeight ?: 0) - y2.toInt()) * scaleFactor,
