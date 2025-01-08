@@ -312,6 +312,32 @@ open class UIBase @JvmOverloads constructor(
     open fun isDirty(): Boolean = dirty
 
     /**
+     * * Replaces the specified child with a new one
+     * @returns a boolean that specifies whether the component was successfully replaced or not
+     */
+    open fun replaceChild(newComp: UIBase, oldComp: UIBase): Boolean {
+        val idx = children.indexOf(oldComp)
+        if (idx == -1) return false
+
+        newComp.parent = this
+        children.removeAt(idx)
+        children.add(idx, newComp)
+        return true
+    }
+
+    /**
+     * * Inserts the specified child into the specified index
+     * @returns a boolean that specifies whether the component was successfully inserted or not
+     */
+    open fun insertChild(comp: UIBase, idx: Int): Boolean {
+        if (idx < 0 || idx > children.size) return false
+
+        comp.parent = this
+        children.add(idx, comp)
+        return true
+    }
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
