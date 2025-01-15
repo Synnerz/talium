@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.WorldRenderer
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.StringUtils
 import org.lwjgl.input.Mouse
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 object Renderer {
@@ -18,13 +19,23 @@ object Renderer {
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
 
     @JvmOverloads
-    fun drawRect(x: Double, y: Double, width: Double, height: Double, solid: Boolean = true) = apply {
+    fun drawRect(x: Double, y: Double, width: Double, height: Double, solid: Boolean = true) {
         worldRenderer.begin(if (solid) 6 else 2, DefaultVertexFormats.POSITION)
         worldRenderer.pos(x, y + height, 0.0).endVertex()
         worldRenderer.pos(x + width, y + height, 0.0).endVertex()
         worldRenderer.pos(x + width, y, 0.0).endVertex()
         worldRenderer.pos(x, y, 0.0).endVertex()
         tessellator.draw()
+    }
+
+    @JvmOverloads
+    fun drawInvertedColRect(x: Double, y: Double, width: Double, height: Double, alpha: Float = 255f) {
+        if (width >= x || height >= y) return
+        GlStateManager.color(0f, 0f, 255f, alpha)
+        GlStateManager.enableColorLogic()
+        GlStateManager.colorLogicOp(GL11.GL_OR_REVERSE)
+        drawRect(x, y, width, height)
+        GlStateManager.disableColorLogic()
     }
 
     fun Color.bind() {
@@ -55,7 +66,7 @@ object Renderer {
     }
 
     @JvmOverloads
-    fun drawString(text: String, x: Float, y: Float, shadow: Boolean = false, color: Int = WHITE) = apply {
+    fun drawString(text: String, x: Float, y: Float, shadow: Boolean = false, color: Int = WHITE) {
         var _y = y
         GlStateManager.enableTexture2D()
         text.split('\n').forEach {
