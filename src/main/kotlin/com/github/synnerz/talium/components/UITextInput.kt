@@ -11,6 +11,7 @@ import com.github.synnerz.talium.utils.Renderer.getWidth
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * * Component that handles input-like behavior
@@ -28,11 +29,44 @@ open class UITextInput @JvmOverloads constructor(
     var cursorPos: Int = 0
     var textScale: Float = 1f
     var cursorAlpha: Double = 255.0
-    var cursorColorText: Int = 14737632
     var shouldBlink: Boolean = false
+    var selectionPos: Int = 0
 
     override fun preDraw() {
         cursorAnimation.preDraw()
+    }
+
+    fun getSelectionLeft(): Int {
+        return min(selectionPos, cursorPos).coerceIn(0, text.length)
+    }
+
+    fun getSelectionRight(): Int {
+        return max(selectionPos, cursorPos).coerceIn(0, text.length)
+    }
+
+    open fun getSelectedText()
+        = text.substring(getSelectionLeft(), getSelectionRight())
+
+    fun deleteText(from: Int, to: Int): String {
+        if (from >= to || from < 0 || to > text.length) return ""
+        val deleted = text.substring(from, to)
+        text = text.substring(0, from) + text.substring(to)
+        return deleted
+    }
+
+    open fun deleteText() {
+        if (cursorPos == selectionPos && cursorPos > 0) {
+            text = text.substring(0, cursorPos - 1) + text.substring(cursorPos)
+            cursorPos--
+            selectionPos = cursorPos
+            return
+        }
+        val from = getSelectionLeft()
+        val to = getSelectionRight()
+
+        deleteText(from, to)
+        cursorPos = from
+        selectionPos = from
     }
 
     override fun render() {
@@ -45,7 +79,7 @@ open class UITextInput @JvmOverloads constructor(
             }
 
             val textHeight = 9f * textScale
-            val heightCenter = (height - textHeight) / 2
+            val heightCenter = (height - textHeight) / 2.0
             Renderer.drawString(
                 text,
                 (x.toFloat() + 2f) / textScale,
@@ -71,20 +105,28 @@ open class UITextInput @JvmOverloads constructor(
                             "_",
                             (x.toFloat() + n) / textScale,
                             (y + heightCenter).toFloat() / textScale,
-                            color = cursorColorText)
+                            color = 14737632)
                 }
                 // Else we render the blinking `|`
                 else {
-                    GlStateManager.color(0f, 0f, 255f, cursorAlpha.toFloat())
-                    GlStateManager.enableColorLogic()
-                    GlStateManager.colorLogicOp(5387)
-                    Renderer.drawRect(
+                    Renderer.drawInvertedColRect(
                         (x + n) / textScale,
                         (y + heightCenter) / textScale,
                         1.0,
-                        height - 4.0)
-                    GlStateManager.disableColorLogic()
+                        height - 4.0,
+                        cursorAlpha.toFloat()
+                    )
                 }
+
+                // Drawing selection
+                val right = getSelectedText().getWidth().toDouble()
+                val left = text.substring(0, getSelectionLeft()).getWidth().toDouble() * textScale
+                Renderer.drawInvertedColRect(
+                    (x + 2.0 + left) / textScale,
+                    (y + heightCenter) / textScale,
+                    right,
+                    height - 4.0
+                )
             }
             if (textScale != 1f) {
                 GlStateManager.popMatrix()
@@ -105,20 +147,38 @@ open class UITextInput @JvmOverloads constructor(
     override fun onUnfocus(event: UIFocusEvent) = apply {
         cursorAnimation.stop()
         shouldBlink = false
+        cursorPos = text.length
+        selectionPos = cursorPos
     }
+    // TODO: mouse to cursor position for cursor selection when clicking on the text input
+    // TODO: mouse drag selection to select text whenever the user drags the mouse on the text input
 
     override fun onKeyType(event: UIKeyType) = apply {
         val c = event.char
         val keycode = event.keycode
         var char = if (c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
+        val isShifting = Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
+        val isCtrl = Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
+
+        if (isCtrl) {
+            when (keycode) {
+                // TODO: copy, paste, cut, undo
+                Keyboard.KEY_A -> {
+                    cursorPos = 0
+                    selectionPos = text.length
+                    return@apply
+                }
+            }
+        }
+
         when (keycode) {
+            // TODO: next word (holding ctrl) jumps
             Keyboard.KEY_ESCAPE -> {
                 focused = false
                 propagateUnfocus(-1.0, -1.0)
             }
             Keyboard.KEY_BACK -> {
-                text = text.substring(0, max(text.length - 1, 0))
-                if (cursorPos != 0) cursorPos--
+                deleteText()
             }
             Keyboard.KEY_HOME -> {
                 cursorPos = 0
@@ -127,20 +187,22 @@ open class UITextInput @JvmOverloads constructor(
                 cursorPos = text.length
             }
             Keyboard.KEY_RIGHT -> {
-                if (cursorPos >= text.length) return@apply
-                cursorPos++
+                if (cursorPos != text.length) cursorPos++
             }
             Keyboard.KEY_LEFT -> {
-                if (cursorPos == 0) return@apply
-                cursorPos--
+                if (cursorPos != 0) cursorPos--
             }
             else -> {
-                if (!isAllowedCharacter(char)) return@apply
-                if (char == '\r') char = '\n'
-                text += char.toString()
-                if (cursorPos < text.length) cursorPos++
+                if (isAllowedCharacter(char)) {
+                    // TODO: add maxLength check
+                    if (char == '\r') char = '\n'
+                    text = text.substring(0, cursorPos) + char + text.substring(cursorPos)
+                    cursorPos++
+                }
             }
         }
+
+        if (!isShifting) selectionPos = cursorPos
     }
 
     companion object {
