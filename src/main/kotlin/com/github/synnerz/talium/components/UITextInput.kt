@@ -71,77 +71,79 @@ open class UITextInput @JvmOverloads constructor(
 
     override fun render() {
         // TODO: add wrapped text or scissors effect to not go off bound
-        if (radius == 0.0) {
-            Renderer.drawRect(x, y, width, height)
-            if (textScale != 1f) {
-                GlStateManager.pushMatrix()
-                GlStateManager.scale(textScale, textScale, 0f)
+        when (radius) {
+            0.0 -> {
+                Renderer.drawRect(x, y, width, height)
             }
-
-            val textHeight = 9f * textScale
-            val heightCenter = (height - textHeight) / 2.0
-            Renderer.drawString(
-                text,
-                (x.toFloat() + 2f) / textScale,
-                (y + heightCenter).toFloat() / textScale
-                )
-
-            if (focused) {
-                if (cursorAnimation.shouldAnimate) {
-                    val ease = cursorAnimation.getEase()
-                    val newMin = if (cursorAlpha == 255.0) 255.0 else 0.0
-                    val newMax = if (cursorAlpha == 255.0) 0.0 else 255.0
-                    cursorAlpha = MathLib.rescale(ease, 0.0, 1.0, newMin, newMax)
-                    shouldBlink = ease >= 1.4f
-                } else cursorAnimation.start()
-
-                val n = (text.substring(0, cursorPos).getWidth() + 2f) * textScale
-                // Check whether the current [cursorPos] is equals to the max string length
-                // this means that the cursor is at the end, so we can change the rendering to be `_` instead of `|`
-                if (cursorPos == text.length) {
-                    // Scuffed blinking but it works i guess
-                    if (!shouldBlink)
-                        Renderer.drawString(
-                            "_",
-                            (x.toFloat() + n) / textScale,
-                            (y + heightCenter).toFloat() / textScale,
-                            color = 14737632)
-                }
-                // Else we render the blinking `|`
-                else {
-                    Renderer.drawInvertedColRect(
-                        (x + n) / textScale,
-                        (y + heightCenter) / textScale,
-                        1.0,
-                        height - 4.0,
-                        cursorAlpha.toFloat()
-                    )
-                }
-
-                // Drawing selection
-                val right = getSelectedText().getWidth().toDouble()
-                val left = text.substring(0, getSelectionLeft()).getWidth().toDouble() * textScale
-                Renderer.drawInvertedColRect(
-                    (x + 2.0 + left) / textScale,
-                    (y + heightCenter) / textScale,
-                    right,
-                    height - 4.0
+            else -> {
+                RoundedRect.drawRoundedRect(
+                    x.toFloat(),
+                    y.toFloat(),
+                    width.toFloat(),
+                    height.toFloat(),
+                    radius.toFloat()
                 )
             }
-            if (textScale != 1f) {
-                GlStateManager.popMatrix()
-            }
-            return
         }
 
-        // TODO: finish this part
-        RoundedRect.drawRoundedRect(
-            x.toFloat(),
-            y.toFloat(),
-            width.toFloat(),
-            height.toFloat(),
-            radius.toFloat()
+        if (textScale != 1f) {
+            GlStateManager.pushMatrix()
+            GlStateManager.scale(textScale, textScale, 0f)
+        }
+
+        val textHeight = 9f * textScale
+        val heightCenter = (height - textHeight) / 2.0
+        Renderer.drawString(
+            text,
+            (x.toFloat() + 2f) / textScale,
+            (y + heightCenter).toFloat() / textScale
         )
+
+        if (focused) {
+            if (cursorAnimation.shouldAnimate) {
+                val ease = cursorAnimation.getEase()
+                val newMin = if (cursorAlpha == 255.0) 255.0 else 0.0
+                val newMax = if (cursorAlpha == 255.0) 0.0 else 255.0
+                cursorAlpha = MathLib.rescale(ease, 0.0, 1.0, newMin, newMax)
+                shouldBlink = ease >= 1.4f
+            } else cursorAnimation.start()
+
+            val n = (text.substring(0, cursorPos).getWidth() + 2f) * textScale
+            // Check whether the current [cursorPos] is equals to the max string length
+            // this means that the cursor is at the end, so we can change the rendering to be `_` instead of `|`
+            if (cursorPos == text.length) {
+                // Scuffed blinking but it works i guess
+                if (!shouldBlink)
+                    Renderer.drawString(
+                        "_",
+                        (x.toFloat() + n) / textScale,
+                        (y + heightCenter).toFloat() / textScale,
+                        color = 14737632)
+            }
+            // Else we render the blinking `|`
+            else {
+                Renderer.drawInvertedColRect(
+                    (x + n) / textScale,
+                    (y + heightCenter) / textScale,
+                    1.0,
+                    height - 4.0,
+                    cursorAlpha.toFloat()
+                )
+            }
+
+            // Drawing selection
+            val right = getSelectedText().getWidth().toDouble()
+            val left = text.substring(0, getSelectionLeft()).getWidth().toDouble() * textScale
+            Renderer.drawInvertedColRect(
+                (x + 2.0 + left) / textScale,
+                (y + heightCenter) / textScale,
+                right,
+                height - 4.0
+            )
+        }
+        if (textScale != 1f) {
+            GlStateManager.popMatrix()
+        }
     }
 
     override fun onUnfocus(event: UIFocusEvent) = apply {
