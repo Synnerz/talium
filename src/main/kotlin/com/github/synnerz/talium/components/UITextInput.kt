@@ -37,18 +37,13 @@ open class UITextInput @JvmOverloads constructor(
         cursorAnimation.preDraw()
     }
 
-    fun getSelectionLeft(): Int {
-        return min(selectionPos, cursorPos).coerceIn(0, text.length)
-    }
+    open fun getSelectionLeft() = min(selectionPos, cursorPos).coerceIn(0, text.length)
 
-    fun getSelectionRight(): Int {
-        return max(selectionPos, cursorPos).coerceIn(0, text.length)
-    }
+    open fun getSelectionRight() = max(selectionPos, cursorPos).coerceIn(0, text.length)
 
-    open fun getSelectedText()
-        = text.substring(getSelectionLeft(), getSelectionRight())
+    open fun getSelectedText() = text.substring(getSelectionLeft(), getSelectionRight())
 
-    fun deleteText(from: Int, to: Int): String {
+    open fun deleteText(from: Int, to: Int): String {
         if (from >= to || from < 0 || to > text.length) return ""
         val deleted = text.substring(from, to)
         text = text.substring(0, from) + text.substring(to)
@@ -68,6 +63,32 @@ open class UITextInput @JvmOverloads constructor(
         deleteText(from, to)
         cursorPos = from
         selectionPos = from
+    }
+
+    open fun getPreviousWord(): Int {
+        var length = 0
+        var inWord = false
+
+        for (i in cursorPos - 1 downTo 0) {
+            if (text[i] != ' ') inWord = true
+            else if (inWord && text[i] == ' ') return length
+            length++
+        }
+
+        return length
+    }
+
+    open fun getNextWord(): Int {
+        var length = 0
+        var inWord = false
+
+        for (i in cursorPos until text.length) {
+            if (text[i] != ' ') inWord = true
+            else if (inWord && text[i] == ' ') return length
+            length++
+        }
+
+        return length
     }
 
     override fun render() {
@@ -156,13 +177,13 @@ open class UITextInput @JvmOverloads constructor(
     // TODO: mouse to cursor position for cursor selection when clicking on the text input
     // TODO: mouse drag selection to select text whenever the user drags the mouse on the text input
 
-    fun write(str: String) {
+    open fun write(str: String) {
         for (c in str.toCharArray()) {
             write(c)
         }
     }
 
-    fun write(c: Char) {
+    open fun write(c: Char) {
         if (!isAllowedCharacter(c)) return
         if (selectionPos != cursorPos) deleteText()
         var char = c
@@ -205,7 +226,6 @@ open class UITextInput @JvmOverloads constructor(
         }
 
         when (keycode) {
-            // TODO: next word (holding ctrl) jumps
             Keyboard.KEY_ESCAPE -> {
                 focused = false
                 propagateUnfocus(-1.0, -1.0)
@@ -225,10 +245,16 @@ open class UITextInput @JvmOverloads constructor(
                 cursorPos = text.length
             }
             Keyboard.KEY_RIGHT -> {
-                if (cursorPos != text.length) cursorPos++
+                if (cursorPos != text.length) {
+                    if (isCtrl) cursorPos += getNextWord()
+                    else cursorPos++
+                }
             }
             Keyboard.KEY_LEFT -> {
-                if (cursorPos != 0) cursorPos--
+                if (cursorPos != 0) {
+                    if (isCtrl) cursorPos -= getPreviousWord()
+                    else cursorPos--
+                }
             }
             else -> {
                 write(char)
