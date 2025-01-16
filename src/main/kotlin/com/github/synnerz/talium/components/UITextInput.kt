@@ -213,7 +213,6 @@ open class UITextInput @JvmOverloads constructor(
         if (maxLength != 0 && text.length >= maxLength) return
 
         var char = c
-        // TODO: add maxLength check
         if (char == '\r') char = '\n'
         text = text.substring(0, cursorPos) + char + text.substring(cursorPos)
         cursorPos++
