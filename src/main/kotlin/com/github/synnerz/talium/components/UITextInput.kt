@@ -8,6 +8,7 @@ import com.github.synnerz.talium.shaders.ui.RoundedRect
 import com.github.synnerz.talium.utils.MathLib
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
+import com.github.synnerz.talium.utils.Renderer.trimToWidth
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
@@ -32,10 +33,10 @@ open class UITextInput @JvmOverloads constructor(
     var cursorAlpha: Double = 255.0
     var shouldBlink: Boolean = false
     var selectionPos: Int = 0
+    open var maxLength: Int = 32
+    open var currentOffset: Int = 0
 
-    override fun preDraw() {
-        cursorAnimation.preDraw()
-    }
+    override fun preDraw() = cursorAnimation.preDraw()
 
     open fun getSelectionLeft() = min(selectionPos, cursorPos).coerceIn(0, text.length)
 
@@ -91,8 +92,20 @@ open class UITextInput @JvmOverloads constructor(
         return length
     }
 
+    open fun updateOffset() {
+        // TODO: fix offset making the text going off bound whenever it gets changed drastically
+        // TODO: perhaps just add scissors effect and call it
+        currentOffset = min(currentOffset, cursorPos)
+        val str = text.substring(currentOffset, cursorPos)
+        val currWidth = str.getWidth() * textScale
+        if (currWidth > width) {
+            val nw = str.trimToWidth(width).length
+            currentOffset = (cursorPos - nw).coerceAtLeast(0)
+        }
+    }
+
     override fun render() {
-        // TODO: add wrapped text or scissors effect to not go off bound
+        updateOffset()
         when (radius) {
             0.0 -> {
                 Renderer.drawRect(x, y, width, height)
@@ -115,8 +128,9 @@ open class UITextInput @JvmOverloads constructor(
 
         val textHeight = 9f * textScale
         val heightCenter = (height - textHeight) / 2.0
+        val ctext = text.substring(currentOffset)
         Renderer.drawString(
-            text,
+            ctext,
             (x.toFloat() + 2f) / textScale,
             (y + heightCenter).toFloat() / textScale
         )
@@ -130,7 +144,7 @@ open class UITextInput @JvmOverloads constructor(
                 shouldBlink = ease >= 1.4f
             } else cursorAnimation.start()
 
-            val n = (text.substring(0, cursorPos).getWidth() + 2f) * textScale
+            val n = (ctext.substring(0, cursorPos - currentOffset).getWidth() + 2f) * textScale
             // Check whether the current [cursorPos] is equals to the max string length
             // this means that the cursor is at the end, so we can change the rendering to be `_` instead of `|`
             if (cursorPos == text.length) {
@@ -154,8 +168,15 @@ open class UITextInput @JvmOverloads constructor(
             }
 
             // Drawing selection
-            val right = getSelectedText().getWidth().toDouble()
-            val left = text.substring(0, getSelectionLeft()).getWidth().toDouble() * textScale
+            val right = ctext.substring(
+                (getSelectionLeft() - currentOffset).coerceIn(0, ctext.length),
+                (getSelectionRight() - currentOffset).coerceIn(0, ctext.length)
+            ).getWidth().toDouble()
+            val left = ctext.substring(
+                0,
+                (getSelectionLeft() - currentOffset).coerceIn(0, ctext.length)
+            ).getWidth().toDouble() * textScale
+
             Renderer.drawInvertedColRect(
                 (x + 2.0 + left) / textScale,
                 (y + heightCenter) / textScale,
@@ -186,6 +207,11 @@ open class UITextInput @JvmOverloads constructor(
     open fun write(c: Char) {
         if (!isAllowedCharacter(c)) return
         if (selectionPos != cursorPos) deleteText()
+        // Avoid adding to the string if the text length is over the maximum length
+        // if maxLength is `0` that means it's infinite, so we have to check whether
+        // this variable is set to infinite or not
+        if (maxLength != 0 && text.length >= maxLength) return
+
         var char = c
         // TODO: add maxLength check
         if (char == '\r') char = '\n'

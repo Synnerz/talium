@@ -76,5 +76,7 @@ object Renderer {
         GlStateManager.disableTexture2D()
     }
 
+    fun String.trimToWidth(width: Double): String = fontRenderer.trimStringToWidth(this, width.toInt())
+
     fun String.getWidth() = fontRenderer.getStringWidth(StringUtils.stripControlCodes(this))
 }
