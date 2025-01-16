@@ -8,6 +8,7 @@ import com.github.synnerz.talium.shaders.ui.RoundedRect
 import com.github.synnerz.talium.utils.MathLib
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
+import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import kotlin.math.max
@@ -155,21 +156,51 @@ open class UITextInput @JvmOverloads constructor(
     // TODO: mouse to cursor position for cursor selection when clicking on the text input
     // TODO: mouse drag selection to select text whenever the user drags the mouse on the text input
 
+    fun write(str: String) {
+        for (c in str.toCharArray()) {
+            write(c)
+        }
+    }
+
+    fun write(c: Char) {
+        if (!isAllowedCharacter(c)) return
+        if (selectionPos != cursorPos) deleteText()
+        var char = c
+        // TODO: add maxLength check
+        if (char == '\r') char = '\n'
+        text = text.substring(0, cursorPos) + char + text.substring(cursorPos)
+        cursorPos++
+        selectionPos = cursorPos
+    }
+
     override fun onKeyType(event: UIKeyType) = apply {
         val c = event.char
         val keycode = event.keycode
-        var char = if (c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
+        val char = if (c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
         val isShifting = Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
         val isCtrl = Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
 
         if (isCtrl) {
             when (keycode) {
-                // TODO: copy, paste, cut, undo
                 Keyboard.KEY_A -> {
                     cursorPos = 0
                     selectionPos = text.length
                     return@apply
                 }
+                Keyboard.KEY_C -> {
+                    GuiScreen.setClipboardString(getSelectedText())
+                    return@apply
+                }
+                Keyboard.KEY_V -> {
+                    write(GuiScreen.getClipboardString())
+                    return@apply
+                }
+                Keyboard.KEY_X -> {
+                    GuiScreen.setClipboardString(getSelectedText())
+                    deleteText()
+                    return@apply
+                }
+                // TODO: maybe do undo but not important
             }
         }
 
@@ -181,6 +212,11 @@ open class UITextInput @JvmOverloads constructor(
             }
             Keyboard.KEY_BACK -> {
                 deleteText()
+                return@apply
+            }
+            Keyboard.KEY_DELETE -> {
+                deleteText()
+                return@apply
             }
             Keyboard.KEY_HOME -> {
                 cursorPos = 0
@@ -195,12 +231,8 @@ open class UITextInput @JvmOverloads constructor(
                 if (cursorPos != 0) cursorPos--
             }
             else -> {
-                if (isAllowedCharacter(char)) {
-                    // TODO: add maxLength check
-                    if (char == '\r') char = '\n'
-                    text = text.substring(0, cursorPos) + char + text.substring(cursorPos)
-                    cursorPos++
-                }
+                write(char)
+                return@apply
             }
         }
 
