@@ -76,6 +76,18 @@ object Renderer {
         GlStateManager.disableTexture2D()
     }
 
+    fun String.trimToWidth(width: Double, scale: Float): String {
+        var totalWidth = 0f
+        var str = ""
+
+        for (c in this) {
+            str += c
+            totalWidth += ("$c".getWidth() * scale)
+            if (totalWidth >= width) break
+        }
+
+        return str
+    }
     fun String.trimToWidth(width: Double): String = fontRenderer.trimStringToWidth(this, width.toInt())
 
     fun String.getWidth() = fontRenderer.getStringWidth(StringUtils.stripControlCodes(this))

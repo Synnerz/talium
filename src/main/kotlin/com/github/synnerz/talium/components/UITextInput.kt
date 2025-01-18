@@ -33,7 +33,7 @@ open class UITextInput @JvmOverloads constructor(
     var cursorAlpha: Double = 255.0
     var shouldBlink: Boolean = false
     var selectionPos: Int = 0
-    open var maxLength: Int = 32
+    open var maxLength: Int = 0
     open var currentOffset: Int = 0
 
     override fun preDraw() = cursorAnimation.preDraw()
@@ -93,13 +93,11 @@ open class UITextInput @JvmOverloads constructor(
     }
 
     open fun updateOffset() {
-        // TODO: fix offset making the text going off bound whenever it gets changed drastically
-        // TODO: perhaps just add scissors effect and call it
         currentOffset = min(currentOffset, cursorPos)
         val str = text.substring(currentOffset, cursorPos)
         val currWidth = str.getWidth() * textScale
-        if (currWidth > width) {
-            val nw = str.trimToWidth(width).length
+        if (currWidth > (width - 8.0)) {
+            val nw = str.trimToWidth((width - 8.0), textScale).length
             currentOffset = (cursorPos - nw).coerceAtLeast(0)
         }
     }
@@ -128,7 +126,7 @@ open class UITextInput @JvmOverloads constructor(
 
         val textHeight = 9f * textScale
         val heightCenter = (height - textHeight) / 2.0
-        val ctext = text.substring(currentOffset)
+        val ctext = text.substring(currentOffset).trimToWidth(width - 8.0, textScale)
         Renderer.drawString(
             ctext,
             (x.toFloat() + 2f) / textScale,
@@ -144,7 +142,10 @@ open class UITextInput @JvmOverloads constructor(
                 shouldBlink = ease >= 1.4f
             } else cursorAnimation.start()
 
-            val n = (ctext.substring(0, cursorPos - currentOffset).getWidth() + 2f) * textScale
+            val n = (ctext.substring(
+                0,
+                (cursorPos - currentOffset).coerceIn(0, ctext.length)
+            ).getWidth() + 2f) * textScale
             // Check whether the current [cursorPos] is equals to the max string length
             // this means that the cursor is at the end, so we can change the rendering to be `_` instead of `|`
             if (cursorPos == text.length) {
