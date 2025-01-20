@@ -507,10 +507,10 @@ open class UIBase @JvmOverloads constructor(
 
             if (insideBounds) {
                 propagateMouseDrag(
-                    x - state.x,
-                    y - state.y,
-                    x,
-                    y,
+                    mxd - state.x,
+                    myd - state.y,
+                    mxd,
+                    myd,
                     btn
                 )
             }
