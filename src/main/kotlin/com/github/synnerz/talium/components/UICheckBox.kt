@@ -20,7 +20,8 @@ open class UICheckBox @JvmOverloads constructor(
     open var disabledColor: Color = Color(255, 0, 0)
     open var textScale: Float = 1f
     /** * The checkmark as a string */
-    open var check = "§l✓"
+    open var check = "§l✔"
+    open var cross = "§l✘"
     override var xAnimation: Animation? = Animation(Animations.QUAD_IN, 5000f)
     open var currentAlpha: Double = 255.0
 
@@ -37,8 +38,9 @@ open class UICheckBox @JvmOverloads constructor(
 
         UIRect.drawRect(x, y, width, height, radius)
 
-        // Draw checkmark
+        // Draw checkmark/crossmark
         if (value) UIText.drawCenteredText(check, x, y, width, height, textScale)
+        else UIText.drawCenteredText(cross, x, y, width, height)
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {
