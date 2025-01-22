@@ -47,6 +47,15 @@ object Renderer {
         )
     }
 
+    fun Color.bind(alpha: Float) {
+        GlStateManager.color(
+            this.red.toFloat(),
+            this.green.toFloat(),
+            this.blue.toFloat(),
+            alpha
+        )
+    }
+
     fun Color.unbind() {
         GlStateManager.color(0f, 0f, 0f, 0f)
     }
