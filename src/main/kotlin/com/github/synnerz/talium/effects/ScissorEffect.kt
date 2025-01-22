@@ -28,9 +28,10 @@ open class ScissorEffect : UIEffect() {
             val scaledHeight = sr?.scaledHeight ?: 0
 
             if (!scissorState) GL11.glEnable(GL11.GL_SCISSOR_TEST)
+            val y2 = y + height
             GL11.glScissor(
                 x.toInt() * scale,
-                (scaledHeight - y.toInt()) * scale,
+                (scaledHeight - y2.toInt()) * scale,
                 width.toInt() * scale,
                 height.toInt() * scale
             )
