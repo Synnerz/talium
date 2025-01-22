@@ -10,6 +10,7 @@ open class Animation @JvmOverloads constructor(
     var animationStart: Long = 0L
 
     open fun start() = apply {
+        if (shouldAnimate) stop()
         animationStart = System.currentTimeMillis()
         shouldAnimate = true
     }
