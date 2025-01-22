@@ -30,15 +30,14 @@ open class UISlider @JvmOverloads constructor(
      * * Field that decides how many steps it'll take per arrow key press
      * * i.e. left arrow: slider goes down once since `1` is default
      */
-    open var keySteps: Int = 1
+    open var keyStep: Int = 1
     /**
      * * Field that decides how many steps it'll take per control/ctrl + arrow key press
      * * i.e. left arrow: slider goes down twice since `2` is default
      */
-    open var ctrlSteps: Int = 2
+    open var ctrlStep: Int = 2
 
     override fun render() {
-        // TODO: scale with text scale
         // TODO: make decimal slider or adjust this one to work like it
         // Main bar
         UIRect.drawRect(x, y, width, height, radius)
@@ -55,7 +54,7 @@ open class UISlider @JvmOverloads constructor(
         UIRect.drawRect(thumbX, thumbY, thumbWidth, thumbHeight, radius)
         // Text inside thumb
         val text = "${value.roundToInt()}"
-        val textOffset = (thumbWidth - text.getWidth()) / 2.0
+        val textOffset = (thumbWidth - (text.getWidth() * textScale)) / 2.0
         val textHeight = 9f * textScale
         if (textScale != 1f) {
             GlStateManager.pushMatrix()
@@ -63,8 +62,8 @@ open class UISlider @JvmOverloads constructor(
         }
         Renderer.drawString(
             text,
-            (thumbX + textOffset).toFloat(),
-            (thumbY + (thumbHeight - textHeight) / 2.0).toFloat()
+            (thumbX + textOffset).toFloat() / textScale,
+            (thumbY + (thumbHeight - textHeight) / 2.0).toFloat() / textScale
         )
         if (textScale != 1f) {
             GlStateManager.popMatrix()
@@ -85,12 +84,12 @@ open class UISlider @JvmOverloads constructor(
         val isCtrl = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)
         when (event.keycode) {
             Keyboard.KEY_LEFT -> {
-                if (isCtrl) setCurrentValue(value - ctrlSteps)
-                else setCurrentValue(value - keySteps)
+                if (isCtrl) setCurrentValue(value - ctrlStep)
+                else setCurrentValue(value - keyStep)
             }
             Keyboard.KEY_RIGHT -> {
-                if (isCtrl) setCurrentValue(value + ctrlSteps)
-                else setCurrentValue(value + keySteps)
+                if (isCtrl) setCurrentValue(value + ctrlStep)
+                else setCurrentValue(value + keyStep)
             }
             Keyboard.KEY_HOME -> {
                 setCurrentValue(min)
