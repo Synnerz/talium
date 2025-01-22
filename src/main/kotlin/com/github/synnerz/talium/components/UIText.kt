@@ -5,7 +5,7 @@ import com.github.synnerz.talium.utils.Renderer.getWidth
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.StringUtils
 
-class UIText @JvmOverloads constructor(
+open class UIText @JvmOverloads constructor(
     _x: Double,
     _y: Double,
     _width: Double,
@@ -14,7 +14,7 @@ class UIText @JvmOverloads constructor(
     var centered: Boolean = false,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
-    var textScale: Float = 1f
+    open var textScale: Float = 1f
 
     override fun render() {
         if (centered) drawCenteredText(text, x, y, width, height, textScale)
