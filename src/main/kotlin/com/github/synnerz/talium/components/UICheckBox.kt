@@ -4,11 +4,7 @@ import com.github.synnerz.talium.animations.Animation
 import com.github.synnerz.talium.animations.Animations
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.utils.MathLib
-import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
-import com.github.synnerz.talium.utils.Renderer.getWidth
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.StringUtils
 import java.awt.Color
 
 open class UICheckBox @JvmOverloads constructor(
@@ -42,22 +38,7 @@ open class UICheckBox @JvmOverloads constructor(
         UIRect.drawRect(x, y, width, height, radius)
 
         // Draw checkmark
-        if (value) {
-            if (textScale != 1f) {
-                GlStateManager.pushMatrix()
-                GlStateManager.scale(textScale, textScale, 0f)
-            }
-
-            val textHeight = 9f * textScale
-            val checkWidth = StringUtils.stripControlCodes(check).getWidth() * textScale
-            Renderer.drawString(
-                check,
-                (x + (width - checkWidth) / 2.0).toFloat() / textScale,
-                (y + (height - textHeight) / 2.0).toFloat() / textScale
-            )
-
-            if (textScale != 1f) GlStateManager.popMatrix()
-        }
+        if (value) UIText.drawCenteredText(check, x, y, width, height, textScale)
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {
