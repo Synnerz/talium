@@ -19,9 +19,11 @@ object MathLib {
 
     fun getPowInOut(elapsedTime: Float, pow: Double): Float {
         val v = elapsedTime * 2
-        if (v < 1) return 0.5f * elapsedTime.pow(pow.toFloat())
-
-        return (1.0 - 0.5 * abs((2.0 - elapsedTime.toDouble()).pow(pow))).toFloat()
+        return if (v < 1) {
+            0.5f * v.pow(pow.toFloat())
+        } else {
+            0.5f * (2 - (2 - v).pow(pow.toFloat()))
+        }
     }
 
     fun getBackInOut(elapsedTime: Float, amount: Float): Float {

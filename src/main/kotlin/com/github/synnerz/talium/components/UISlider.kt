@@ -3,10 +3,7 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
 import com.github.synnerz.talium.events.UIKeyType
-import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
-import com.github.synnerz.talium.utils.Renderer.getWidth
-import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import kotlin.math.min
@@ -41,10 +38,12 @@ open class UISlider @JvmOverloads constructor(
         // TODO: make decimal slider or adjust this one to work like it
         // Main bar
         UIRect.drawRect(x, y, width, height, radius)
-        val handleX = min((value - min) / (max - min) * width, width)
+
         // Completion bar
+        val handleX = min((value - min) / (max - min) * width, width)
         completion.bgColor.bind()
         UIRect.drawRect(x, y, handleX, height, radius)
+
         // Thumb
         thumb.bgColor.bind()
         val thumbX = (x + handleX - (thumb.width / 2.0)).coerceIn(x, (x + width) - thumb.width)
@@ -52,22 +51,9 @@ open class UISlider @JvmOverloads constructor(
         val thumbWidth = thumb.width.coerceIn(0.0, width)
         val thumbHeight = height + 4
         UIRect.drawRect(thumbX, thumbY, thumbWidth, thumbHeight, radius)
+
         // Text inside thumb
-        val text = "${value.roundToInt()}"
-        val textOffset = (thumbWidth - (text.getWidth() * textScale)) / 2.0
-        val textHeight = 9f * textScale
-        if (textScale != 1f) {
-            GlStateManager.pushMatrix()
-            GlStateManager.scale(textScale, textScale, 0f)
-        }
-        Renderer.drawString(
-            text,
-            (thumbX + textOffset).toFloat() / textScale,
-            (thumbY + (thumbHeight - textHeight) / 2.0).toFloat() / textScale
-        )
-        if (textScale != 1f) {
-            GlStateManager.popMatrix()
-        }
+        UIText.drawCenteredText("${value.roundToInt()}", thumbX, thumbY, thumbWidth, thumbHeight, textScale)
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {
