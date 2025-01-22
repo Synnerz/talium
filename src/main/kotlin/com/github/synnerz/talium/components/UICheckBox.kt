@@ -25,7 +25,7 @@ open class UICheckBox @JvmOverloads constructor(
     open var textScale: Float = 1f
     /** * The checkmark as a string */
     open var check = "§l✓"
-    override var xAnimation: Animation? = Animation(Animations.QUAD_IN_OUT, 5000f)
+    override var xAnimation: Animation? = Animation(Animations.QUAD_IN, 5000f)
     open var currentAlpha: Double = 255.0
 
     override fun render() {
