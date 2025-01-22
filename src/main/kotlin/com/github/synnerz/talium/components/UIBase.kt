@@ -611,6 +611,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onMouseDrag?.invoke(event)
         if (!event.propagate) return
         for (child in children) {
+            child.onMouseDragOut(event)
             if (!child.inBounds(x, y)) continue
             child.onMouseDrag(event)
             child.hooks.onMouseDrag?.invoke(event)
@@ -686,6 +687,11 @@ open class UIBase @JvmOverloads constructor(
     open fun onMouseDrag(cb: (event: UIDragEvent) -> Unit) = apply {
         hooks.onMouseDrag = cb
     }
+    /**
+     * * Triggers whenever the mouse is dragged inside the parent component
+     * but the drag was started inside `this` component
+     */
+    open fun onMouseDragOut(event: UIDragEvent) = apply {}
     open fun onMouseRelease(event: UIClickEvent) = apply {}
     open fun onMouseRelease(cb: (event: UIClickEvent) -> Unit) = apply {
         hooks.onMouseRelease = cb
