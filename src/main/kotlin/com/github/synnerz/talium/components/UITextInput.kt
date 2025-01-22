@@ -4,7 +4,6 @@ import com.github.synnerz.talium.animations.Animation
 import com.github.synnerz.talium.animations.Animations
 import com.github.synnerz.talium.events.UIFocusEvent
 import com.github.synnerz.talium.events.UIKeyType
-import com.github.synnerz.talium.shaders.ui.RoundedRect
 import com.github.synnerz.talium.utils.MathLib
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
@@ -104,20 +103,7 @@ open class UITextInput @JvmOverloads constructor(
 
     override fun render() {
         updateOffset()
-        when (radius) {
-            0.0 -> {
-                Renderer.drawRect(x, y, width, height)
-            }
-            else -> {
-                RoundedRect.drawRoundedRect(
-                    x.toFloat(),
-                    y.toFloat(),
-                    width.toFloat(),
-                    height.toFloat(),
-                    radius.toFloat()
-                )
-            }
-        }
+        UIRect.drawRect(x, y, width, height, radius)
 
         if (textScale != 1f) {
             GlStateManager.pushMatrix()
