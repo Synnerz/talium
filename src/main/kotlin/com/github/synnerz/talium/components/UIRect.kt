@@ -12,11 +12,17 @@ open class UIRect @JvmOverloads constructor(
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     override fun render() {
-        if (radius == 0.0) {
-            Renderer.drawRect(x, y, width, height)
-            return
-        }
+        drawRect(x, y, width, height, radius)
+    }
 
-        RoundedRect.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), radius.toFloat())
+    companion object {
+        fun drawRect(x: Double, y: Double, width: Double, height: Double, radius: Double = 0.0) {
+            if (radius == 0.0) {
+                Renderer.drawRect(x, y, width, height)
+                return
+            }
+
+            RoundedRect.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), radius.toFloat())
+        }
     }
 }
