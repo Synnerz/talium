@@ -13,7 +13,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Mouse
-import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.sign
 
@@ -352,6 +351,15 @@ open class UIBase @JvmOverloads constructor(
     open fun unhide() = apply {
         hidden = false
     }
+
+    /**
+     * * Checks whether this component is the main component
+     * * Usually the main component is the one that is at the top of the hierarchy
+     * and thus has no parent, therefore we can do single calculations here and
+     * pass them through to the children so its only done once and not per child
+     */
+    open fun isMainComponent(): Boolean = parent == null
+
     /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
@@ -395,27 +403,35 @@ open class UIBase @JvmOverloads constructor(
 
     open fun draw() {
         // Check the scaledResolution
-        val sr = ScaledResolution(Minecraft.getMinecraft())
-        if (scaledResolution == null) {
-            scaledResolution = sr
-        } else if (
-            scaledResolution!!.scaledWidth != sr.scaledWidth ||
-            scaledResolution!!.scaledHeight != sr.scaledHeight ||
-            scaledResolution!!.scaleFactor != sr.scaleFactor) {
-            scaledResolution = sr
-            handleResize(this, sr)
+        if (isMainComponent()) {
+            val sr = ScaledResolution(Minecraft.getMinecraft())
+            if (scaledResolution == null) {
+                scaledResolution = sr
+            } else if (
+                scaledResolution!!.scaledWidth != sr.scaledWidth ||
+                scaledResolution!!.scaledHeight != sr.scaledHeight ||
+                scaledResolution!!.scaleFactor != sr.scaleFactor) {
+                scaledResolution = sr
+                handleResize(this, sr)
+            }
+        } else {
+            scaledResolution = parent!!.scaledResolution
         }
+        // Avoid doing any further computation if the component is hidden
+        if (hidden) return
 
-        GlStateManager.enableBlend()
-        GlStateManager.disableTexture2D()
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-        GlStateManager.disableCull()
+        if (isMainComponent()) {
+            GlStateManager.enableBlend()
+            GlStateManager.disableTexture2D()
+            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+            GlStateManager.disableCull()
+        }
 
         try {
             // Handle mouse inputs if the component does not have a parent
             // this _should_ mean that the component is at the top of the hierarchy
             // so only this component needs to handle the inputs and pass them through
-            if (parent == null) handleMouseInput()
+            if (isMainComponent()) handleMouseInput()
             effects.forEach { it.preDraw() }
             if (!effects.any { it.forceColor }) bgColor.bind()
             // Prepare animations here so the user does not need to do so
@@ -439,12 +455,12 @@ open class UIBase @JvmOverloads constructor(
             e.printStackTrace()
             handleError(e.stackTrace)
         } finally {
-            GlStateManager.enableTexture2D()
-            GlStateManager.disableBlend()
-            GlStateManager.enableCull()
-            if (ScissorEffect.scissorState) {
-                ScissorEffect.scissorState = false
-                GL11.glDisable(GL11.GL_SCISSOR_TEST)
+            // Reset stack state only if it's the main component
+            if (isMainComponent()) {
+                GlStateManager.enableTexture2D()
+                GlStateManager.disableBlend()
+                GlStateManager.enableCull()
+                ScissorEffect.disableScissor()
             }
         }
     }
