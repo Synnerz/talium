@@ -97,6 +97,8 @@ open class UIBase @JvmOverloads constructor(
     open var widthAnimation: Animation? = null
     /** * _Should_ be used whenever the component grows or shrinks in height */
     open var heightAnimation: Animation? = null
+    /** * Whether this component is hidden or not */
+    open var hidden: Boolean = false
 
     data class State(var x: Double, var y: Double)
 
@@ -337,6 +339,19 @@ open class UIBase @JvmOverloads constructor(
         return true
     }
 
+    /**
+     * * Sets the [hidden] variable to `true`
+     */
+    open fun hide() = apply {
+        hidden = true
+    }
+
+    /**
+     * * Sets the [hidden] variable to `false`
+     */
+    open fun unhide() = apply {
+        hidden = false
+    }
     /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
