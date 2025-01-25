@@ -361,6 +361,22 @@ open class UIBase @JvmOverloads constructor(
     open fun isMainComponent(): Boolean = parent == null
 
     /**
+     * * Gets the component that is located at the specified `x` and `y`
+     * * If no component is found it will return `null`
+     */
+    open fun getComponentAt(x: Double, y: Double): UIBase? {
+        var comp: UIBase? = null
+        for (child in children) {
+            if (child.inBounds(x, y)) {
+                comp = child
+                break
+            }
+        }
+
+        return comp
+    }
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
