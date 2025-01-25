@@ -54,8 +54,9 @@ open class UIBase @JvmOverloads constructor(
         var onFocus: ((event: UIFocusEvent) -> Unit)? = null
         var onUnfocus: ((event: UIFocusEvent) -> Unit)? = null
         var onKeyType: ((event: UIKeyType) -> Unit)? = null
-        var onResize: ((UIBase, ScaledResolution) -> Unit)? = null
-        var onError: ((Array<out StackTraceElement>) -> Unit)? = null
+        var onResize: ((comp: UIBase, scaledResolution: ScaledResolution) -> Unit)? = null
+        var onError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
+        var onUpdate: (() -> Unit)? = null
     }
     /**
      * * Field to check whether this component is dirty or not
@@ -408,6 +409,7 @@ open class UIBase @JvmOverloads constructor(
         height = _height / 100 * parentHeight
         bounds = Boundaries(x, y, x + width, y + height)
         onUpdate()
+        hooks.onUpdate?.invoke()
     }
 
     /**
@@ -740,11 +742,11 @@ open class UIBase @JvmOverloads constructor(
     }
 
     open fun onResize(comp: UIBase, scaledResolution: ScaledResolution) = apply {}
-    open fun onResize(cb: (UIBase, ScaledResolution) -> Unit) = apply {
+    open fun onResize(cb: (comp: UIBase, scaledResolution: ScaledResolution) -> Unit) = apply {
         hooks.onResize = cb
     }
     open fun onError(trace: Array<out StackTraceElement>) = apply {}
-    open fun onError(cb: (Array<out StackTraceElement>) -> Unit) = apply {
+    open fun onError(cb: (trace: Array<out StackTraceElement>) -> Unit) = apply {
         hooks.onError = cb
     }
 
@@ -804,7 +806,9 @@ open class UIBase @JvmOverloads constructor(
     }
 
     open fun onUpdate() = apply {}
-    // TODO: maybe make a callback method for this too
+    open fun onUpdate(cb: () -> Unit) = apply {
+        hooks.onUpdate = cb
+    }
 
     /**
      * * This class represents the current boundaries of the component
