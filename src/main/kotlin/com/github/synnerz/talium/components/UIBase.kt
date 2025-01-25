@@ -54,6 +54,8 @@ open class UIBase @JvmOverloads constructor(
         var onFocus: ((event: UIFocusEvent) -> Unit)? = null
         var onUnfocus: ((event: UIFocusEvent) -> Unit)? = null
         var onKeyType: ((event: UIKeyType) -> Unit)? = null
+        var onResize: ((UIBase, ScaledResolution) -> Unit)? = null
+        var onError: ((Array<out StackTraceElement>) -> Unit)? = null
     }
     /**
      * * Field to check whether this component is dirty or not
@@ -440,7 +442,7 @@ open class UIBase @JvmOverloads constructor(
                 scaledResolution!!.scaledHeight != sr.scaledHeight ||
                 scaledResolution!!.scaleFactor != sr.scaleFactor) {
                 scaledResolution = sr
-                handleResize(this, sr)
+                propagateResize(this, sr)
             }
         } else {
             scaledResolution = parent!!.scaledResolution
@@ -481,7 +483,7 @@ open class UIBase @JvmOverloads constructor(
             postDraw()
         } catch (e: Exception) {
             e.printStackTrace()
-            handleError(e.stackTrace)
+            propagateError(e.stackTrace)
         } finally {
             // Reset stack state only if it's the main component
             if (isMainComponent()) {
@@ -722,17 +724,29 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
-    open fun handleResize(comp: UIBase, scaledResolution: ScaledResolution) {
+    open fun propagateResize(comp: UIBase, scaledResolution: ScaledResolution) {
         markDirty()
         onResize(comp, scaledResolution)
-        children.forEach { it.onResize(comp, scaledResolution) }
+        hooks.onResize?.invoke(comp, scaledResolution)
+
+        for (child in children) child.propagateResize(comp, scaledResolution)
     }
-    open fun handleError(trace: Array<out StackTraceElement>) {
+
+    open fun propagateError(trace: Array<out StackTraceElement>) {
         onError(trace)
-        children.forEach { it.onError(trace) }
+        hooks.onError?.invoke(trace)
+
+        for (child in children) child.propagateError(trace)
     }
+
     open fun onResize(comp: UIBase, scaledResolution: ScaledResolution) = apply {}
+    open fun onResize(cb: (UIBase, ScaledResolution) -> Unit) = apply {
+        hooks.onResize = cb
+    }
     open fun onError(trace: Array<out StackTraceElement>) = apply {}
+    open fun onError(cb: (Array<out StackTraceElement>) -> Unit) = apply {
+        hooks.onError = cb
+    }
 
     open fun onMouseClick(event: UIClickEvent) = apply {}
     open fun onMouseClick(cb: (event: UIClickEvent) -> Unit) = apply {
