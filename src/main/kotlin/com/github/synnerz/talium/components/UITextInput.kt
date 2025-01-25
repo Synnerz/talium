@@ -240,7 +240,7 @@ open class UITextInput @JvmOverloads constructor(
         when (keycode) {
             Keyboard.KEY_ESCAPE -> {
                 focused = false
-                propagateUnfocus(-1.0, -1.0)
+                unfocus()
             }
             Keyboard.KEY_BACK -> {
                 deleteText()
