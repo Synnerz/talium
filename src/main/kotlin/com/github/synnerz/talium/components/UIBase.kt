@@ -240,6 +240,11 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
+     * * Checks whether the specified [UIMouseEvent] is in the bounds of this component
+     */
+    open fun inBounds(event: UIMouseEvent): Boolean = inBounds(event.x, event.y)
+
+    /**
      * * Adds a single [UIEffect] to this component
      */
     open fun addEffect(effect: UIEffect) = apply {
@@ -377,6 +382,13 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
+     * * Un-focuses the component
+     */
+    open fun unfocus() {
+        propagateUnfocus(UIFocusEvent(-1.0, -1.0, false, this))
+    }
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
@@ -488,7 +500,7 @@ open class UIBase @JvmOverloads constructor(
      */
     open fun handleKeyInput(keycode: Int, char: Char) {
         if (parent != null || !focused) return
-        propagateKeyTyped(keycode, char)
+        propagateKeyTyped(UIKeyType(keycode, char, this))
     }
 
     open fun handleMouseInput() {
@@ -503,14 +515,14 @@ open class UIBase @JvmOverloads constructor(
         // Handle scroll
         val scroll = Mouse.getDWheel()
         if (scroll != 0 && insideBounds)
-            propagateMouseScroll(mxd, myd, scroll.sign)
+            propagateMouseScroll(UIScrollEvent(mxd, myd, scroll.sign, this))
 
         // Handle mouseEnter/Hover/Leave
         if (insideBounds) {
-            propagateMouseEnter(mxd, myd)
-            propagateMouseHover(mxd, myd)
+            propagateMouseEnter(UIMouseEvent(mxd, myd, this))
+            propagateMouseHover(UIMouseEvent(mxd, myd, this))
         }
-        propagateMouseLeave(mxd, myd)
+        propagateMouseLeave(UIMouseEvent(mxd, myd, this))
 
         mouseInBounds = insideBounds
 
@@ -523,23 +535,22 @@ open class UIBase @JvmOverloads constructor(
                 mouseState[btn] = btnState
 
                 if (insideBounds) {
-                    if (oldState) propagateMouseRelease(mxd, myd, btn)
+                    if (oldState) propagateMouseRelease(UIClickEvent(mxd, myd, btn, this))
                     else {
-                        propagateMouseClick(mxd, myd, btn)
-                        propagateFocus(true, mxd, myd)
+                        propagateMouseClick(UIClickEvent(mxd, myd, btn, this))
+                        propagateFocus(UIFocusEvent(mxd, myd, true, this))
                     }
                 }
                 if (focused && !insideBounds) {
                     focused = false
-                    propagateUnfocus(mxd, myd)
+                    propagateUnfocus(UIFocusEvent(mxd, myd, focused, this))
                 } else {
-                    val event = UIFocusEvent(false, this)
+                    val event = UIFocusEvent(mxd, myd, false, this)
                     for (child in children) {
-                        if (!child.focused || child.inBounds(mxd, myd)) continue
+                        if (!child.focused || child.inBounds(event)) continue
+
                         child.focused = false
-                        child.onUnfocus(event)
-                        child.onLostFocus(event)
-                        child.hooks.onUnfocus?.invoke(event)
+                        child.propagateUnfocus(event)
                         if (!event.propagate) break
                     }
                 }
@@ -553,12 +564,13 @@ open class UIBase @JvmOverloads constructor(
             if (state!!.x == mxd && state.y == myd) continue
 
             if (insideBounds) {
-                propagateMouseDrag(
+                propagateMouseDrag(UIDragEvent(
                     mxd - state.x,
                     myd - state.y,
                     mxd,
                     myd,
-                    btn
+                    btn,
+                    this)
                 )
             }
 
@@ -566,150 +578,146 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
-    open fun propagateMouseScroll(x: Double, y: Double, delta: Int) {
-        val event = UIScrollEvent(x, y, delta, this)
+    open fun propagateMouseScroll(event: UIScrollEvent) {
         onMouseScroll(event)
         hooks.onMouseScroll?.invoke(event)
         if (!event.propagate) return
+
         for (child in children) {
-            if (!child.inBounds(x, y)) continue
-            child.onMouseScroll(event)
-            child.hooks.onMouseScroll?.invoke(event)
+            if (!child.inBounds(event)) continue
+
+            child.propagateMouseScroll(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateMouseClick(x: Double, y: Double, button: Int) {
-        val event = UIClickEvent(x, y, button, this)
+    open fun propagateMouseClick(event: UIClickEvent) {
         onMouseClick(event)
         hooks.onMouseClick?.invoke(event)
         if (!event.propagate) return
+
         for (child in children) {
-            if (!child.inBounds(x, y)) continue
-            child.onMouseClick(event)
-            child.hooks.onMouseClick?.invoke(event)
+            if (!child.inBounds(event)) continue
+
+            child.propagateMouseClick(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateMouseRelease(x: Double, y: Double, button: Int) {
-        val event = UIClickEvent(x, y, button, this)
+    open fun propagateMouseRelease(event: UIClickEvent) {
         onMouseRelease(event)
         hooks.onMouseRelease?.invoke(event)
         if (!event.propagate) return
+
         for (child in children) {
-            if (!child.inBounds(x, y)) continue
-            child.onMouseRelease(event)
-            child.hooks.onMouseRelease?.invoke(event)
+            if (!child.inBounds(event)) continue
+
+            child.propagateMouseRelease(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateMouseEnter(x: Double, y: Double) {
-        val event = UIMouseEvent(x, y, this)
+    open fun propagateMouseEnter(event: UIMouseEvent) {
         if (!mouseInBounds) {
             onMouseEnter(event)
             hooks.onMouseEnter?.invoke(event)
             mouseInBounds = true
         }
         if (!event.propagate) return
+
         for (child in children) {
-            if (!child.inBounds(x, y) || child.mouseInBounds) continue
-            child.mouseInBounds = true
-            child.onMouseEnter(event)
-            child.hooks.onMouseEnter?.invoke(event)
+            if (!child.inBounds(event) || child.mouseInBounds) continue
+
+            child.propagateMouseEnter(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateMouseLeave(x: Double, y: Double) {
-        val event = UIMouseEvent(x, y, this)
-        if (mouseInBounds && !inBounds(x, y)) {
+    open fun propagateMouseLeave(event: UIMouseEvent) {
+        if (mouseInBounds && !inBounds(event)) {
             onMouseLeave(event)
             hooks.onMouseLeave?.invoke(event)
             mouseInBounds = false
         }
         if (!event.propagate) return
+
         for (child in children) {
-            if (!child.mouseInBounds || child.inBounds(x, y)) continue
-            child.mouseInBounds = false
-            child.onMouseLeave(event)
-            child.hooks.onMouseLeave?.invoke(event)
+            if (!child.mouseInBounds || child.inBounds(event)) continue
+
+            child.propagateMouseLeave(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateMouseHover(x: Double, y: Double) {
-        val event = UIMouseEvent(x, y, this)
+    open fun propagateMouseHover(event: UIMouseEvent) {
         onMouseHover(event)
         hooks.onMouseHover?.invoke(event)
         if (!event.propagate) return
+
         for (child in children) {
-            if (!child.inBounds(x, y)) continue
-            child.onMouseHover(event)
-            child.hooks.onMouseHover?.invoke(event)
+            if (!child.inBounds(event)) continue
+
+            child.propagateMouseHover(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateMouseDrag(dx: Double, dy: Double, x: Double, y: Double, button: Int) {
-        val event = UIDragEvent(dx, dy, x, y, button, this)
+    open fun propagateMouseDrag(event: UIDragEvent) {
         onMouseDrag(event)
         hooks.onMouseDrag?.invoke(event)
         if (!event.propagate) return
+
         for (child in children) {
+            // TODO: fix me
             child.onMouseDragOut(event)
-            if (!child.inBounds(x, y)) continue
-            child.onMouseDrag(event)
-            child.hooks.onMouseDrag?.invoke(event)
+            if (!child.inBounds(event)) continue
+
+            child.propagateMouseDrag(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateFocus(state: Boolean, x: Double, y: Double) {
-        val event = UIFocusEvent(state, this)
-        if (focused != state) {
+    open fun propagateFocus(event: UIFocusEvent) {
+        if (focused != event.state) {
             onFocus(event)
             hooks.onFocus?.invoke(event)
-            focused = state
+            focused = event.state
         }
         if (!event.propagate) return
+
         for (child in children) {
-            if (child.focused || !child.inBounds(x, y)) continue
-            child.focused = focused
-            child.onFocus(event)
-            child.hooks.onFocus?.invoke(event)
+            if (child.focused || !child.inBounds(event)) continue
+
+            child.propagateFocus(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateUnfocus(x: Double, y: Double) {
-        val event = UIFocusEvent(focused, this)
+    open fun propagateUnfocus(event: UIFocusEvent) {
         onUnfocus(event)
         onLostFocus(event)
         hooks.onUnfocus?.invoke(event)
         if (!event.propagate) return
+
         for (child in children) {
             if (!child.focused) continue
+
             child.focused = focused
-            child.onUnfocus(event)
-            child.onLostFocus(event)
-            child.hooks.onUnfocus?.invoke(event)
+            child.propagateUnfocus(event)
             if (!event.propagate) break
         }
     }
 
-    open fun propagateKeyTyped(keycode: Int, char: Char) {
-        val event = UIKeyType(keycode, char, this)
+    open fun propagateKeyTyped(event: UIKeyType) {
         onKeyTyped(event)
         onKeyType(event)
         hooks.onKeyType?.invoke(event)
         if (!event.propagate) return
+
         for (child in children) {
             if (!child.focused) continue
-            child.onKeyTyped(event)
-            child.onKeyType(event)
-            child.hooks.onKeyType?.invoke(event)
+
+            child.propagateKeyTyped(event)
             if (!event.propagate) break
         }
     }
