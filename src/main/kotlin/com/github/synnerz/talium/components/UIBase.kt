@@ -33,7 +33,7 @@ open class UIBase @JvmOverloads constructor(
     var _height: Double,
     var parent: UIBase? = null
 ) {
-    private val children = mutableListOf<UIBase>()
+    open val children = mutableListOf<UIBase>()
     /**
      * * This is a list of effects that the current component uses
      * * i.e. [OutlineEffect]

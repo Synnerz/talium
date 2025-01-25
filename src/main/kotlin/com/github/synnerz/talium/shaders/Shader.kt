@@ -1,8 +1,7 @@
 package com.github.synnerz.talium.shaders
 
 import com.github.synnerz.talium.shaders.uniform.supportsShaders
-import org.lwjgl.opengl.ARBShaderObjects
-import org.lwjgl.opengl.GL20
+import org.lwjgl.opengl.*
 
 /**
  * Taken from Elementa under MIT License
@@ -20,6 +19,7 @@ open class Shader(
      * * This gets set to `true` whenever the shader is properly created otherwise it stays as `false`
      */
     var usable = false
+    var inuse = false
 
     init {
         if (!vertSource.contains("void main()") || !fragSource.contains("void main()")) {
@@ -38,18 +38,20 @@ open class Shader(
      * * Binds this shader to the current rendering context
      */
     open fun bind() {
-        if (!usable) return
+        if (!usable || inuse) return
 
         GL20.glUseProgram(program)
+        inuse = true
     }
 
     /**
      * * Unbinds this shader from the current rendering context
      */
     open fun unbind() {
-        if (!usable) return
+        if (!usable || !inuse) return
 
         GL20.glUseProgram(0)
+        inuse = false
     }
 
     /**
@@ -79,7 +81,7 @@ open class Shader(
         else ARBShaderObjects.glShaderSourceARB(vertShader, vertSource)
         GL20.glCompileShader(vertShader)
 
-        if (GL20.glGetShaderi(vertShader, GL20.GL_COMPILE_STATUS) != 1) {
+        if (GL20.glGetShaderi(vertShader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             println("Talium Shader Vertex: ${GL20.glGetShaderInfoLog(vertShader, 32768)}")
             return
         }
@@ -90,7 +92,7 @@ open class Shader(
         else ARBShaderObjects.glShaderSourceARB(fragShader, fragSource)
         GL20.glCompileShader(fragShader)
 
-        if (GL20.glGetShaderi(fragShader, GL20.GL_COMPILE_STATUS) != 1) {
+        if (GL20.glGetShaderi(fragShader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             println("Talium Shader Fragment: ${GL20.glGetShaderInfoLog(fragShader, 32768)}")
             return
         }

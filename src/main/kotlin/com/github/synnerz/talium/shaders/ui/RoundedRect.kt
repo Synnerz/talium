@@ -14,6 +14,8 @@ object RoundedRect {
     private var shaderInnerRectUniform: Vec4Uniform = Vec4Uniform(shader.getUniformLoc("u_InnerRect"))
 
     fun drawRoundedRect(x: Float, y: Float, width: Float, height: Float, radius: Float) {
+        if (!shader.usable) return
+
         shader.bind()
 
         shaderRadiusUniform.setValue(radius)

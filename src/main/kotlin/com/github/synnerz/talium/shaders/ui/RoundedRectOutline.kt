@@ -11,6 +11,8 @@ object RoundedRectOutline {
     private val shaderOutlineWidth: FloatUniform = FloatUniform(shader.getUniformLoc("u_OutlineWidth"))
 
     fun drawRoundedRectOutline(x: Float, y: Float, width: Float, height: Float, radius: Float, lineWidth: Float = 0.5f) {
+        if (!shader.usable) return
+
         shader.bind()
 
         shaderRadiusUniform.setValue(radius)
