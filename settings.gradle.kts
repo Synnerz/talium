@@ -1,26 +1,29 @@
 pluginManagement {
     repositories {
-        mavenCentral()
         gradlePluginPortal()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
-        maven("https://maven.architectury.dev/")
+        mavenCentral()
+        maven("https://repo.essential.gg/repository/maven-public")
+        maven("https://maven.architectury.dev")
         maven("https://maven.fabricmc.net")
-        maven("https://maven.minecraftforge.net/")
-        maven("https://repo.spongepowered.org/maven/")
-        maven("https://repo.sk1er.club/repository/maven-releases/")
+        maven("https://maven.minecraftforge.net")
     }
-    resolutionStrategy {
-        eachPlugin {
-            when (requested.id.id) {
-                "gg.essential.loom" -> useModule("gg.essential:architectury-loom:${requested.version}")
-            }
-        }
+
+    plugins {
+        kotlin("jvm") version "2.0.0"
+        val egtVersion = "0.6.7"
+        id("gg.essential.multi-version.root") version egtVersion
     }
 }
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version("0.6.0")
+listOf(
+    "1.8.9-forge-1",
+    "1.8.9-forge-2"
+).forEach { version ->
+    include(":$version")
+    project(":$version").apply {
+        projectDir = file("versions/$version")
+        buildFileName = "../../build.gradle.kts"
+    }
 }
 
-
-rootProject.name = "talium"
+rootProject.buildFileName = "root.gradle.kts"

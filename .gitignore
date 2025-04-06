@@ -4,3 +4,5 @@ run/
 build/
 .gradle/
 bin/
+versions/1.8.9-forge-1
+versions/1.8.9-forge-2
