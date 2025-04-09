@@ -394,6 +394,13 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
+     * * Mostly internal use but can be used to trigger the internal hook of this [UIBase]
+     */
+    open fun hookOnMouseClick(event: UIClickEvent) {
+        hooks.onMouseClick?.invoke(event)
+    }
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
