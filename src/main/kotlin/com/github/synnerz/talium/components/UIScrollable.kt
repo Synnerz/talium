@@ -70,7 +70,7 @@ open class UIScrollable @JvmOverloads constructor(
     override fun propagateMouseClick(event: UIClickEvent) {
         val newEvent = UIClickEvent(event.x, event.y + (miny - y), event.button, event.component)
         onMouseClick(newEvent)
-        triggerOnClick(newEvent)
+        hookOnMouseClick(newEvent)
         if (!newEvent.propagate) return
 
         for (child in children) {
