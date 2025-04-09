@@ -101,6 +101,8 @@ open class UIBase @JvmOverloads constructor(
     open var heightAnimation: Animation? = null
     /** * Whether this component is hidden or not */
     open var hidden: Boolean = false
+    /** * Whether to draw the childrens of this component or not `true` by default */
+    open var drawChildren: Boolean = true
 
     data class State(var x: Double, var y: Double)
 
@@ -433,7 +435,8 @@ open class UIBase @JvmOverloads constructor(
      */
     open fun render() {}
 
-    open fun draw() {
+    @JvmOverloads
+    open fun draw(x2: Double = 0.0, y2: Double = 0.0) {
         // Check the scaledResolution
         if (isMainComponent()) {
             val sr = ScaledResolution(Minecraft.getMinecraft())
@@ -473,12 +476,16 @@ open class UIBase @JvmOverloads constructor(
             heightAnimation?.preDraw()
             // End
             preDraw()
+            x -= x2
+            y -= y2
             render()
+            x += x2
+            y += y2
             effects.forEach { it.preChildDraw() }
             preChildDraw()
             // If the component was marked as dirty let's update it
             if (dirty) update()
-            children.forEach { it.draw() }
+            if (drawChildren) children.forEach { it.draw(x2, y2) }
             effects.forEach { it.postChildDraw() }
             postChildDraw()
             effects.forEach { it.postDraw() }
