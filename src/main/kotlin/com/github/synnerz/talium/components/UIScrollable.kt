@@ -15,36 +15,42 @@ open class UIScrollable @JvmOverloads constructor(
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     override var drawChildren: Boolean = false
-    var totalHeight = 0.0
-    var totalVisibleHeight = 0.0
-    lateinit var visibleComponents: MutableList<UIBase>
+    var visibleComponents: MutableList<UIBase> = mutableListOf()
     var miny = 0.0
 
     init {
         addEffect(ScissorEffect())
     }
 
+    override fun onUpdate() = apply {
+        getScrollY(12)
+        visibleComponents = getVisibleComponents(miny, miny + height)
+    }
+
+    open fun getScrollY(yOffset: Int): Double {
+        val comp = children.last()
+        if (comp.isDirty()) comp.update()
+
+        miny = max(y, miny - yOffset)
+        miny = min(miny, comp.bounds.y2 - height + 5.0)
+
+        return miny
+    }
+
     open fun getVisibleComponents(scrollY: Double, maxHeight: Double): MutableList<UIBase> {
         val comps = mutableListOf<UIBase>()
-        totalHeight = 0.0
-        totalVisibleHeight = 0.0
 
         for (child in children) {
-            if (child.x == 0.0) child.update()
-            totalHeight += child.height
-            if (child.bounds.y1 >= scrollY && child.bounds.y2 <= maxHeight) {
-                totalVisibleHeight += child.height
-                comps.add(child)
-            }
+            if (child.hidden) continue
+            if (child.isDirty()) child.update()
+            if (child.bounds.y1 < scrollY || child.bounds.y2 > maxHeight) continue
+            comps.add(child)
         }
 
         return comps
     }
 
     override fun render() {
-        if (!::visibleComponents.isInitialized)
-            visibleComponents = getVisibleComponents(y, y + height)
-
         UIRect.drawRect(x, y, width, height)
 
         GlStateManager.pushMatrix()
@@ -60,10 +66,8 @@ open class UIScrollable @JvmOverloads constructor(
     override fun onMouseScroll(event: UIScrollEvent) = apply {
         val d = event.delta * 120
         val yOffset = d / 10
-        val comp = children.last()
+        getScrollY(yOffset)
 
-        miny = max(y, miny - yOffset)
-        miny = min(miny, comp.bounds.y2 - height + 5.0)
         visibleComponents = getVisibleComponents(miny, miny + height)
     }
 
@@ -73,7 +77,7 @@ open class UIScrollable @JvmOverloads constructor(
         hookOnMouseClick(newEvent)
         if (!newEvent.propagate) return
 
-        for (child in children) {
+        for (child in visibleComponents) {
             if (!child.inBounds(newEvent)) continue
 
             child.propagateMouseClick(newEvent)
