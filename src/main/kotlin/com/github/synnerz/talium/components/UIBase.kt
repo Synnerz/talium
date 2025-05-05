@@ -101,8 +101,6 @@ open class UIBase @JvmOverloads constructor(
     open var heightAnimation: Animation? = null
     /** * Whether this component is hidden or not */
     open var hidden: Boolean = false
-    /** * Whether to draw the childrens of this component or not `true` by default */
-    open var drawChildren: Boolean = true
 
     data class State(var x: Double, var y: Double)
 
@@ -443,6 +441,11 @@ open class UIBase @JvmOverloads constructor(
     open fun render() {}
 
     @JvmOverloads
+    open fun drawChildren(x2: Double = 0.0, y2: Double = 0.0) {
+        children.forEach { it.draw(x2, y2) }
+    }
+
+    @JvmOverloads
     open fun draw(x2: Double = 0.0, y2: Double = 0.0) {
         // Check the scaledResolution
         if (isMainComponent()) {
@@ -492,7 +495,7 @@ open class UIBase @JvmOverloads constructor(
             preChildDraw()
             // If the component was marked as dirty let's update it
             if (dirty) update()
-            if (drawChildren) children.forEach { it.draw(x2, y2) }
+            drawChildren(x2, y2)
             effects.forEach { it.postChildDraw() }
             postChildDraw()
             effects.forEach { it.postDraw() }
@@ -545,7 +548,6 @@ open class UIBase @JvmOverloads constructor(
         mouseInBounds = insideBounds
 
         // Handle mouse click/release/drag
-        // without chick it couldn't be
         for (btn in 0..Mouse.getButtonCount()) {
             val oldState = mouseState[btn] ?: false
             val btnState = Mouse.isButtonDown(btn)
@@ -601,7 +603,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onMouseScroll?.invoke(event)
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
             child.propagateMouseScroll(event)
@@ -614,7 +616,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onMouseClick?.invoke(event)
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
             child.propagateMouseClick(event)
@@ -627,7 +629,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onMouseRelease?.invoke(event)
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
             child.propagateMouseRelease(event)
@@ -643,7 +645,7 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.inBounds(event) || child.mouseInBounds) continue
 
             child.propagateMouseEnter(event)
@@ -659,7 +661,7 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.mouseInBounds || child.inBounds(event)) continue
 
             child.propagateMouseLeave(event)
@@ -672,7 +674,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onMouseHover?.invoke(event)
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
             child.propagateMouseHover(event)
@@ -685,7 +687,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onMouseDrag?.invoke(event)
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             // TODO: fix me
             child.onMouseDragOut(event)
             if (!child.inBounds(event)) continue
@@ -703,7 +705,7 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (child.focused || !child.inBounds(event)) continue
 
             child.propagateFocus(event)
@@ -717,7 +719,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onUnfocus?.invoke(event)
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.focused) continue
 
             child.focused = focused
@@ -732,7 +734,7 @@ open class UIBase @JvmOverloads constructor(
         hooks.onKeyType?.invoke(event)
         if (!event.propagate) return
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (!child.focused) continue
 
             child.propagateKeyTyped(event)
@@ -745,14 +747,14 @@ open class UIBase @JvmOverloads constructor(
         onResize(comp, scaledResolution)
         hooks.onResize?.invoke(comp, scaledResolution)
 
-        for (child in children) child.propagateResize(comp, scaledResolution)
+        for (child in children.toList()) child.propagateResize(comp, scaledResolution)
     }
 
     open fun propagateError(trace: Array<out StackTraceElement>) {
         onError(trace)
         hooks.onError?.invoke(trace)
 
-        for (child in children) child.propagateError(trace)
+        for (child in children.toList()) child.propagateError(trace)
     }
 
     open fun onResize(comp: UIBase, scaledResolution: ScaledResolution) = apply {}
