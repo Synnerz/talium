@@ -14,7 +14,6 @@ open class UIScrollable @JvmOverloads constructor(
     _height: Double,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
-    override var drawChildren: Boolean = false
     var visibleComponents: MutableList<UIBase> = mutableListOf()
     var miny = 0.0
 
@@ -32,7 +31,8 @@ open class UIScrollable @JvmOverloads constructor(
         if (comp.isDirty()) comp.update()
 
         miny = max(y, miny - yOffset)
-        miny = min(miny, comp.bounds.y2 - height + 5.0)
+        miny = if (comp.bounds.y2 > height) min(miny, comp.bounds.y2 - height + 5.0)
+               else min(miny, miny - 12)
 
         return miny
     }
@@ -50,17 +50,18 @@ open class UIScrollable @JvmOverloads constructor(
         return comps
     }
 
+    override fun drawChildren(x2: Double, y2: Double) {
+        for (child in visibleComponents) {
+            child.draw(0.0, miny)
+        }
+        GlStateManager.popMatrix()
+    }
+
     override fun render() {
         UIRect.drawRect(x, y, width, height)
 
         GlStateManager.pushMatrix()
         GlStateManager.translate(0.0, y, 0.0)
-
-        for (child in visibleComponents) {
-            child.draw(0.0, miny)
-        }
-
-        GlStateManager.popMatrix()
     }
 
     override fun onMouseScroll(event: UIScrollEvent) = apply {
