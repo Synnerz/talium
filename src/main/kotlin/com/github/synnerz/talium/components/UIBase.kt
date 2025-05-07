@@ -134,6 +134,14 @@ open class UIBase @JvmOverloads constructor(
         bgColor = color
     }
 
+    open fun setColor(r: Int, g: Int, b: Int, a: Int = 255) = apply {
+        bgColor = Color(r, g, b, a)
+    }
+
+    open fun setColor(r: Double, g: Double, b: Double, a: Double = 255.0) = apply {
+        bgColor = Color(r.toInt(), g.toInt(), b.toInt(), a.toInt())
+    }
+
     /**
      * * Adds the specified [child] to this component
      * * Note: if the component already has a parent it will be removed and re-assigned to this one
