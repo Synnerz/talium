@@ -184,6 +184,7 @@ open class UITextInput @JvmOverloads constructor(
     }
     // TODO: mouse to cursor position for cursor selection when clicking on the text input
     // TODO: mouse drag selection to select text whenever the user drags the mouse on the text input
+    // TODO: add placeholder feature
 
     open fun write(str: String) {
         for (c in str.toCharArray()) {

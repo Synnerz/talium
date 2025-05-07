@@ -16,6 +16,7 @@ open class UIScrollable @JvmOverloads constructor(
 ) : UIBase(_x, _y, _width, _height, parent) {
     var visibleComponents: MutableList<UIBase> = mutableListOf()
     var miny = 0.0
+    var shouldDisplayScroll = false
 
     init {
         addEffect(ScissorEffect())
@@ -24,6 +25,7 @@ open class UIScrollable @JvmOverloads constructor(
     override fun onUpdate() = apply {
         getScrollY(12)
         visibleComponents = getVisibleComponents(miny, miny + height)
+        shouldDisplayScroll = visibleComponents.size < children.size
     }
 
     open fun getScrollY(yOffset: Int): Double {
@@ -62,6 +64,15 @@ open class UIScrollable @JvmOverloads constructor(
 
         GlStateManager.pushMatrix()
         GlStateManager.translate(0.0, y, 0.0)
+
+        if (shouldDisplayScroll) {
+            // TODO: fix sliderbar sometimes offsetting to middle rather than properly going down
+            val lastHeight = children.lastOrNull()?.bounds?.y2 ?: height
+            val scroll = lastHeight - height
+            val barHeight = (height / lastHeight) * height
+            val barY = (miny - y) / (scroll - y) * (height - barHeight)
+            UIRect.drawRect(x + width - 5.0, barY, 5.0, barHeight)
+        }
     }
 
     override fun onMouseScroll(event: UIScrollEvent) = apply {
