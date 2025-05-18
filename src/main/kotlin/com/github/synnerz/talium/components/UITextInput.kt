@@ -120,6 +120,8 @@ open class UITextInput @JvmOverloads constructor(
         )
 
         if (focused) {
+            val maxSelectHeight = "A".getWidth() + 2.0
+
             if (cursorAnimation.shouldAnimate) {
                 val ease = cursorAnimation.getEase()
                 val newMin = if (cursorAlpha == 255.0) 255.0 else 0.0
@@ -149,7 +151,7 @@ open class UITextInput @JvmOverloads constructor(
                     (x + n) / textScale,
                     (y + heightCenter) / textScale,
                     1.0,
-                    height - 4.0,
+                    maxSelectHeight,
                     cursorAlpha.toFloat()
                 )
             }
@@ -168,7 +170,7 @@ open class UITextInput @JvmOverloads constructor(
                 (x + 2.0 + left) / textScale,
                 (y + heightCenter) / textScale,
                 right,
-                height - 4.0
+                maxSelectHeight
             )
         }
         if (textScale != 1f) {
