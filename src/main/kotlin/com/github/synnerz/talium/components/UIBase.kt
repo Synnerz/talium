@@ -654,7 +654,7 @@ open class UIBase @JvmOverloads constructor(
         if (!event.propagate) return
 
         for (child in children.toList()) {
-            if (!child.inBounds(event) || child.mouseInBounds) continue
+            if (!child.inBounds(event)) continue
 
             child.propagateMouseEnter(event)
             if (!event.propagate) break
@@ -670,8 +670,6 @@ open class UIBase @JvmOverloads constructor(
         if (!event.propagate) return
 
         for (child in children.toList()) {
-            if (!child.mouseInBounds || child.inBounds(event)) continue
-
             child.propagateMouseLeave(event)
             if (!event.propagate) break
         }
