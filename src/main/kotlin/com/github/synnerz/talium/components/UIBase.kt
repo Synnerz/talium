@@ -570,14 +570,10 @@ open class UIBase @JvmOverloads constructor(
                     }
                 }
                 if (focused && !insideBounds) {
-                    focused = false
-                    propagateUnfocus(UIFocusEvent(mxd, myd, focused, this))
+                    propagateUnfocus(UIFocusEvent(mxd, myd, false, this))
                 } else {
                     val event = UIFocusEvent(mxd, myd, false, this)
                     for (child in children) {
-                        if (!child.focused || child.inBounds(event)) continue
-
-                        child.focused = false
                         child.propagateUnfocus(event)
                         if (!event.propagate) break
                     }
@@ -694,7 +690,6 @@ open class UIBase @JvmOverloads constructor(
         if (!event.propagate) return
 
         for (child in children.toList()) {
-            // TODO: fix me
             child.onMouseDragOut(event)
             if (!child.inBounds(event)) continue
 
@@ -705,6 +700,7 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateFocus(event: UIFocusEvent) {
         if (focused != event.state) {
+            focused = true
             onFocus(event)
             hooks.onFocus?.invoke(event)
             focused = event.state
@@ -712,7 +708,7 @@ open class UIBase @JvmOverloads constructor(
         if (!event.propagate) return
 
         for (child in children.toList()) {
-            if (child.focused || !child.inBounds(event)) continue
+            if (!child.inBounds(event)) continue
 
             child.propagateFocus(event)
             if (!event.propagate) break
@@ -720,15 +716,15 @@ open class UIBase @JvmOverloads constructor(
     }
 
     open fun propagateUnfocus(event: UIFocusEvent) {
-        onUnfocus(event)
-        onLostFocus(event)
-        hooks.onUnfocus?.invoke(event)
+        if (focused && !inBounds(event)) {
+            focused = false
+            onUnfocus(event)
+            onLostFocus(event)
+            hooks.onUnfocus?.invoke(event)
+        }
         if (!event.propagate) return
 
         for (child in children.toList()) {
-            if (!child.focused) continue
-
-            child.focused = focused
             child.propagateUnfocus(event)
             if (!event.propagate) break
         }
