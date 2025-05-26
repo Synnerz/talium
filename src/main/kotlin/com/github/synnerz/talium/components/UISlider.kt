@@ -27,15 +27,18 @@ open class UISlider @JvmOverloads constructor(
      * * Field that decides how many steps it'll take per arrow key press
      * * i.e. left arrow: slider goes down once since `1` is default
      */
-    open var keyStep: Int = 1
+    open var keyStep: Double = 1.0
     /**
      * * Field that decides how many steps it'll take per control/ctrl + arrow key press
      * * i.e. left arrow: slider goes down twice since `2` is default
      */
-    open var ctrlStep: Int = 2
+    open var ctrlStep: Double = 2.0
+
+    open fun getCurrentValue(): Double = value
+
+    open fun getDisplayValue() = "${value.roundToInt()}"
 
     override fun render() {
-        // TODO: make decimal slider or adjust this one to work like it
         // Main bar
         UIRect.drawRect(x, y, width, height, radius)
 
@@ -53,7 +56,7 @@ open class UISlider @JvmOverloads constructor(
         UIRect.drawRect(thumbX, thumbY, thumbWidth, thumbHeight, radius)
 
         // Text inside thumb
-        UIText.drawCenteredText("${value.roundToInt()}", thumbX, thumbY, thumbWidth, thumbHeight, textScale)
+        UIText.drawCenteredText(getDisplayValue(), thumbX, thumbY, thumbWidth, thumbHeight, textScale)
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {
