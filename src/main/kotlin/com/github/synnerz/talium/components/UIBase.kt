@@ -485,6 +485,11 @@ open class UIBase @JvmOverloads constructor(
             // this _should_ mean that the component is at the top of the hierarchy
             // so only this component needs to handle the inputs and pass them through
             if (isMainComponent()) handleMouseInput()
+            // If the component was marked as dirty let's update it
+            if (dirty) {
+                update()
+                return
+            }
             effects.forEach { it.preDraw() }
             if (!effects.any { it.forceColor }) bgColor.bind()
             // Prepare animations here so the user does not need to do so
@@ -501,8 +506,6 @@ open class UIBase @JvmOverloads constructor(
             y += y2
             effects.forEach { it.preChildDraw() }
             preChildDraw()
-            // If the component was marked as dirty let's update it
-            if (dirty) update()
             drawChildren(x2, y2)
             effects.forEach { it.postChildDraw() }
             postChildDraw()
