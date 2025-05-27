@@ -43,21 +43,21 @@ open class UIBase @JvmOverloads constructor(
      * * These are listeners made by the user
      * * i.e. if i want to listen for a mouseClick on a component, i'll add a click hook
      */
-    private val hooks = object {
-        var onMouseScroll: ((event: UIScrollEvent) -> Unit)? = null
-        var onMouseClick: ((event: UIClickEvent) -> Unit)? = null
-        var onMouseRelease: ((event: UIClickEvent) -> Unit)? = null
-        var onMouseEnter: ((event: UIMouseEvent) -> Unit)? = null
-        var onMouseHover: ((event: UIMouseEvent) -> Unit)? = null
-        var onMouseLeave: ((event: UIMouseEvent) -> Unit)? = null
-        var onMouseDrag: ((event: UIDragEvent) -> Unit)? = null
-        var onFocus: ((event: UIFocusEvent) -> Unit)? = null
-        var onUnfocus: ((event: UIFocusEvent) -> Unit)? = null
-        var onKeyType: ((event: UIKeyType) -> Unit)? = null
-        var onResize: ((comp: UIBase, scaledResolution: ScaledResolution) -> Unit)? = null
-        var onError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
-        var onUpdate: (() -> Unit)? = null
-    }
+//    private val hooks = object {
+    var hookMouseScroll: ((event: UIScrollEvent) -> Unit)? = null
+    var hookMouseClick: ((event: UIClickEvent) -> Unit)? = null
+    var hookMouseRelease: ((event: UIClickEvent) -> Unit)? = null
+    var hookMouseEnter: ((event: UIMouseEvent) -> Unit)? = null
+    var hookMouseHover: ((event: UIMouseEvent) -> Unit)? = null
+    var hookMouseLeave: ((event: UIMouseEvent) -> Unit)? = null
+    var hookMouseDrag: ((event: UIDragEvent) -> Unit)? = null
+    var hookFocus: ((event: UIFocusEvent) -> Unit)? = null
+    var hookUnfocus: ((event: UIFocusEvent) -> Unit)? = null
+    var hookKeyType: ((event: UIKeyType) -> Unit)? = null
+    var hookResize: ((comp: UIBase, scaledResolution: ScaledResolution) -> Unit)? = null
+    var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
+    var hookUpdate: (() -> Unit)? = null
+//    }
     /**
      * * Field to check whether this component is dirty or not
      * * When a component is marked as dirty this means that
@@ -400,13 +400,6 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
-     * * Mostly internal use but can be used to trigger the internal hook of this [UIBase]
-     */
-    open fun hookOnMouseClick(event: UIClickEvent) {
-        hooks.onMouseClick?.invoke(event)
-    }
-
-    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
@@ -424,7 +417,7 @@ open class UIBase @JvmOverloads constructor(
         height = _height / 100 * parentHeight
         bounds = Boundaries(x, y, x + width, y + height)
         onUpdate()
-        hooks.onUpdate?.invoke()
+        hookUpdate?.invoke()
     }
 
     /**
@@ -610,7 +603,7 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateMouseScroll(event: UIScrollEvent) {
         onMouseScroll(event)
-        hooks.onMouseScroll?.invoke(event)
+        hookMouseScroll?.invoke(event)
         if (!event.propagate) return
 
         for (child in children.toList()) {
@@ -623,7 +616,7 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateMouseClick(event: UIClickEvent) {
         onMouseClick(event)
-        hooks.onMouseClick?.invoke(event)
+        hookMouseClick?.invoke(event)
         if (!event.propagate) return
 
         for (child in children.toList()) {
@@ -636,7 +629,7 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateMouseRelease(event: UIClickEvent) {
         onMouseRelease(event)
-        hooks.onMouseRelease?.invoke(event)
+        hookMouseRelease?.invoke(event)
         if (!event.propagate) return
 
         for (child in children.toList()) {
@@ -650,7 +643,7 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseEnter(event: UIMouseEvent) {
         if (!mouseInBounds) {
             onMouseEnter(event)
-            hooks.onMouseEnter?.invoke(event)
+            hookMouseEnter?.invoke(event)
             mouseInBounds = true
         }
         if (!event.propagate) return
@@ -666,7 +659,7 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateMouseLeave(event: UIMouseEvent) {
         if (mouseInBounds && !inBounds(event)) {
             onMouseLeave(event)
-            hooks.onMouseLeave?.invoke(event)
+            hookMouseLeave?.invoke(event)
             mouseInBounds = false
         }
         if (!event.propagate) return
@@ -679,7 +672,7 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateMouseHover(event: UIMouseEvent) {
         onMouseHover(event)
-        hooks.onMouseHover?.invoke(event)
+        hookMouseHover?.invoke(event)
         if (!event.propagate) return
 
         for (child in children.toList()) {
@@ -692,7 +685,7 @@ open class UIBase @JvmOverloads constructor(
 
     open fun propagateMouseDrag(event: UIDragEvent) {
         onMouseDrag(event)
-        hooks.onMouseDrag?.invoke(event)
+        hookMouseDrag?.invoke(event)
         if (!event.propagate) return
 
         for (child in children.toList()) {
@@ -708,7 +701,7 @@ open class UIBase @JvmOverloads constructor(
         if (focused != event.state) {
             focused = true
             onFocus(event)
-            hooks.onFocus?.invoke(event)
+            hookFocus?.invoke(event)
             focused = event.state
         }
         if (!event.propagate) return
@@ -726,7 +719,7 @@ open class UIBase @JvmOverloads constructor(
             focused = false
             onUnfocus(event)
             onLostFocus(event)
-            hooks.onUnfocus?.invoke(event)
+            hookUnfocus?.invoke(event)
         }
         if (!event.propagate) return
 
@@ -739,7 +732,7 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateKeyTyped(event: UIKeyType) {
         onKeyTyped(event)
         onKeyType(event)
-        hooks.onKeyType?.invoke(event)
+        hookKeyType?.invoke(event)
         if (!event.propagate) return
 
         for (child in children.toList()) {
@@ -753,34 +746,34 @@ open class UIBase @JvmOverloads constructor(
     open fun propagateResize(comp: UIBase, scaledResolution: ScaledResolution) {
         markDirty()
         onResize(comp, scaledResolution)
-        hooks.onResize?.invoke(comp, scaledResolution)
+        hookResize?.invoke(comp, scaledResolution)
 
         for (child in children.toList()) child.propagateResize(comp, scaledResolution)
     }
 
     open fun propagateError(trace: Array<out StackTraceElement>) {
         onError(trace)
-        hooks.onError?.invoke(trace)
+        hookError?.invoke(trace)
 
         for (child in children.toList()) child.propagateError(trace)
     }
 
     open fun onResize(comp: UIBase, scaledResolution: ScaledResolution) = apply {}
     open fun onResize(cb: (comp: UIBase, scaledResolution: ScaledResolution) -> Unit) = apply {
-        hooks.onResize = cb
+        hookResize = cb
     }
     open fun onError(trace: Array<out StackTraceElement>) = apply {}
     open fun onError(cb: (trace: Array<out StackTraceElement>) -> Unit) = apply {
-        hooks.onError = cb
+        hookError = cb
     }
 
     open fun onMouseClick(event: UIClickEvent) = apply {}
     open fun onMouseClick(cb: (event: UIClickEvent) -> Unit) = apply {
-        hooks.onMouseClick = cb
+        hookMouseClick = cb
     }
     open fun onMouseDrag(event: UIDragEvent) = apply {}
     open fun onMouseDrag(cb: (event: UIDragEvent) -> Unit) = apply {
-        hooks.onMouseDrag = cb
+        hookMouseDrag = cb
     }
     /**
      * * Triggers whenever the mouse is dragged inside the parent component
@@ -789,49 +782,49 @@ open class UIBase @JvmOverloads constructor(
     open fun onMouseDragOut(event: UIDragEvent) = apply {}
     open fun onMouseRelease(event: UIClickEvent) = apply {}
     open fun onMouseRelease(cb: (event: UIClickEvent) -> Unit) = apply {
-        hooks.onMouseRelease = cb
+        hookMouseRelease = cb
     }
     open fun onMouseEnter(event: UIMouseEvent) = apply {}
     open fun onMouseEnter(cb: (event: UIMouseEvent) -> Unit) = apply {
-        hooks.onMouseEnter = cb
+        hookMouseEnter = cb
     }
     open fun onMouseHover(event: UIMouseEvent) = apply {}
     open fun onMouseHover(cb: (event: UIMouseEvent) -> Unit) = apply {
-        hooks.onMouseHover = cb
+        hookMouseHover = cb
     }
     open fun onMouseLeave(event: UIMouseEvent) = apply {}
     open fun onMouseLeave(cb: (event: UIMouseEvent) -> Unit) = apply {
-        hooks.onMouseLeave = cb
+        hookMouseLeave = cb
     }
     open fun onMouseScroll(event: UIScrollEvent) = apply {}
     open fun onMouseScroll(cb: (event: UIScrollEvent) -> Unit) = apply {
-        hooks.onMouseScroll = cb
+        hookMouseScroll = cb
     }
     open fun onFocus(event: UIFocusEvent) = apply {}
     open fun onFocus(cb: (event: UIFocusEvent) -> Unit) = apply {
-        hooks.onFocus = cb
+        hookFocus = cb
     }
     open fun onUnfocus(event: UIFocusEvent) = apply {}
     open fun onUnfocus(cb: (event: UIFocusEvent) -> Unit) = apply {
-        hooks.onUnfocus = cb
+        hookUnfocus = cb
     }
     open fun onLostFocus(event: UIFocusEvent) = apply {}
     open fun onLostFocus(cb: (event: UIFocusEvent) -> Unit) = apply {
-        hooks.onUnfocus = cb
+        hookUnfocus = cb
     }
 
     open fun onKeyType(event: UIKeyType) = apply {}
     open fun onKeyType(cb: (event: UIKeyType) -> Unit) = apply {
-        hooks.onKeyType = cb
+        hookKeyType = cb
     }
     open fun onKeyTyped(event: UIKeyType) = apply {}
     open fun onKeyTyped(cb: (event: UIKeyType) -> Unit) = apply {
-        hooks.onKeyType = cb
+        hookKeyType = cb
     }
 
     open fun onUpdate() = apply {}
     open fun onUpdate(cb: () -> Unit) = apply {
-        hooks.onUpdate = cb
+        hookUpdate = cb
     }
 
     /**
