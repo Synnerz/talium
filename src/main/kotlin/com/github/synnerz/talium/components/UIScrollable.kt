@@ -1,11 +1,8 @@
 package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.ScissorEffect
-import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIScrollEvent
 import net.minecraft.client.renderer.GlStateManager
-import kotlin.math.max
-import kotlin.math.min
 
 open class UIScrollable @JvmOverloads constructor(
     _x: Double,
@@ -19,6 +16,9 @@ open class UIScrollable @JvmOverloads constructor(
 
     init {
         addEffect(ScissorEffect())
+        onPreChildPropagate {
+            it.y += miny - y
+        }
     }
 
     override fun onUpdate() = apply {
@@ -30,9 +30,9 @@ open class UIScrollable @JvmOverloads constructor(
         val comp = children.last()
         if (comp.isDirty()) comp.update()
 
-        miny = max(y, miny - yOffset)
-        miny = if (comp.bounds.y2 > height) min(miny, comp.bounds.y2 - height + 5.0)
-               else min(miny, miny - 12)
+        miny -= yOffset
+        val maxScroll = (comp.bounds.y2 - height + 5.0).coerceAtLeast(y)
+        miny = miny.coerceIn(y, maxScroll)
 
         return miny
     }
@@ -70,19 +70,5 @@ open class UIScrollable @JvmOverloads constructor(
         getScrollY(yOffset)
 
         visibleComponents = getVisibleComponents(miny, miny + height)
-    }
-
-    override fun propagateMouseClick(event: UIClickEvent) {
-        val newEvent = UIClickEvent(event.x, event.y + (miny - y), event.button, event.component)
-        onMouseClick(newEvent)
-        hookOnMouseClick(newEvent)
-        if (!newEvent.propagate) return
-
-        for (child in visibleComponents) {
-            if (!child.inBounds(newEvent)) continue
-
-            child.propagateMouseClick(newEvent)
-            if (!newEvent.propagate) break
-        }
     }
 }
