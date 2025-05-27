@@ -3,7 +3,8 @@ package com.github.synnerz.talium.events
 import com.github.synnerz.talium.components.UIBase
 
 open class UIKeyType(
-    val keycode: Int,
-    val char: Char,
-    val component: UIBase
+    var keycode: Int,
+    var char: Char,
+    var string: String,
+    var component: UIBase
 ) : UIEvent()

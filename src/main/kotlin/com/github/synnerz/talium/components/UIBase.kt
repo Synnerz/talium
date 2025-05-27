@@ -43,7 +43,6 @@ open class UIBase @JvmOverloads constructor(
      * * These are listeners made by the user
      * * i.e. if i want to listen for a mouseClick on a component, i'll add a click hook
      */
-//    private val hooks = object {
     var hookMouseScroll: ((event: UIScrollEvent) -> Unit)? = null
     var hookMouseClick: ((event: UIClickEvent) -> Unit)? = null
     var hookMouseRelease: ((event: UIClickEvent) -> Unit)? = null
@@ -57,7 +56,6 @@ open class UIBase @JvmOverloads constructor(
     var hookResize: ((comp: UIBase, scaledResolution: ScaledResolution) -> Unit)? = null
     var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
     var hookUpdate: (() -> Unit)? = null
-//    }
     /**
      * * Field to check whether this component is dirty or not
      * * When a component is marked as dirty this means that
@@ -525,7 +523,7 @@ open class UIBase @JvmOverloads constructor(
      */
     open fun handleKeyInput(keycode: Int, char: Char) {
         if (parent != null || !focused) return
-        propagateKeyTyped(UIKeyType(keycode, char, this))
+        propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
     }
 
     open fun handleMouseInput() {
