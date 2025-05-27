@@ -43,6 +43,8 @@ open class UITextInput @JvmOverloads constructor(
 
     open fun getSelectedText() = text.substring(getSelectionLeft(), getSelectionRight())
 
+    open fun getCurrentText() = text.substring(currentOffset).trimToWidth(width - 8.0, textScale)
+
     open fun deleteText(from: Int, to: Int): String {
         if (from >= to || from < 0 || to > text.length) return ""
         val deleted = text.substring(from, to)
@@ -112,7 +114,7 @@ open class UITextInput @JvmOverloads constructor(
 
         val textHeight = 9f * textScale
         val heightCenter = (height - textHeight) / 2.0
-        val ctext = text.substring(currentOffset).trimToWidth(width - 8.0, textScale)
+        val ctext = getCurrentText()
         Renderer.drawString(
             ctext,
             (x.toFloat() + 2f) / textScale,
