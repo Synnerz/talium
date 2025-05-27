@@ -56,6 +56,7 @@ open class UIBase @JvmOverloads constructor(
     var hookResize: ((comp: UIBase, scaledResolution: ScaledResolution) -> Unit)? = null
     var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
     var hookUpdate: (() -> Unit)? = null
+    var preChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
     /**
      * * Field to check whether this component is dirty or not
      * * When a component is marked as dirty this means that
@@ -604,6 +605,9 @@ open class UIBase @JvmOverloads constructor(
         hookMouseScroll?.invoke(event)
         if (!event.propagate) return
 
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
+
         for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
@@ -617,6 +621,9 @@ open class UIBase @JvmOverloads constructor(
         hookMouseClick?.invoke(event)
         if (!event.propagate) return
 
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
+
         for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
@@ -629,6 +636,9 @@ open class UIBase @JvmOverloads constructor(
         onMouseRelease(event)
         hookMouseRelease?.invoke(event)
         if (!event.propagate) return
+
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
             if (!child.inBounds(event)) continue
@@ -646,6 +656,9 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
+
         for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
@@ -662,6 +675,9 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
+
         for (child in children.toList()) {
             child.propagateMouseLeave(event)
             if (!event.propagate) break
@@ -672,6 +688,9 @@ open class UIBase @JvmOverloads constructor(
         onMouseHover(event)
         hookMouseHover?.invoke(event)
         if (!event.propagate) return
+
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
             if (!child.inBounds(event)) continue
@@ -685,6 +704,9 @@ open class UIBase @JvmOverloads constructor(
         onMouseDrag(event)
         hookMouseDrag?.invoke(event)
         if (!event.propagate) return
+
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
             child.onMouseDragOut(event)
@@ -704,6 +726,9 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
+
         for (child in children.toList()) {
             if (!child.inBounds(event)) continue
 
@@ -720,6 +745,9 @@ open class UIBase @JvmOverloads constructor(
             hookUnfocus?.invoke(event)
         }
         if (!event.propagate) return
+
+        onPreChildPropagate(event)
+        preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
             child.propagateUnfocus(event)
@@ -823,6 +851,11 @@ open class UIBase @JvmOverloads constructor(
     open fun onUpdate() = apply {}
     open fun onUpdate(cb: () -> Unit) = apply {
         hookUpdate = cb
+    }
+
+    open fun onPreChildPropagate(event: UIMouseEvent) = apply {}
+    open fun onPreChildPropagate(cb: (event: UIMouseEvent) -> Unit) = apply {
+        preChildPropagate = cb
     }
 
     /**
