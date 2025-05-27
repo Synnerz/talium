@@ -550,11 +550,12 @@ open class UIBase @JvmOverloads constructor(
             propagateMouseScroll(UIScrollEvent(mxd, myd, scroll.sign, this))
 
         // Handle mouseEnter/Hover/Leave
+        val mouseEvent = UIMouseEvent(mxd, myd, this)
         if (insideBounds) {
-            propagateMouseEnter(UIMouseEvent(mxd, myd, this))
-            propagateMouseHover(UIMouseEvent(mxd, myd, this))
+            propagateMouseEnter(mouseEvent)
+            propagateMouseHover(mouseEvent)
         }
-        propagateMouseLeave(UIMouseEvent(mxd, myd, this))
+        propagateMouseLeave(mouseEvent)
 
         mouseInBounds = insideBounds
 
@@ -565,20 +566,22 @@ open class UIBase @JvmOverloads constructor(
             if (oldState != btnState) {
                 mouseState[btn] = btnState
 
+                val clickEvent = UIClickEvent(mxd, myd, btn, this)
+                val focusEvent = UIFocusEvent(mxd, myd, false, this)
+
                 if (insideBounds) {
-                    if (oldState) propagateMouseRelease(UIClickEvent(mxd, myd, btn, this))
+                    if (oldState) propagateMouseRelease(clickEvent)
                     else {
-                        propagateMouseClick(UIClickEvent(mxd, myd, btn, this))
+                        propagateMouseClick(clickEvent)
                         propagateFocus(UIFocusEvent(mxd, myd, true, this))
                     }
                 }
                 if (focused && !insideBounds) {
-                    propagateUnfocus(UIFocusEvent(mxd, myd, false, this))
+                    propagateUnfocus(focusEvent)
                 } else {
-                    val event = UIFocusEvent(mxd, myd, false, this)
                     for (child in children) {
-                        child.propagateUnfocus(event)
-                        if (!event.propagate) break
+                        child.propagateUnfocus(focusEvent)
+                        if (!focusEvent.propagate) break
                     }
                 }
 

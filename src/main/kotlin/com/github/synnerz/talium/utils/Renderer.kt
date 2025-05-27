@@ -15,7 +15,7 @@ import java.awt.Color
 object Renderer {
     private val tessellator: Tessellator by lazy { Tessellator.getInstance() }
     private val worldRenderer: WorldRenderer by lazy { tessellator.worldRenderer }
-    private val fontRenderer: FontRenderer by lazy { Minecraft.getMinecraft().fontRendererObj }
+    val fontRenderer: FontRenderer by lazy { Minecraft.getMinecraft().fontRendererObj }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
 
     @JvmOverloads
