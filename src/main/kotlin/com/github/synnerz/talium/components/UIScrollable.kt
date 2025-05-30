@@ -1,7 +1,7 @@
 package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.ScissorEffect
-import com.github.synnerz.talium.events.UIScrollEvent
+import com.github.synnerz.talium.events.*
 import net.minecraft.client.renderer.GlStateManager
 
 open class UIScrollable @JvmOverloads constructor(
@@ -16,9 +16,6 @@ open class UIScrollable @JvmOverloads constructor(
 
     init {
         addEffect(ScissorEffect())
-        onPreChildPropagate {
-            it.y += miny - y
-        }
     }
 
     override fun onUpdate() = apply {
@@ -40,7 +37,7 @@ open class UIScrollable @JvmOverloads constructor(
     open fun getVisibleComponents(scrollY: Double, maxHeight: Double): MutableList<UIBase> {
         val comps = mutableListOf<UIBase>()
 
-        for (child in children) {
+        for (child in children.toList()) {
             if (child.hidden) continue
             if (child.isDirty()) child.update()
             if (child.bounds.y1 < scrollY || child.bounds.y2 > maxHeight) continue
@@ -70,5 +67,181 @@ open class UIScrollable @JvmOverloads constructor(
         getScrollY(yOffset)
 
         visibleComponents = getVisibleComponents(miny, miny + height)
+    }
+
+    override fun propagateMouseScroll(event: UIScrollEvent) {
+        super.propagateMouseScroll(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIScrollEvent(event.x, event.y + (miny - y), event.delta, event.component)
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            if (!child.inBounds(resizedEvent)) continue
+
+            child.propagateMouseScroll(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateMouseClick(event: UIClickEvent) {
+        super.propagateMouseClick(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIClickEvent(event.x, event.y + (miny - y), event.button, event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            if (!child.inBounds(resizedEvent)) continue
+
+            child.propagateMouseClick(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateMouseRelease(event: UIClickEvent) {
+        super.propagateMouseRelease(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIClickEvent(event.x, event.y + (miny - y), event.button, event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            if (!child.inBounds(resizedEvent)) continue
+
+            child.propagateMouseRelease(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateMouseEnter(event: UIMouseEvent) {
+        super.propagateMouseEnter(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIMouseEvent(event.x, event.y + (miny - y), event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            if (!child.inBounds(resizedEvent)) continue
+
+            child.propagateMouseEnter(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateMouseLeave(event: UIMouseEvent) {
+        super.propagateMouseLeave(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIMouseEvent(event.x, event.y + (miny - y), event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            child.propagateMouseLeave(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateMouseHover(event: UIMouseEvent) {
+        super.propagateMouseHover(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIMouseEvent(event.x, event.y + (miny - y), event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            if (!child.inBounds(resizedEvent)) continue
+
+            child.propagateMouseHover(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateMouseDrag(event: UIDragEvent) {
+        super.propagateMouseDrag(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIDragEvent(event.dx, event.dy + (miny - y), event.x, event.y + (miny - y), event.button, event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            child.onMouseDragOut(resizedEvent)
+            if (!child.inBounds(resizedEvent)) continue
+
+            child.propagateMouseDrag(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateFocus(event: UIFocusEvent) {
+        super.propagateFocus(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIFocusEvent(event.x, event.y + (miny - y), event.state, event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            if (!child.inBounds(resizedEvent)) continue
+
+            child.propagateFocus(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
+    }
+
+    override fun propagateUnfocus(event: UIFocusEvent) {
+        super.propagateUnfocus(event)
+        if (!event.propagate) return
+
+        val resizedEvent = UIFocusEvent(event.x, event.y + (miny - y), event.state, event.component)
+
+        onPreChildPropagate(resizedEvent)
+        preChildPropagate?.let { it(resizedEvent) }
+
+        for (child in children.toList()) {
+            child.propagateUnfocus(resizedEvent)
+            if (!resizedEvent.propagate) break
+        }
+
+        onPostChildPropagation(resizedEvent)
+        postChildPropagate?.let { it(resizedEvent) }
     }
 }
