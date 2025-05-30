@@ -72,7 +72,8 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateMouseScroll(event: UIScrollEvent) {
-        super.propagateMouseScroll(event)
+        onMouseScroll(event)
+        hookMouseScroll?.invoke(event)
         if (!event.propagate) return
 
         val resizedEvent = UIScrollEvent(event.x, event.y + (miny - y), event.delta, event.component)
@@ -91,7 +92,8 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateMouseClick(event: UIClickEvent) {
-        super.propagateMouseClick(event)
+        onMouseClick(event)
+        hookMouseClick?.invoke(event)
         if (!event.propagate) return
 
         val resizedEvent = UIClickEvent(event.x, event.y + (miny - y), event.button, event.component)
@@ -111,7 +113,8 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateMouseRelease(event: UIClickEvent) {
-        super.propagateMouseRelease(event)
+        onMouseRelease(event)
+        hookMouseRelease?.invoke(event)
         if (!event.propagate) return
 
         val resizedEvent = UIClickEvent(event.x, event.y + (miny - y), event.button, event.component)
@@ -131,7 +134,11 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateMouseEnter(event: UIMouseEvent) {
-        super.propagateMouseEnter(event)
+        if (!mouseInBounds) {
+            onMouseEnter(event)
+            hookMouseEnter?.invoke(event)
+            mouseInBounds = true
+        }
         if (!event.propagate) return
 
         val resizedEvent = UIMouseEvent(event.x, event.y + (miny - y), event.component)
@@ -151,7 +158,11 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateMouseLeave(event: UIMouseEvent) {
-        super.propagateMouseLeave(event)
+        if (mouseInBounds && !inBounds(event)) {
+            onMouseLeave(event)
+            hookMouseLeave?.invoke(event)
+            mouseInBounds = false
+        }
         if (!event.propagate) return
 
         val resizedEvent = UIMouseEvent(event.x, event.y + (miny - y), event.component)
@@ -169,7 +180,8 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateMouseHover(event: UIMouseEvent) {
-        super.propagateMouseHover(event)
+        onMouseHover(event)
+        hookMouseHover?.invoke(event)
         if (!event.propagate) return
 
         val resizedEvent = UIMouseEvent(event.x, event.y + (miny - y), event.component)
@@ -189,7 +201,8 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateMouseDrag(event: UIDragEvent) {
-        super.propagateMouseDrag(event)
+        onMouseDrag(event)
+        hookMouseDrag?.invoke(event)
         if (!event.propagate) return
 
         val resizedEvent = UIDragEvent(event.dx, event.dy + (miny - y), event.x, event.y + (miny - y), event.button, event.component)
@@ -210,7 +223,12 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateFocus(event: UIFocusEvent) {
-        super.propagateFocus(event)
+        if (focused != event.state) {
+            focused = true
+            onFocus(event)
+            hookFocus?.invoke(event)
+            focused = event.state
+        }
         if (!event.propagate) return
 
         val resizedEvent = UIFocusEvent(event.x, event.y + (miny - y), event.state, event.component)
@@ -230,7 +248,12 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun propagateUnfocus(event: UIFocusEvent) {
-        super.propagateUnfocus(event)
+        if (focused && !inBounds(event)) {
+            focused = false
+            onUnfocus(event)
+            onLostFocus(event)
+            hookUnfocus?.invoke(event)
+        }
         if (!event.propagate) return
 
         val resizedEvent = UIFocusEvent(event.x, event.y + (miny - y), event.state, event.component)

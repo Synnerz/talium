@@ -67,7 +67,8 @@ open class UIBase @JvmOverloads constructor(
      * * i.e. if the window is resized this _should_ be marked as dirty, so it can recalculate the position etc
      */
     private var dirty: Boolean = true
-    private var mouseInBounds: Boolean = false
+    var mouseInBounds: Boolean = false
+        internal set
     private val mouseState = mutableMapOf<Int, Boolean>()
     private val draggedState = mutableMapOf<Int, State>()
     /**
