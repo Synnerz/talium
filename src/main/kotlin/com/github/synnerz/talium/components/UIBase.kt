@@ -56,7 +56,10 @@ open class UIBase @JvmOverloads constructor(
     var hookResize: ((comp: UIBase, scaledResolution: ScaledResolution) -> Unit)? = null
     var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
     var hookUpdate: (() -> Unit)? = null
+    /** * Runs before the event is passed through to the children of this component */
     var preChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
+    /** * Runs after the event is passed through to the children of this component */
+    var postChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
     /**
      * * Field to check whether this component is dirty or not
      * * When a component is marked as dirty this means that
@@ -614,6 +617,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateMouseScroll(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateMouseClick(event: UIClickEvent) {
@@ -630,6 +636,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateMouseClick(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateMouseRelease(event: UIClickEvent) {
@@ -646,6 +655,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateMouseRelease(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateMouseEnter(event: UIMouseEvent) {
@@ -665,6 +677,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateMouseEnter(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateMouseLeave(event: UIMouseEvent) {
@@ -682,6 +697,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateMouseLeave(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateMouseHover(event: UIMouseEvent) {
@@ -698,6 +716,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateMouseHover(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateMouseDrag(event: UIDragEvent) {
@@ -715,6 +736,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateMouseDrag(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateFocus(event: UIFocusEvent) {
@@ -735,6 +759,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateFocus(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateUnfocus(event: UIFocusEvent) {
@@ -753,6 +780,9 @@ open class UIBase @JvmOverloads constructor(
             child.propagateUnfocus(event)
             if (!event.propagate) break
         }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
     }
 
     open fun propagateKeyTyped(event: UIKeyType) {
@@ -856,6 +886,11 @@ open class UIBase @JvmOverloads constructor(
     open fun onPreChildPropagate(event: UIMouseEvent) = apply {}
     open fun onPreChildPropagate(cb: (event: UIMouseEvent) -> Unit) = apply {
         preChildPropagate = cb
+    }
+
+    open fun onPostChildPropagation(event: UIMouseEvent) = apply {}
+    open fun onPostChildPropagation(cb: (event: UIMouseEvent) -> Unit) = apply {
+        postChildPropagate = cb
     }
 
     /**
