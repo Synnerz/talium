@@ -62,6 +62,8 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun onMouseScroll(event: UIScrollEvent) = apply {
+        if (children.isEmpty()) return@apply
+
         val d = event.delta * 120
         val yOffset = d / 10
         getScrollY(yOffset)
