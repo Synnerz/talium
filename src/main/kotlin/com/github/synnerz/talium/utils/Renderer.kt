@@ -13,8 +13,8 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 object Renderer {
-    private val tessellator: Tessellator by lazy { Tessellator.getInstance() }
-    private val worldRenderer: WorldRenderer by lazy { tessellator.worldRenderer }
+    val tessellator: Tessellator by lazy { Tessellator.getInstance() }
+    val worldRenderer: WorldRenderer by lazy { tessellator.worldRenderer }
     val fontRenderer: FontRenderer by lazy { Minecraft.getMinecraft().fontRendererObj }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
 
