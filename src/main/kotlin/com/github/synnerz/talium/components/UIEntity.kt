@@ -76,10 +76,7 @@ open class UIEntity @JvmOverloads constructor(
         entityIn.prevRotationYawHead = entityPrevRotationYawHead
 
         RenderHelper.disableStandardItemLighting()
-        GlStateManager.disableRescaleNormal()
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit)
         GlStateManager.disableTexture2D()
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit)
         GlStateManager.popMatrix()
     }
 
