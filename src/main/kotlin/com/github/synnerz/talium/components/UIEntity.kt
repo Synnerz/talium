@@ -6,7 +6,6 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.Entity
