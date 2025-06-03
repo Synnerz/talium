@@ -6,6 +6,7 @@ import com.github.synnerz.talium.effects.OutlineEffect
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.effects.UIEffect
 import com.github.synnerz.talium.events.*
+import com.github.synnerz.talium.layout.Layout
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
 import net.minecraft.client.Minecraft
@@ -104,6 +105,8 @@ open class UIBase @JvmOverloads constructor(
     open var heightAnimation: Animation? = null
     /** * Whether this component is hidden or not */
     open var hidden: Boolean = false
+    /** * The layout to use for the children drawing */
+    open var layout: Layout? = null
 
     data class State(var x: Double, var y: Double)
 
@@ -403,6 +406,21 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
+     * * Adds a layout to handle the drawing of children
+     */
+    open fun addLayout(layout: Layout) = apply {
+        layout.parent = this
+        this.layout = layout
+    }
+
+    /**
+     * * Removes the current layout
+     */
+    open fun removeLayout() = apply {
+        layout = null
+    }
+
+    /**
      * * This is the update method, whenever the [dirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
@@ -421,6 +439,7 @@ open class UIBase @JvmOverloads constructor(
         bounds = Boundaries(x, y, x + width, y + height)
         onUpdate()
         hookUpdate?.invoke()
+        layout?.onUpdate()
     }
 
     /**
@@ -500,9 +519,11 @@ open class UIBase @JvmOverloads constructor(
             render()
             x += x2
             y += y2
+            layout?.preChildDraw()
             effects.forEach { it.preChildDraw() }
             preChildDraw()
             drawChildren(x2, y2)
+            layout?.postChildDraw()
             effects.forEach { it.postChildDraw() }
             postChildDraw()
             effects.forEach { it.postDraw() }
