@@ -15,8 +15,8 @@ open class UISlider @JvmOverloads constructor(
     _width: Double,
     _height: Double,
     var value: Double = 0.0,
-    var min: Double,
-    var max: Double,
+    var min: Double = 0.0,
+    var max: Double = 1.0,
     var radius: Double = 0.0,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {

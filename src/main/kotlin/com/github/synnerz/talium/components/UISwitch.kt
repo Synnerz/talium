@@ -17,8 +17,8 @@ open class UISwitch @JvmOverloads constructor(
     _y: Double,
     _width: Double,
     _height: Double,
-    var radius: Double = 0.0,
     var state: Boolean = false,
+    var radius: Double = 0.0,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     open var enabledColor: Color? = null

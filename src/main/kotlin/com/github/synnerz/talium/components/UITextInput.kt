@@ -22,8 +22,8 @@ open class UITextInput @JvmOverloads constructor(
     _y: Double,
     _width: Double,
     _height: Double,
-    var radius: Double = 0.0,
     var text: String = "",
+    var radius: Double = 0.0,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     var cursorAnimation: Animation = Animation(Animations.CIRC_IN_OUT, 750f)

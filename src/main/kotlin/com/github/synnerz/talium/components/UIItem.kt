@@ -12,9 +12,9 @@ open class UIItem @JvmOverloads constructor(
     _width: Double,
     _height: Double,
     var item: ItemStack,
-    var zlevel: Float = 200f,
     var scale: Float = 1f,
-    parent: UIBase?
+    var zlevel: Float = 200f,
+    parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     override var bgColor: Color = Color(255, 255, 255, 255)
 

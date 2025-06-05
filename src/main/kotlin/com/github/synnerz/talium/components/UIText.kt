@@ -32,7 +32,8 @@ open class UIText @JvmOverloads constructor(
             Renderer.drawString(
                 text,
                 x.toFloat() / scale,
-                y.toFloat() / scale
+                y.toFloat() / scale,
+                true
             )
 
             if (scale != 1f) GlStateManager.popMatrix()
@@ -51,7 +52,8 @@ open class UIText @JvmOverloads constructor(
             Renderer.drawString(
                 text,
                 (x + (width - textWidth) / 2.0).toFloat() / scale,
-                (y + (height - textHeight) / 2.0).toFloat() / scale
+                (y + (height - textHeight) / 2.0).toFloat() / scale,
+                true
             )
 
             if (scale != 1f) GlStateManager.popMatrix()
