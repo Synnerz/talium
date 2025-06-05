@@ -24,7 +24,7 @@ open class UIEntity @JvmOverloads constructor(
     _y: Double,
     _width: Double,
     _height: Double,
-    var entityIn: EntityLivingBase,
+    var entityIn: EntityLivingBase? = null,
     var scale: Float = 1f,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
@@ -35,7 +35,9 @@ open class UIEntity @JvmOverloads constructor(
     open fun getmy(): Float = -y.toFloat() + Renderer.getMouseY(scaledResolution!!)
 
     override fun render() {
-        entityIn.onUpdate()
+        if (entityIn == null) return
+
+        entityIn!!.onUpdate()
         GlStateManager.pushMatrix()
         GlStateManager.enableTexture2D()
         GlStateManager.enableColorMaterial()
@@ -45,22 +47,22 @@ open class UIEntity @JvmOverloads constructor(
 
         val mx = getmx()
         val my = getmy()
-        val renderYawOffset = entityIn.renderYawOffset
-        val entityYaw = entityIn.rotationYaw
-        val entityRotation = entityIn.rotationPitch
-        val entityPrevRotationYawHead = entityIn.prevRotationYawHead
-        val entityRotationYawHead = entityIn.rotationYawHead
+        val renderYawOffset = entityIn!!.renderYawOffset
+        val entityYaw = entityIn!!.rotationYaw
+        val entityRotation = entityIn!!.rotationPitch
+        val entityPrevRotationYawHead = entityIn!!.prevRotationYawHead
+        val entityRotationYawHead = entityIn!!.rotationYawHead
 
         GlStateManager.rotate(135f, 0f, 1f, 0f)
         RenderHelper.enableStandardItemLighting()
         GlStateManager.rotate(-135f, 0f, 1f, 0f)
         GlStateManager.rotate(25f, 1f, 0f, 0f)
 
-        entityIn.renderYawOffset = atan(mx / 40f) * 20f
-        entityIn.rotationYaw = atan(mx / 40f) * 40f
-        entityIn.rotationPitch = atan(my / 40f) * 20f
-        entityIn.rotationYawHead = entityIn.rotationYaw
-        entityIn.prevRotationYawHead = entityIn.rotationYaw
+        entityIn!!.renderYawOffset = atan(mx / 40f) * 20f
+        entityIn!!.rotationYaw = atan(mx / 40f) * 40f
+        entityIn!!.rotationPitch = atan(my / 40f) * 20f
+        entityIn!!.rotationYawHead = entityIn!!.rotationYaw
+        entityIn!!.prevRotationYawHead = entityIn!!.rotationYaw
 
         val renderManager = Minecraft.getMinecraft().renderManager
 
@@ -68,11 +70,11 @@ open class UIEntity @JvmOverloads constructor(
         renderManager.isRenderShadow = false
         renderManager.renderEntityWithPosYaw(entityIn, 0.0, 0.0, 0.0, 0f, 1f)
 
-        entityIn.renderYawOffset = renderYawOffset
-        entityIn.rotationYaw = entityYaw
-        entityIn.rotationPitch = entityRotation
-        entityIn.rotationYawHead = entityRotationYawHead
-        entityIn.prevRotationYawHead = entityPrevRotationYawHead
+        entityIn!!.renderYawOffset = renderYawOffset
+        entityIn!!.rotationYaw = entityYaw
+        entityIn!!.rotationPitch = entityRotation
+        entityIn!!.rotationYawHead = entityRotationYawHead
+        entityIn!!.prevRotationYawHead = entityPrevRotationYawHead
 
         RenderHelper.disableStandardItemLighting()
         GlStateManager.disableTexture2D()
