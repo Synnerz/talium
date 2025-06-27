@@ -634,7 +634,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(event)) continue
+            if (!child.inBounds(event) || child.hidden) continue
 
             child.propagateMouseScroll(event)
             if (!event.propagate) break
@@ -653,7 +653,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(event)) continue
+            if (!child.inBounds(event) || child.hidden) continue
 
             child.propagateMouseClick(event)
             if (!event.propagate) break
@@ -672,7 +672,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(event)) continue
+            if (!child.inBounds(event) || child.hidden) continue
 
             child.propagateMouseRelease(event)
             if (!event.propagate) break
@@ -694,7 +694,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(event)) continue
+            if (!child.inBounds(event) || child.hidden) continue
 
             child.propagateMouseEnter(event)
             if (!event.propagate) break
@@ -716,6 +716,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
+            if (child.hidden) continue
             child.propagateMouseLeave(event)
             if (!event.propagate) break
         }
@@ -733,7 +734,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(event)) continue
+            if (!child.inBounds(event) || child.hidden) continue
 
             child.propagateMouseHover(event)
             if (!event.propagate) break
@@ -752,6 +753,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
+            if (child.hidden) continue
             child.onMouseDragOut(event)
             if (!child.inBounds(event)) continue
 
@@ -776,7 +778,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(event)) continue
+            if (!child.inBounds(event) || child.hidden) continue
 
             child.propagateFocus(event)
             if (!event.propagate) break
@@ -799,6 +801,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
+            if (child.hidden) continue
             child.propagateUnfocus(event)
             if (!event.propagate) break
         }
@@ -814,7 +817,7 @@ open class UIBase @JvmOverloads constructor(
         if (!event.propagate) return
 
         for (child in children.toList()) {
-            if (!child.focused) continue
+            if (!child.focused || child.hidden) continue
 
             child.propagateKeyTyped(event)
             if (!event.propagate) break
