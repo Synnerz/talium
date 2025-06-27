@@ -81,7 +81,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(resizedEvent)) continue
+            if (!child.inBounds(resizedEvent) || child.hidden) continue
 
             child.propagateMouseScroll(resizedEvent)
             if (!resizedEvent.propagate) break
@@ -102,7 +102,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(resizedEvent)) continue
+            if (!child.inBounds(resizedEvent) || child.hidden) continue
 
             child.propagateMouseClick(resizedEvent)
             if (!resizedEvent.propagate) break
@@ -123,7 +123,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(resizedEvent)) continue
+            if (!child.inBounds(resizedEvent) || child.hidden) continue
 
             child.propagateMouseRelease(resizedEvent)
             if (!resizedEvent.propagate) break
@@ -147,7 +147,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(resizedEvent)) continue
+            if (!child.inBounds(resizedEvent) || child.hidden) continue
 
             child.propagateMouseEnter(resizedEvent)
             if (!resizedEvent.propagate) break
@@ -171,6 +171,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
+            if (child.hidden) continue
             child.propagateMouseLeave(resizedEvent)
             if (!resizedEvent.propagate) break
         }
@@ -190,7 +191,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(resizedEvent)) continue
+            if (!child.inBounds(resizedEvent) || child.hidden) continue
 
             child.propagateMouseHover(resizedEvent)
             if (!resizedEvent.propagate) break
@@ -212,7 +213,7 @@ open class UIScrollable @JvmOverloads constructor(
 
         for (child in children.toList()) {
             child.onMouseDragOut(resizedEvent)
-            if (!child.inBounds(resizedEvent)) continue
+            if (!child.inBounds(resizedEvent) || child.hidden) continue
 
             child.propagateMouseDrag(resizedEvent)
             if (!resizedEvent.propagate) break
@@ -237,7 +238,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(resizedEvent)) continue
+            if (!child.inBounds(resizedEvent) || child.hidden) continue
 
             child.propagateFocus(resizedEvent)
             if (!resizedEvent.propagate) break
@@ -262,6 +263,7 @@ open class UIScrollable @JvmOverloads constructor(
         preChildPropagate?.let { it(resizedEvent) }
 
         for (child in children.toList()) {
+            if (child.hidden) continue
             child.propagateUnfocus(resizedEvent)
             if (!resizedEvent.propagate) break
         }
