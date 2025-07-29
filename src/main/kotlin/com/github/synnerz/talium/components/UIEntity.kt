@@ -78,6 +78,7 @@ open class UIEntity @JvmOverloads constructor(
 
         RenderHelper.disableStandardItemLighting()
         GlStateManager.disableTexture2D()
+        GlStateManager.enableBlend()
         GlStateManager.popMatrix()
     }
 
