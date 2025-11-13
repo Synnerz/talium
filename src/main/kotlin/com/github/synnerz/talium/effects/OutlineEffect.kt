@@ -18,14 +18,15 @@ open class OutlineEffect @JvmOverloads constructor(
         if (component == null) return
         if (width == 0.0 || color.alpha == 0) return
 
-        color.bind()
-
         if (radius == 0.0) {
             Renderer.drawRect(
-                component!!.x - width,
-                component!!.y - width,
-                component!!.width + width * 2,
-                component!!.height + width * 2
+                component!!.x - width / 2,
+                component!!.y - width / 2,
+                component!!.width + width,
+                component!!.height + width,
+                false,
+                color,
+                width.toFloat()
             )
             return
         }

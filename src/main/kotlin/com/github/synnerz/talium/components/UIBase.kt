@@ -7,13 +7,12 @@ import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.effects.UIEffect
 import com.github.synnerz.talium.events.*
 import com.github.synnerz.talium.layout.Layout
+import com.github.synnerz.talium.utils.MouseState
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.bind
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
-import org.lwjgl.input.Mouse
+import com.github.synnerz.talium.utils.ScaledResolution
+import com.mojang.blaze3d.opengl.GlStateManager
+import net.minecraft.client.MinecraftClient
 import java.awt.Color
 import kotlin.math.sign
 
@@ -472,7 +471,7 @@ open class UIBase @JvmOverloads constructor(
     open fun draw(x2: Double = 0.0, y2: Double = 0.0) {
         // Check the scaledResolution
         if (isMainComponent()) {
-            val sr = ScaledResolution(Minecraft.getMinecraft())
+            val sr = ScaledResolution(MinecraftClient.getInstance())
             if (scaledResolution == null) {
                 scaledResolution = sr
             } else if (
@@ -489,10 +488,10 @@ open class UIBase @JvmOverloads constructor(
         if (hidden) return
 
         if (isMainComponent()) {
-            GlStateManager.enableBlend()
-            GlStateManager.disableTexture2D()
-            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-            GlStateManager.disableCull()
+            GlStateManager._enableBlend()
+//            GlStateManager.disableTexture2D()
+//            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+            GlStateManager._disableCull()
         }
 
         try {
@@ -534,9 +533,9 @@ open class UIBase @JvmOverloads constructor(
         } finally {
             // Reset stack state only if it's the main component
             if (isMainComponent()) {
-                GlStateManager.enableTexture2D()
-                GlStateManager.disableBlend()
-                GlStateManager.enableCull()
+//                GlStateManager.enableTexture2D()
+                GlStateManager._disableBlend()
+                GlStateManager._enableCull()
                 ScissorEffect.disableScissor()
             }
         }
@@ -555,14 +554,12 @@ open class UIBase @JvmOverloads constructor(
     open fun handleMouseInput() {
         if (scaledResolution == null) return
 
-        val mx = Renderer.getMouseX(scaledResolution!!)
-        val my = Renderer.getMouseY(scaledResolution!!)
-        val mxd = mx.toDouble()
-        val myd = my.toDouble()
+        val mxd = Renderer.getMouseX(scaledResolution!!)
+        val myd = Renderer.getMouseY(scaledResolution!!)
         val insideBounds = inBounds(mxd, myd)
 
         // Handle scroll
-        val scroll = Mouse.getDWheel()
+        val scroll = MouseState.dWheel
         if (scroll != 0 && insideBounds)
             propagateMouseScroll(UIScrollEvent(mxd, myd, scroll.sign, this))
 
@@ -577,9 +574,9 @@ open class UIBase @JvmOverloads constructor(
         mouseInBounds = insideBounds
 
         // Handle mouse click/release/drag
-        for (btn in 0..Mouse.getButtonCount()) {
+        for (btn in 0..8) {
             val oldState = mouseState[btn] ?: false
-            val btnState = Mouse.isButtonDown(btn)
+            val btnState = MouseState.isButtonDown(btn)
             if (oldState != btnState) {
                 mouseState[btn] = btnState
 
@@ -589,6 +586,7 @@ open class UIBase @JvmOverloads constructor(
                 if (insideBounds) {
                     if (oldState) propagateMouseRelease(clickEvent)
                     else {
+                        println("click ${clickEvent.x} - ${clickEvent.y}")
                         propagateMouseClick(clickEvent)
                         propagateFocus(UIFocusEvent(mxd, myd, true, this))
                     }

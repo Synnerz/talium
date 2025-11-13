@@ -1,7 +1,7 @@
 package com.github.synnerz.talium.effects
 
 import com.github.synnerz.talium.components.UIBase
-import net.minecraft.client.gui.ScaledResolution
+import com.github.synnerz.talium.utils.ScaledResolution
 import org.lwjgl.opengl.GL11
 
 /**

@@ -6,7 +6,6 @@ import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.shaders.ui.RoundedRect
 import com.github.synnerz.talium.utils.MathLib.rescale
 import com.github.synnerz.talium.utils.Renderer
-import com.github.synnerz.talium.utils.Renderer.bind
 import java.awt.Color
 
 /**
@@ -38,17 +37,15 @@ open class UISwitch @JvmOverloads constructor(
 
     override fun render() {
         if (enabledColor == null) enabledColor = bgColor.brighter()
-        if (state) enabledColor!!.bind()
-        else bgColor.bind()
+
         // Draw the background rect
-        if (radius == 0.0) Renderer.drawRect(x, y, width, height)
+        if (radius == 0.0) Renderer.drawRect(x, y, width, height, color = if (state) enabledColor!! else bgColor)
         else RoundedRect.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), radius.toFloat())
 
         // Draw the knob
         if (initial) {
             if (state) knob.x = x + 2 + (width - (width / 5)) - 4
             else knob.x = x + 2
-            initial = false
         }
         if (knob.height <= 0.0) knob.height = height / 2
 
@@ -60,13 +57,11 @@ open class UISwitch @JvmOverloads constructor(
                 else rescale(ease, 0.0, 1.0, knob.x, x + 2)
         }
 
-        if (state) knob.enabledColor.bind()
-        else knob.disabledColor.bind()
-
         knob.y = y + (knob.height / 2)
         knob.width = width / 5
 
-        if (knob.radius == 0.0) Renderer.drawRect(knob.x, knob.y, knob.width, knob.height)
+        if (knob.radius == 0.0)
+            Renderer.drawRect(knob.x, knob.y, knob.width, knob.height, color = if (state) knob.enabledColor else knob.disabledColor)
         else {
             RoundedRect.drawRoundedRect(
                 knob.x.toFloat(),
@@ -75,6 +70,8 @@ open class UISwitch @JvmOverloads constructor(
                 knob.height.toFloat(),
                 knob.radius.toFloat())
         }
+
+        initial = false
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {

@@ -1,6 +1,5 @@
 package com.github.synnerz.talium.shaders.uniform
 
-import net.minecraft.client.renderer.OpenGlHelper
 import org.lwjgl.opengl.ARBShaderObjects
 import org.lwjgl.opengl.GL20
 
@@ -13,7 +12,7 @@ data class Vector2f(val x: Float, val y: Float)
 data class Vector3f(val x: Float, val y: Float, val z: Float)
 data class Vector4f(val x: Float, val y: Float, val z: Float, val w: Float)
 
-val supportsShaders = OpenGlHelper.areShadersSupported()
+const val supportsShaders = true
 
 abstract class Uniform<T>(val location: Int) {
     abstract fun setValue(value: T)

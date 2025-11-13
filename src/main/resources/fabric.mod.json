@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "talium",
+	"version": "${version}",
+	"name": "Talium",
+	"description": "Rendering 2D library",
+	"authors": ["DocilElm"],
+	"contact": {
+		"homepage": "https://github.com/Synnerz/",
+		"sources": "https://github.com/Synnerz/talium"
+	},
+	"license": "AGPL-3.0",
+	"icon": "assets/talium/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			{
+				"value": "com.github.synnerz.talium.Talium",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"talium.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.21.5",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}

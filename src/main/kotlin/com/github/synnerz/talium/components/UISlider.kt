@@ -4,7 +4,8 @@ import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
 import com.github.synnerz.talium.events.UIKeyType
 import com.github.synnerz.talium.utils.Renderer.bind
-import org.lwjgl.input.Keyboard
+import net.minecraft.client.MinecraftClient
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -70,20 +71,23 @@ open class UISlider @JvmOverloads constructor(
     }
 
     override fun onKeyType(event: UIKeyType) = apply {
-        val isCtrl = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)
+        val window = MinecraftClient.getInstance().window.handle
+        val isCtrl = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS ||
+                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS
+
         when (event.keycode) {
-            Keyboard.KEY_LEFT -> {
+            GLFW.GLFW_KEY_LEFT -> {
                 if (isCtrl) setCurrentValue(value - ctrlStep)
                 else setCurrentValue(value - keyStep)
             }
-            Keyboard.KEY_RIGHT -> {
+            GLFW.GLFW_KEY_RIGHT -> {
                 if (isCtrl) setCurrentValue(value + ctrlStep)
                 else setCurrentValue(value + keyStep)
             }
-            Keyboard.KEY_HOME -> {
+            GLFW.GLFW_KEY_HOME -> {
                 setCurrentValue(min)
             }
-            Keyboard.KEY_END -> {
+            GLFW.GLFW_KEY_END -> {
                 setCurrentValue(max)
             }
         }

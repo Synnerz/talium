@@ -3,6 +3,8 @@ package com.github.synnerz.talium.shaders
 import com.github.synnerz.talium.shaders.uniform.supportsShaders
 import org.lwjgl.opengl.*
 
+// FIXME: this does not work at all, fix this in the future.
+
 /**
  * Taken from Elementa under MIT License
  * [Link](https://github.com/EssentialGG/Elementa/blob/c8cb78334a073ca4554cb74d49a771e5320351c5/src/main/kotlin/club/sk1er/elementa/shaders/Shader.kt)

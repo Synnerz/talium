@@ -8,9 +8,6 @@ import com.github.synnerz.talium.utils.MathLib
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
 import com.github.synnerz.talium.utils.Renderer.trimToWidth
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.renderer.GlStateManager
-import org.lwjgl.input.Keyboard
 import kotlin.math.max
 import kotlin.math.min
 
@@ -108,8 +105,8 @@ open class UITextInput @JvmOverloads constructor(
         UIRect.drawRect(x, y, width, height, radius)
 
         if (textScale != 1f) {
-            GlStateManager.pushMatrix()
-            GlStateManager.scale(textScale, textScale, 0f)
+//            GlStateManager.pushMatrix()
+//            GlStateManager.scale(textScale, textScale, 0f)
         }
 
         val textHeight = 9f * textScale
@@ -176,7 +173,7 @@ open class UITextInput @JvmOverloads constructor(
             )
         }
         if (textScale != 1f) {
-            GlStateManager.popMatrix()
+//            GlStateManager.popMatrix()
         }
     }
 
@@ -211,74 +208,74 @@ open class UITextInput @JvmOverloads constructor(
     }
 
     override fun onKeyType(event: UIKeyType) = apply {
-        val c = event.char
-        val keycode = event.keycode
-        val char = if (c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
-        val isShifting = Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
-        val isCtrl = Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
-
-        if (isCtrl) {
-            when (keycode) {
-                Keyboard.KEY_A -> {
-                    cursorPos = 0
-                    selectionPos = text.length
-                    return@apply
-                }
-                Keyboard.KEY_C -> {
-                    GuiScreen.setClipboardString(getSelectedText())
-                    return@apply
-                }
-                Keyboard.KEY_V -> {
-                    write(GuiScreen.getClipboardString())
-                    return@apply
-                }
-                Keyboard.KEY_X -> {
-                    GuiScreen.setClipboardString(getSelectedText())
-                    deleteText()
-                    return@apply
-                }
-                // TODO: maybe do undo but not important
-            }
-        }
-
-        when (keycode) {
-            Keyboard.KEY_ESCAPE -> {
-                focused = false
-                unfocus()
-            }
-            Keyboard.KEY_BACK -> {
-                deleteText()
-                return@apply
-            }
-            Keyboard.KEY_DELETE -> {
-                deleteText()
-                return@apply
-            }
-            Keyboard.KEY_HOME -> {
-                cursorPos = 0
-            }
-            Keyboard.KEY_END -> {
-                cursorPos = text.length
-            }
-            Keyboard.KEY_RIGHT -> {
-                if (cursorPos != text.length) {
-                    if (isCtrl) cursorPos += getNextWord()
-                    else cursorPos++
-                }
-            }
-            Keyboard.KEY_LEFT -> {
-                if (cursorPos != 0) {
-                    if (isCtrl) cursorPos -= getPreviousWord()
-                    else cursorPos--
-                }
-            }
-            else -> {
-                write(char)
-                return@apply
-            }
-        }
-
-        if (!isShifting) selectionPos = cursorPos
+//        val c = event.char
+//        val keycode = event.keycode
+//        val char = if (c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
+//        val isShifting = Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
+//        val isCtrl = Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
+//
+//        if (isCtrl) {
+//            when (keycode) {
+//                Keyboard.KEY_A -> {
+//                    cursorPos = 0
+//                    selectionPos = text.length
+//                    return@apply
+//                }
+//                Keyboard.KEY_C -> {
+//                    GuiScreen.setClipboardString(getSelectedText())
+//                    return@apply
+//                }
+//                Keyboard.KEY_V -> {
+//                    write(GuiScreen.getClipboardString())
+//                    return@apply
+//                }
+//                Keyboard.KEY_X -> {
+//                    GuiScreen.setClipboardString(getSelectedText())
+//                    deleteText()
+//                    return@apply
+//                }
+//                // TODO: maybe do undo but not important
+//            }
+//        }
+//
+//        when (keycode) {
+//            Keyboard.KEY_ESCAPE -> {
+//                focused = false
+//                unfocus()
+//            }
+//            Keyboard.KEY_BACK -> {
+//                deleteText()
+//                return@apply
+//            }
+//            Keyboard.KEY_DELETE -> {
+//                deleteText()
+//                return@apply
+//            }
+//            Keyboard.KEY_HOME -> {
+//                cursorPos = 0
+//            }
+//            Keyboard.KEY_END -> {
+//                cursorPos = text.length
+//            }
+//            Keyboard.KEY_RIGHT -> {
+//                if (cursorPos != text.length) {
+//                    if (isCtrl) cursorPos += getNextWord()
+//                    else cursorPos++
+//                }
+//            }
+//            Keyboard.KEY_LEFT -> {
+//                if (cursorPos != 0) {
+//                    if (isCtrl) cursorPos -= getPreviousWord()
+//                    else cursorPos--
+//                }
+//            }
+//            else -> {
+//                write(char)
+//                return@apply
+//            }
+//        }
+//
+//        if (!isShifting) selectionPos = cursorPos
     }
 
     companion object {

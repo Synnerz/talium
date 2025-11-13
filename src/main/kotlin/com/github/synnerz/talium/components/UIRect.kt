@@ -2,6 +2,7 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.shaders.ui.RoundedRect
 import com.github.synnerz.talium.utils.Renderer
+import java.awt.Color
 
 open class UIRect @JvmOverloads constructor(
     _x: Double,
@@ -12,13 +13,14 @@ open class UIRect @JvmOverloads constructor(
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     override fun render() {
-        drawRect(x, y, width, height, radius)
+        drawRect(x, y, width, height, radius, bgColor)
     }
 
     companion object {
-        fun drawRect(x: Double, y: Double, width: Double, height: Double, radius: Double = 0.0) {
+        @JvmOverloads
+        fun drawRect(x: Double, y: Double, width: Double, height: Double, radius: Double = 0.0, color: Color = Color.WHITE) {
             if (radius == 0.0) {
-                Renderer.drawRect(x, y, width, height)
+                Renderer.drawRect(x, y, width, height, color = color)
                 return
             }
 

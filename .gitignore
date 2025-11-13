@@ -1,8 +1,40 @@
-.idea/
-.vscode/
-run/
-build/
+# gradle
+
 .gradle/
+build/
+out/
+classes/
+
+# eclipse
+
+*.launch
+
+# idea
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# vscode
+
+.settings/
+.vscode/
 bin/
-versions/1.8.9-forge-1
-versions/1.8.9-forge-2
+.classpath
+.project
+
+# macos
+
+*.DS_Store
+
+# fabric
+
+run/
+
+# java
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr

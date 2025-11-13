@@ -2,7 +2,6 @@ package com.github.synnerz.talium.effects
 
 import com.github.synnerz.talium.utils.Renderer.bind
 import com.github.synnerz.talium.utils.Renderer.unbind
-import net.minecraft.client.renderer.GlStateManager
 import java.awt.Color
 
 /**
@@ -14,13 +13,13 @@ open class InverseEffect : UIEffect() {
     override var forceColor: Boolean = true
 
     override fun preDraw() {
-        GlStateManager.enableBlend()
-        GlStateManager.tryBlendFuncSeparate(775, 0, 1, 0)
+//        GlStateManager.enableBlend()
+//        GlStateManager.tryBlendFuncSeparate(775, 0, 1, 0)
         color.bind()
     }
 
     override fun postDraw() {
-        GlStateManager.disableBlend()
+//        GlStateManager.disableBlend()
         color.unbind()
     }
 }
