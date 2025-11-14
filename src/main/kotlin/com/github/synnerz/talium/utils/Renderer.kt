@@ -41,6 +41,9 @@ object Renderer {
     )
     val fontRenderer: TextRenderer by lazy { MinecraftClient.getInstance().textRenderer }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
+    private val globalStack = MatrixStack()
+
+    fun stack(): MatrixStack = globalStack
 
     fun getBuffer(drawMode: DrawMode, format: VertexFormat) = BufferBuilder(ALLOCATOR, drawMode, format)
 
@@ -70,9 +73,9 @@ object Renderer {
         x: Double, y: Double, width: Double, height: Double,
         solid: Boolean = true,
         color: Color = Color.WHITE,
-        lineWidth: Float = 1f,
-        stack: MatrixStack.Entry? = null
+        lineWidth: Float = 1f
     ) {
+        val stack = globalStack.peek() ?: return
         val bufr = getBuffer(DrawMode.QUADS, VertexFormats.POSITION_COLOR)
 
         if (!solid) {
@@ -81,13 +84,13 @@ object Renderer {
             val x2 = (x + width).toFloat()
             val y2 = (y + height).toFloat()
             // Top
-            drawLine(bufr, stack ?: emptyStack, x1, y1, x2, y1, lineWidth, color)
+            drawLine(bufr, stack, x1, y1, x2, y1, lineWidth, color)
             // Left
-            drawLine(bufr, stack ?: emptyStack, x1, y1, x1, y2, lineWidth, color)
+            drawLine(bufr, stack, x1, y1, x1, y2, lineWidth, color)
             // Right
-            drawLine(bufr, stack ?: emptyStack, x2, y1, x2, y2, lineWidth, color)
+            drawLine(bufr, stack, x2, y1, x2, y2, lineWidth, color)
             // Bottom
-            drawLine(bufr, stack ?: emptyStack, x1, y2, x2, y2, lineWidth, color)
+            drawLine(bufr, stack, x1, y2, x2, y2, lineWidth, color)
 
             val end = bufr.endNullable() ?: return
             QuadLayer.draw(end)
@@ -95,10 +98,10 @@ object Renderer {
             return
         }
 
-        bufr.vertex(stack ?: emptyStack, x.toFloat(), (y + height).toFloat(), 0f).color(color.rgb)
-        bufr.vertex(stack ?: emptyStack, (x + width).toFloat(), (y + height).toFloat(), 0f).color(color.rgb)
-        bufr.vertex(stack ?: emptyStack, (x + width).toFloat(), y.toFloat(), 0f).color(color.rgb)
-        bufr.vertex(stack ?: emptyStack, x.toFloat(), y.toFloat(), 0f).color(color.rgb)
+        bufr.vertex(stack, x.toFloat(), (y + height).toFloat(), 0f).color(color.rgb)
+        bufr.vertex(stack, (x + width).toFloat(), (y + height).toFloat(), 0f).color(color.rgb)
+        bufr.vertex(stack, (x + width).toFloat(), y.toFloat(), 0f).color(color.rgb)
+        bufr.vertex(stack, x.toFloat(), y.toFloat(), 0f).color(color.rgb)
 
         val end = bufr.endNullable() ?: return
         QuadLayer.draw(end)
@@ -152,9 +155,9 @@ object Renderer {
         sr.mc.mouse.y * sr.mc.window.scaledHeight / max(1, sr.mc.window.height)
 
     @JvmOverloads
-    fun drawString(text: String, x: Float, y: Float, shadow: Boolean = false, color: Int = WHITE, stack: MatrixStack.Entry? = null) {
+    fun drawString(text: String, x: Float, y: Float, shadow: Boolean = false, color: Int = WHITE) {
+        val stack = globalStack.peek() ?: return
         var _y = y
-//        GlStateManager.enableTexture2D()
         val immediate = MinecraftClient.getInstance().bufferBuilders.entityVertexConsumers
         text.split('\n').forEach {
             fontRenderer.draw(
@@ -163,16 +166,14 @@ object Renderer {
                 _y,
                 color,
                 shadow,
-                stack?.positionMatrix ?: emptyStack.positionMatrix,
+                stack.positionMatrix,
                 immediate,
                 TextRenderer.TextLayerType.NORMAL,
                 0,
                 0xf000f0,
             )
-//            fontRenderer.drawString(it, x, _y, color, shadow)
             _y += fontRenderer.fontHeight
         }
-//        GlStateManager.disableTexture2D()
     }
 
     fun String.trimToWidth(width: Double, scale: Float): String {
