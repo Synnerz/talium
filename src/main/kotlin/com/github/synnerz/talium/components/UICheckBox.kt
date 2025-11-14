@@ -4,7 +4,7 @@ import com.github.synnerz.talium.animations.Animation
 import com.github.synnerz.talium.animations.Animations
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.utils.MathLib
-import com.github.synnerz.talium.utils.Renderer.bind
+import com.github.synnerz.talium.utils.Renderer.withAlpha
 import java.awt.Color
 
 open class UICheckBox @JvmOverloads constructor(
@@ -22,7 +22,7 @@ open class UICheckBox @JvmOverloads constructor(
     /** * The checkmark as a string */
     open var check = "§l✔"
     open var cross = "§l✘"
-    override var xAnimation: Animation? = Animation(Animations.QUAD_IN, 5000f)
+    override var xAnimation: Animation? = Animation(Animations.QUAD_IN, 1500f)
     open var currentAlpha: Double = 255.0
 
     override fun render() {
@@ -33,14 +33,16 @@ open class UICheckBox @JvmOverloads constructor(
             currentAlpha = MathLib.rescale(ease, 0.0, 1.0, newMin, newMax)
         }
 
-        if (value) enabledColor.bind(currentAlpha.toFloat())
-        else disabledColor.bind(currentAlpha.toFloat())
+        val checkColor =
+            if (value) enabledColor
+            else disabledColor
 
-        UIRect.drawRect(x, y, width, height, radius)
+        UIRect.drawRect(x, y, width, height, radius, bgColor)
+        if (currentAlpha < 20.0) return
 
         // Draw checkmark/crossmark
-        if (value) UIText.drawCenteredText(check, x, y, width, height, textScale)
-        else UIText.drawCenteredText(cross, x, y, width, height)
+        if (value) UIText.drawCenteredText(check, x, y, width, height, textScale, color = checkColor.withAlpha(currentAlpha.toFloat()))
+        else UIText.drawCenteredText(cross, x, y, width, height, color = checkColor.withAlpha(currentAlpha.toFloat()))
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {

@@ -123,6 +123,15 @@ object Renderer {
 //        )
     }
 
+    fun Color.withAlpha(alpha: Float): Color {
+        return Color(
+            this.red.toFloat() / 255f,
+            this.green.toFloat() / 255f,
+            this.blue.toFloat() / 255f,
+            alpha / 255f
+        )
+    }
+
     fun Color.bind(alpha: Float) {
 //        RenderSystem.setShaderColor(
 //            this.red.toFloat(),
