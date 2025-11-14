@@ -7,7 +7,10 @@ import com.github.synnerz.talium.events.UIKeyType
 import com.github.synnerz.talium.utils.MathLib
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
+import com.github.synnerz.talium.utils.Renderer.stack
 import com.github.synnerz.talium.utils.Renderer.trimToWidth
+import net.minecraft.client.MinecraftClient
+import org.lwjgl.glfw.GLFW
 import kotlin.math.max
 import kotlin.math.min
 
@@ -23,6 +26,7 @@ open class UITextInput @JvmOverloads constructor(
     var radius: Double = 0.0,
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
+    private val keyboard get() = MinecraftClient.getInstance().keyboard
     var cursorAnimation: Animation = Animation(Animations.CIRC_IN_OUT, 750f)
     var cursorPos: Int = 0
     var textScale: Float = 1f
@@ -102,11 +106,11 @@ open class UITextInput @JvmOverloads constructor(
 
     override fun render() {
         updateOffset()
-        UIRect.drawRect(x, y, width, height, radius)
+        UIRect.drawRect(x, y, width, height, radius, bgColor)
 
         if (textScale != 1f) {
-//            GlStateManager.pushMatrix()
-//            GlStateManager.scale(textScale, textScale, 0f)
+            stack().push()
+            stack().scale(textScale, textScale, 0f)
         }
 
         val textHeight = 9f * textScale
@@ -172,9 +176,8 @@ open class UITextInput @JvmOverloads constructor(
                 maxSelectHeight
             )
         }
-        if (textScale != 1f) {
-//            GlStateManager.popMatrix()
-        }
+
+        if (textScale != 1f) stack().pop()
     }
 
     override fun onUnfocus(event: UIFocusEvent) = apply {
@@ -208,74 +211,74 @@ open class UITextInput @JvmOverloads constructor(
     }
 
     override fun onKeyType(event: UIKeyType) = apply {
-//        val c = event.char
-//        val keycode = event.keycode
-//        val char = if (c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
-//        val isShifting = Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
-//        val isCtrl = Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
-//
-//        if (isCtrl) {
-//            when (keycode) {
-//                Keyboard.KEY_A -> {
-//                    cursorPos = 0
-//                    selectionPos = text.length
-//                    return@apply
-//                }
-//                Keyboard.KEY_C -> {
-//                    GuiScreen.setClipboardString(getSelectedText())
-//                    return@apply
-//                }
-//                Keyboard.KEY_V -> {
-//                    write(GuiScreen.getClipboardString())
-//                    return@apply
-//                }
-//                Keyboard.KEY_X -> {
-//                    GuiScreen.setClipboardString(getSelectedText())
-//                    deleteText()
-//                    return@apply
-//                }
-//                // TODO: maybe do undo but not important
-//            }
-//        }
-//
-//        when (keycode) {
-//            Keyboard.KEY_ESCAPE -> {
-//                focused = false
-//                unfocus()
-//            }
-//            Keyboard.KEY_BACK -> {
-//                deleteText()
-//                return@apply
-//            }
-//            Keyboard.KEY_DELETE -> {
-//                deleteText()
-//                return@apply
-//            }
-//            Keyboard.KEY_HOME -> {
-//                cursorPos = 0
-//            }
-//            Keyboard.KEY_END -> {
-//                cursorPos = text.length
-//            }
-//            Keyboard.KEY_RIGHT -> {
-//                if (cursorPos != text.length) {
-//                    if (isCtrl) cursorPos += getNextWord()
-//                    else cursorPos++
-//                }
-//            }
-//            Keyboard.KEY_LEFT -> {
-//                if (cursorPos != 0) {
-//                    if (isCtrl) cursorPos -= getPreviousWord()
-//                    else cursorPos--
-//                }
-//            }
-//            else -> {
-//                write(char)
-//                return@apply
-//            }
-//        }
-//
-//        if (!isShifting) selectionPos = cursorPos
+        val c = event.char ?: if (event.keycode == GLFW.GLFW_KEY_SPACE) " ".single() else null
+        val keycode = event.keycode
+        val char = if (c != null && c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
+        val isShifting = isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT) || isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)
+        val isCtrl = isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) || isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)
+
+        if (isCtrl) {
+            when (keycode) {
+                GLFW.GLFW_KEY_A -> {
+                    cursorPos = 0
+                    selectionPos = text.length
+                    return@apply
+                }
+                GLFW.GLFW_KEY_C -> {
+                    keyboard.clipboard = getSelectedText()
+                    return@apply
+                }
+                GLFW.GLFW_KEY_V -> {
+                    write(keyboard.clipboard)
+                    return@apply
+                }
+                GLFW.GLFW_KEY_X -> {
+                    keyboard.clipboard = getSelectedText()
+                    deleteText()
+                    return@apply
+                }
+                // TODO: maybe do undo but not important
+            }
+        }
+
+        when (keycode) {
+            GLFW.GLFW_KEY_ESCAPE -> {
+                focused = false
+                unfocus()
+            }
+            GLFW.GLFW_KEY_BACKSPACE -> {
+                deleteText()
+                return@apply
+            }
+            GLFW.GLFW_KEY_DELETE -> {
+                deleteText()
+                return@apply
+            }
+            GLFW.GLFW_KEY_HOME -> {
+                cursorPos = 0
+            }
+            GLFW.GLFW_KEY_END -> {
+                cursorPos = text.length
+            }
+            GLFW.GLFW_KEY_RIGHT -> {
+                if (cursorPos != text.length) {
+                    if (isCtrl) cursorPos += getNextWord()
+                    else cursorPos++
+                }
+            }
+            GLFW.GLFW_KEY_LEFT -> {
+                if (cursorPos != 0) {
+                    if (isCtrl) cursorPos -= getPreviousWord()
+                    else cursorPos--
+                }
+            }
+            else -> {
+                if (char != null) write(char)
+                return@apply
+            }
+        }
+
+        if (!isShifting) selectionPos = cursorPos
     }
 
     companion object {
@@ -285,5 +288,9 @@ open class UITextInput @JvmOverloads constructor(
          * * @author Mojang
          */
         fun isAllowedCharacter(char: Char): Boolean = char.code != 167 && char >= ' ' && char.code != 127
+
+        fun isKeyDown(keycode: Int): Boolean {
+            return GLFW.glfwGetKey(MinecraftClient.getInstance().window.handle, keycode) == GLFW.GLFW_PRESS
+        }
     }
 }
