@@ -12,6 +12,7 @@ import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.ScaledResolution
 import com.mojang.blaze3d.opengl.GlStateManager
 import net.minecraft.client.MinecraftClient
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import kotlin.math.sign
 
@@ -537,12 +538,14 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
-     * * Call this method inside a [GuiScreen]'s [GuiScreen.keyTyped]
+     * * Call this method inside a Screen's Screen.keyPressed
      * this will handle all the keytyped as well as only trigger if it's the highest component
      * in the hierarchy
      */
-    open fun handleKeyInput(keycode: Int, char: Char) {
+    open fun handleKeyInput(keycode: Int, scanCode: Int) {
         if (parent != null || !focused) return
+        val keyName = GLFW.glfwGetKeyName(keycode, scanCode)
+        val char = keyName?.single()
         propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
     }
 
