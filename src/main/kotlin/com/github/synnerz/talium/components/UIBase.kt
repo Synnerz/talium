@@ -488,8 +488,6 @@ open class UIBase @JvmOverloads constructor(
 
         if (isMainComponent()) {
             GlStateManager._enableBlend()
-//            GlStateManager.disableTexture2D()
-//            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
             GlStateManager._disableCull()
         }
 
@@ -531,7 +529,6 @@ open class UIBase @JvmOverloads constructor(
         } finally {
             // Reset stack state only if it's the main component
             if (isMainComponent()) {
-//                GlStateManager.enableTexture2D()
                 GlStateManager._disableBlend()
                 GlStateManager._enableCull()
                 ScissorEffect.disableScissor()
@@ -584,7 +581,6 @@ open class UIBase @JvmOverloads constructor(
                 if (insideBounds) {
                     if (oldState) propagateMouseRelease(clickEvent)
                     else {
-                        println("click ${clickEvent.x} - ${clickEvent.y}")
                         propagateMouseClick(clickEvent)
                         propagateFocus(UIFocusEvent(mxd, myd, true, this))
                     }
