@@ -3,6 +3,7 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.utils.Renderer.drawString
 import com.github.synnerz.talium.utils.Renderer.fontRenderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
+import com.github.synnerz.talium.utils.Renderer.stack
 import java.awt.Color
 
 open class UIWrappedText @JvmOverloads constructor(
@@ -18,88 +19,100 @@ open class UIWrappedText @JvmOverloads constructor(
     open var textScale: Float = 1f
 
     override fun render() {
-        if (centered) return drawWrappedStringCentered(text, x, y, width, height, textScale)
+        if (centered) return drawWrappedStringCentered(text, x, y, width, height, textScale, bgColor)
 
-        drawWrappedString(text, x, y, width, height, textScale)
+        drawWrappedString(text, x, y, width, height, textScale, bgColor)
     }
 
     companion object {
         @JvmOverloads
-        fun drawWrappedString(str: String, x: Double, y: Double, width: Double, height: Double, scale: Float = 1f) {
-//            var toRender = ""
-//            var addedNW = 0
-//            val limitHeight = height * scale
-//            var currentWidth = 0
-//
-//            for (char in str) {
-//                if (addedNW * (9 * scale) >= limitHeight) break
-//                currentWidth += "$char".getWidth()
-//                toRender += char
-//
-//                if ((currentWidth * scale) < width) continue
-//
-//                addedNW++
-//                toRender += "\n"
-//                currentWidth = 0
-//            }
-//
-//            if (scale != 1f) {
-//                GlStateManager.pushMatrix()
-//                GlStateManager.scale(scale, scale, 0f)
-//            }
-//
-//            drawString(toRender.ifEmpty { str }, x.toFloat() / scale, y.toFloat() / scale)
-//
-//            if (scale != 1f) GlStateManager.popMatrix()
+        fun drawWrappedString(
+            str: String,
+            x: Double, y: Double,
+            width: Double, height: Double,
+            scale: Float = 1f,
+            color: Color = Color.WHITE
+        ) {
+            var toRender = ""
+            var addedNW = 0
+            val limitHeight = height * scale
+            var currentWidth = 0
+
+            for (char in str) {
+                if (addedNW * (9 * scale) >= limitHeight) break
+                currentWidth += "$char".getWidth()
+                toRender += char
+
+                if ((currentWidth * scale) < width) continue
+
+                addedNW++
+                toRender += "\n"
+                currentWidth = 0
+            }
+
+            if (scale != 1f) {
+                stack().push()
+                stack().scale(scale, scale, 0f)
+            }
+
+            drawString(toRender.ifEmpty { str }, x.toFloat() / scale, y.toFloat() / scale, color = color.rgb)
+
+            if (scale != 1f) stack().pop()
         }
 
         @JvmOverloads
-        fun drawWrappedStringCentered(str: String, x: Double, y: Double, width: Double, height: Double, scale: Float = 1f) {
-//            var currentString = ""
-//            var currentWidth = 0
-//            val limitHeight = height * scale
-//            val fixedString = mutableListOf<String>()
-//
-//            str.forEachIndexed { idx, char ->
-//                if (fixedString.size * (9 * scale) >= limitHeight) return@forEachIndexed
-//                currentString += char
-//                currentWidth += "$char".getWidth()
-//
-//                if (currentWidth * scale >= width) {
-//                    fixedString.add(currentString.trim())
-//                    currentString = ""
-//                    currentWidth = 0
-//                } else if (idx == str.length - 1) {
-//                    fixedString.add(currentString.trim())
-//                }
-//            }
-//
-//            if (scale != 1f) {
-//                GlStateManager.pushMatrix()
-//                GlStateManager.scale(scale, scale, 0f)
-//            }
-//            GlStateManager.enableTexture2D()
-//
-//            val renderText = fixedString.ifEmpty { str.split("\n") }
-//            val lineHeight = fontRenderer.FONT_HEIGHT * scale
-//            val totalHeight = renderText.size * lineHeight
-//            var yy = 0
-//
-//            renderText.forEach {
-//                val dy = y + yy
-//                val strwidth = it.getWidth() * scale
-//                fontRenderer.drawString(
-//                    it,
-//                    (x + (width - strwidth) / 2.0).toFloat() / scale,
-//                    (dy + (height - totalHeight) / 2.0).toFloat() / scale,
-//                    0xFFFFFFFF.toInt(),
-//                    true)
-//                yy += lineHeight.toInt()
-//            }
-//
-//            GlStateManager.disableTexture2D()
-//
-//            if (scale != 1f) GlStateManager.popMatrix()
+        fun drawWrappedStringCentered(
+            str: String,
+            x: Double, y: Double,
+            width: Double, height: Double,
+            scale: Float = 1f,
+            color: Color = Color.WHITE
+        ) {
+            var currentString = ""
+            var currentWidth = 0
+            val limitHeight = height * scale
+            val fixedString = mutableListOf<String>()
+
+            str.forEachIndexed { idx, char ->
+                if (fixedString.size * (9 * scale) >= limitHeight) return@forEachIndexed
+                currentString += char
+                currentWidth += "$char".getWidth()
+
+                if (currentWidth * scale >= width) {
+                    fixedString.add(currentString.trim())
+                    currentString = ""
+                    currentWidth = 0
+                } else if (idx == str.length - 1) {
+                    fixedString.add(currentString.trim())
+                }
+            }
+
+            if (scale != 1f) {
+                stack().push()
+                stack().scale(scale, scale, 0f)
+            }
+
+            val renderText = fixedString.ifEmpty { str.split("\n") }
+            val lineHeight = fontRenderer.fontHeight * scale
+            val totalHeight = renderText.size * lineHeight
+            var yy = 0
+
+            renderText.forEach {
+                val dy = y + yy
+                val strwidth = it.getWidth() * scale
+
+                drawString(
+                    it,
+                    (x + (width - strwidth) / 2.0).toFloat() / scale,
+                    (dy + (height - totalHeight) / 2.0).toFloat() / scale,
+                    true,
+                    color.rgb
+                )
+
+                yy += lineHeight.toInt()
+            }
+
+            if (scale != 1f) stack().pop()
         }
     }
 }
