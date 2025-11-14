@@ -2,6 +2,7 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.events.*
+import com.github.synnerz.talium.utils.Renderer.stack
 
 open class UIScrollable @JvmOverloads constructor(
     _x: Double,
@@ -50,14 +51,14 @@ open class UIScrollable @JvmOverloads constructor(
         for (child in visibleComponents) {
             child.draw(0.0, miny)
         }
-//        GlStateManager.popMatrix()
+        stack().pop()
     }
 
     override fun render() {
         UIRect.drawRect(x, y, width, height)
 
-//        GlStateManager.pushMatrix()
-//        GlStateManager.translate(0.0, y, 0.0)
+        stack().push()
+        stack().translate(0.0, y, 0.0)
     }
 
     override fun onMouseScroll(event: UIScrollEvent) = apply {
