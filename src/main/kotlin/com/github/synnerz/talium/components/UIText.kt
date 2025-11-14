@@ -2,6 +2,7 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
+import com.github.synnerz.talium.utils.Renderer.stack
 import java.awt.Color
 
 open class UIText @JvmOverloads constructor(
@@ -25,8 +26,8 @@ open class UIText @JvmOverloads constructor(
         @JvmOverloads
         fun drawText(text: String, x: Double, y: Double, scale: Float = 1f, color: Color = Color.WHITE) {
             if (scale != 1f) {
-//                GlStateManager.pushMatrix()
-//                GlStateManager.scale(scale, scale, 0f)
+                stack().push()
+                stack().scale(scale, scale, 0f)
             }
 
             Renderer.drawString(
@@ -37,7 +38,7 @@ open class UIText @JvmOverloads constructor(
                 color.rgb
             )
 
-//            if (scale != 1f) GlStateManager.popMatrix()
+            if (scale != 1f) stack().pop()
         }
 
         @JvmOverloads
@@ -46,8 +47,8 @@ open class UIText @JvmOverloads constructor(
             val textHeight = 9f * scale
 
             if (scale != 1f) {
-//                GlStateManager.pushMatrix()
-//                GlStateManager.scale(scale, scale, 0f)
+                stack().push()
+                stack().scale(scale, scale, 0f)
             }
 
             Renderer.drawString(
@@ -58,7 +59,7 @@ open class UIText @JvmOverloads constructor(
                 color.rgb
             )
 
-//            if (scale != 1f) GlStateManager.popMatrix()
+            if (scale != 1f) stack().pop()
         }
     }
 }
