@@ -40,11 +40,11 @@ open class UISlider @JvmOverloads constructor(
 
     override fun render() {
         // Main bar
-        UIRect.drawRect(x, y, width, height, radius)
+        UIRect.drawRect(x, y, width, height, radius, bgColor)
 
         // Completion bar
         val handleX = min((value - min) / (max - min) * width, width)
-        UIRect.drawRect(x, y, handleX, height, radius, bgColor)
+        UIRect.drawRect(x, y, handleX, height, radius, completion.bgColor)
 
         // Thumb
         val thumbX = (x + handleX - (thumb.width / 2.0)).coerceIn(x, (x + width) - thumb.width)
