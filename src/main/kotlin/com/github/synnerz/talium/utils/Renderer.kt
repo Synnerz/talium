@@ -66,7 +66,8 @@ object Renderer {
         x: Double, y: Double, width: Double, height: Double,
         solid: Boolean = true,
         color: Color = Color.WHITE,
-        lineWidth: Float = 1f
+        lineWidth: Float = 1f,
+        layer: RenderLayer = QuadLayer
     ) {
         val stack = globalStack.peek() ?: return
         val bufr = getBuffer(DrawMode.QUADS, VertexFormats.POSITION_COLOR)
@@ -86,7 +87,7 @@ object Renderer {
             drawLine(bufr, stack, x1, y2, x2, y2, lineWidth, color)
 
             val end = bufr.endNullable() ?: return
-            QuadLayer.draw(end)
+            layer.draw(end)
 
             return
         }
@@ -97,17 +98,12 @@ object Renderer {
         bufr.vertex(stack, x.toFloat(), y.toFloat(), 0f).color(color.rgb)
 
         val end = bufr.endNullable() ?: return
-        QuadLayer.draw(end)
+        layer.draw(end)
     }
 
     @JvmOverloads
     fun drawInvertedColRect(x: Double, y: Double, width: Double, height: Double, alpha: Float = 255f) {
-        if (width >= x || height >= y) return
-//        GlStateManager.color(0f, 0f, 255f, alpha)
-//        GlStateManager.enableColorLogic()
-//        GlStateManager.colorLogicOp(GL11.GL_OR_REVERSE)
-        drawRect(x, y, width, height)
-//        GlStateManager.disableColorLogic()
+        drawRect(x, y, width, height, color = Color.BLUE.withAlpha(alpha), layer = RenderLayer.getGuiTextHighlight())
     }
 
     fun Color.withAlpha(alpha: Float): Color {
@@ -115,7 +111,7 @@ object Renderer {
             this.red.toFloat() / 255f,
             this.green.toFloat() / 255f,
             this.blue.toFloat() / 255f,
-            alpha / 255f
+            (alpha / 255f).coerceIn(0f, 1f)
         )
     }
 

@@ -27,7 +27,7 @@ open class UITextInput @JvmOverloads constructor(
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     private val keyboard get() = MinecraftClient.getInstance().keyboard
-    var cursorAnimation: Animation = Animation(Animations.CIRC_IN_OUT, 750f)
+    var cursorAnimation: Animation = Animation(Animations.CIRC_IN_OUT, 650f)
     var cursorPos: Int = 0
     var textScale: Float = 1f
     var cursorAlpha: Double = 255.0
@@ -146,7 +146,8 @@ open class UITextInput @JvmOverloads constructor(
                         "_",
                         (x.toFloat() + n) / textScale,
                         (y + heightCenter).toFloat() / textScale,
-                        color = 14737632)
+                        color = 14737632
+                    )
             }
             // Else we render the blinking `|`
             else {
