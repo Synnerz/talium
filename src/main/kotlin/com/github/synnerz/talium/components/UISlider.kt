@@ -3,7 +3,6 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
 import com.github.synnerz.talium.events.UIKeyType
-import com.github.synnerz.talium.utils.Renderer.bind
 import net.minecraft.client.MinecraftClient
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
@@ -45,16 +44,14 @@ open class UISlider @JvmOverloads constructor(
 
         // Completion bar
         val handleX = min((value - min) / (max - min) * width, width)
-        completion.bgColor.bind()
-        UIRect.drawRect(x, y, handleX, height, radius)
+        UIRect.drawRect(x, y, handleX, height, radius, bgColor)
 
         // Thumb
-        thumb.bgColor.bind()
         val thumbX = (x + handleX - (thumb.width / 2.0)).coerceIn(x, (x + width) - thumb.width)
         val thumbY = y - 2
         val thumbWidth = thumb.width.coerceIn(0.0, width)
         val thumbHeight = height + 4
-        UIRect.drawRect(thumbX, thumbY, thumbWidth, thumbHeight, radius)
+        UIRect.drawRect(thumbX, thumbY, thumbWidth, thumbHeight, radius, thumb.bgColor)
 
         // Text inside thumb
         UIText.drawCenteredText(getDisplayValue(), thumbX, thumbY, thumbWidth, thumbHeight, textScale)

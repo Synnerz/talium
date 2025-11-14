@@ -2,8 +2,6 @@ package com.github.synnerz.talium.effects
 
 import com.github.synnerz.talium.shaders.ui.RoundedRectOutline
 import com.github.synnerz.talium.utils.Renderer
-import com.github.synnerz.talium.utils.Renderer.bind
-import com.github.synnerz.talium.utils.Renderer.unbind
 import java.awt.Color
 
 /**
@@ -39,7 +37,5 @@ open class OutlineEffect @JvmOverloads constructor(
             radius.toFloat(),
             width.toFloat()
         )
-
-        color.unbind()
     }
 }

@@ -1,10 +1,6 @@
 package com.github.synnerz.talium.utils
 
-import com.mojang.blaze3d.pipeline.BlendFunction
 import com.mojang.blaze3d.pipeline.RenderPipeline
-import com.mojang.blaze3d.platform.DestFactor
-import com.mojang.blaze3d.platform.SourceFactor
-import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.blaze3d.vertex.VertexFormat.DrawMode
 import net.minecraft.client.MinecraftClient
@@ -24,12 +20,9 @@ import kotlin.math.sin
 
 object Renderer {
     private val ALLOCATOR = BufferAllocator(RenderLayer.CUTOUT_BUFFER_SIZE)
-    private val emptyStack = MatrixStack().peek()
     private val QuadPipeline = RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
         .withLocation("talium/pipeline1")
         .withVertexFormat(VertexFormats.POSITION_COLOR, DrawMode.QUADS)
-//        .withBlend(BlendFunction(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO))
-//        .withCull(false)
         .build()
     private val QuadLayer = RenderLayer.of(
         "talium/layer1",
@@ -117,15 +110,6 @@ object Renderer {
 //        GlStateManager.disableColorLogic()
     }
 
-    fun Color.bind() {
-//        RenderSystem.setShaderColor(
-//            this.red.toFloat() / 255f,
-//            this.green.toFloat() / 255f,
-//            this.blue.toFloat() / 255f,
-//            this.alpha.toFloat() / 255f
-//        )
-    }
-
     fun Color.withAlpha(alpha: Float): Color {
         return Color(
             this.red.toFloat() / 255f,
@@ -133,19 +117,6 @@ object Renderer {
             this.blue.toFloat() / 255f,
             alpha / 255f
         )
-    }
-
-    fun Color.bind(alpha: Float) {
-//        RenderSystem.setShaderColor(
-//            this.red.toFloat(),
-//            this.green.toFloat(),
-//            this.blue.toFloat(),
-//            alpha
-//        )
-    }
-
-    fun Color.unbind() {
-//        RenderSystem.setShaderColor(0f, 0f, 0f, 0f)
     }
 
     fun getMouseX(sr: ScaledResolution): Double =

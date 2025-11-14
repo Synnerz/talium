@@ -9,7 +9,6 @@ import com.github.synnerz.talium.events.*
 import com.github.synnerz.talium.layout.Layout
 import com.github.synnerz.talium.utils.MouseState
 import com.github.synnerz.talium.utils.Renderer
-import com.github.synnerz.talium.utils.Renderer.bind
 import com.github.synnerz.talium.utils.ScaledResolution
 import com.mojang.blaze3d.opengl.GlStateManager
 import net.minecraft.client.MinecraftClient
@@ -505,7 +504,6 @@ open class UIBase @JvmOverloads constructor(
                 return
             }
             effects.forEach { it.preDraw() }
-            if (!effects.any { it.forceColor }) bgColor.bind()
             // Prepare animations here so the user does not need to do so
             xAnimation?.preDraw()
             yAnimation?.preDraw()
