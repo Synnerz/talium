@@ -57,19 +57,24 @@ open class UISwitch @JvmOverloads constructor(
                 else rescale(ease, 0.0, 1.0, knob.x, x + 2)
         }
 
-        knob.y = y + (knob.height / 2)
+        knob.y = y + (height - knob.height) * 0.5f
         knob.width = width / 5
 
         if (knob.radius == 0.0)
-            Renderer.drawRect(knob.x, knob.y, knob.width, knob.height, color = if (state) knob.enabledColor else knob.disabledColor)
-        else {
+            Renderer.drawRect(
+                knob.x.coerceIn(x + 2.0, x + width),
+                knob.y,
+                knob.width,
+                knob.height,
+                color = if (state) knob.enabledColor else knob.disabledColor
+            )
+        else
             RoundedRect.drawRoundedRect(
                 knob.x.toFloat(),
                 knob.y.toFloat(),
                 knob.width.toFloat(),
                 knob.height.toFloat(),
                 knob.radius.toFloat())
-        }
 
         initial = false
     }
