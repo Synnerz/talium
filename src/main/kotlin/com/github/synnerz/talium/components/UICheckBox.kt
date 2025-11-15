@@ -45,7 +45,8 @@ open class UICheckBox @JvmOverloads constructor(
         else UIText.drawCenteredText(cross, x, y, width, height, color = checkColor.withAlpha(currentAlpha.toFloat()))
     }
 
-    override fun onMouseClick(event: UIClickEvent) = apply {
+    override fun onMouseRelease(event: UIClickEvent) = apply {
+        if (event.button != 0) return@apply
         value = !value
         xAnimation?.start()
     }
