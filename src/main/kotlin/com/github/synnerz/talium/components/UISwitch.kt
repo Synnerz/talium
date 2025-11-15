@@ -44,8 +44,14 @@ open class UISwitch @JvmOverloads constructor(
 
         // Draw the knob
         if (initial) {
-            if (state) knob.x = x + 2 + (width - (width / 5)) - 4
-            else knob.x = x + 2
+            if (state) {
+                knob._x = 80.0
+                knob.x = x + 2 + (width - (width / 5)) - 4
+            }
+            else {
+                knob._x = 1.0
+                knob.x = x + 2
+            }
         }
         if (knob.height <= 0.0) knob.height = height / 2
 
@@ -62,7 +68,7 @@ open class UISwitch @JvmOverloads constructor(
 
         if (knob.radius == 0.0)
             Renderer.drawRect(
-                knob.x.coerceIn(x + 2.0, x + width),
+                knob.x.coerceIn(x + 2, x + 2 + (width - (width / 5)) - 4),
                 knob.y,
                 knob.width,
                 knob.height,
