@@ -106,6 +106,8 @@ open class UIBase @JvmOverloads constructor(
     open var hidden: Boolean = false
     /** * The layout to use for the children drawing */
     open var layout: Layout? = null
+    /** * Workaround for scroll wheel event **/
+    private var hasScrollListener = false
 
     data class State(var x: Double, var y: Double)
 
@@ -557,9 +559,15 @@ open class UIBase @JvmOverloads constructor(
         val insideBounds = inBounds(mxd, myd)
 
         // Handle scroll
-        val scroll = MouseState.dWheel
-        if (scroll != 0 && insideBounds)
-            propagateMouseScroll(UIScrollEvent(mxd, myd, scroll.sign, this))
+        if (!hasScrollListener) {
+            MouseState.onMouseScroll { mx, my, delta ->
+                val inComp = inBounds(mx, my)
+                // scroll should never be 0 but just in case
+                if (delta == 0 || !inComp) return@onMouseScroll
+                propagateMouseScroll(UIScrollEvent(mx, my, delta, this))
+            }
+            hasScrollListener = true
+        }
 
         // Handle mouseEnter/Hover/Leave
         val mouseEvent = UIMouseEvent(mxd, myd, this)
