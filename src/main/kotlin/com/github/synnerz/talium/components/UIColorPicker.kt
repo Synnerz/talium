@@ -76,6 +76,20 @@ open class UIColorPicker @JvmOverloads constructor(
         value = colorRect.bgColor.rgb
     }
 
+    open fun setRgb(argb: Int) {
+        val ncolor = Color(argb)
+        val hsb = Color.RGBtoHSB(ncolor.red, ncolor.green, ncolor.blue, null)
+        huePicker.setHue(hsb[0].toDouble())
+        gradientPicker.setValue(ncolor, hsb[1].toDouble(), hsb[2].toDouble())
+        colorRect.bgColor = Color(
+            ncolor.red,
+            ncolor.green,
+            ncolor.blue,
+            alpha
+        )
+        value = colorRect.bgColor.rgb
+    }
+
     open fun setAlpha(alpha: Double) {
         this.alpha = (alpha * 255).roundToInt()
         setValue(huePicker.currentHue)
@@ -175,6 +189,12 @@ open class UIColorHuePicker @JvmOverloads constructor(
         huePointer.setDirty()
         dragging = false
     }
+
+    fun setHue(newHue: Double) {
+        currentHue = newHue
+        huePointer._y = currentHue * 100
+        huePointer.setDirty()
+    }
 }
 
 open class UIColorGradient @JvmOverloads constructor(
@@ -236,5 +256,14 @@ open class UIColorGradient @JvmOverloads constructor(
 
     open fun setValue(hue: Double) {
         color = Color(Color.HSBtoRGB(hue.toFloat(), 1f, 1f))
+    }
+
+    fun setValue(color: Color, sat1: Double, bri1: Double) {
+        this.color = color
+        saturation = sat1
+        brightness = bri1
+        gradientPointer._x = saturation * 100
+        gradientPointer._y = (1 - brightness) * 100
+        gradientPointer.setDirty()
     }
 }
