@@ -21,7 +21,7 @@ open class UIColorPicker @JvmOverloads constructor(
     // This is a fake child for a workaround, so we can have a dropdown-like
     // feature for the color picker, this "child" will not have [this] as a parent,
     // so we can branch out and set the width/height to something bigger
-    private val fakeChild = UIRect(_x, _y + _height + 1, _width + 3, _height + 5).apply { hide() }
+    private val fakeChild = UIRect(_x, _y + _height + 1, _width + 3, _height + 5, parent = parent).apply { hide() }
     open val alphaSlider = object : UIDecimalSlider(2.0, 84.0, 96.0, 12.0, 1.0, 0.0, 1.0, parent = fakeChild) {
         override fun setCurrentX(x: Double) {
             super.setCurrentX(x)
@@ -52,11 +52,6 @@ open class UIColorPicker @JvmOverloads constructor(
     open val arrowRect = UIRect(85.0, 2.0, 15.0, 100.0, parent = this)
     open val arrowText = UIText(0.0, 0.0, 100.0, 100.0, "↓", true, arrowRect).apply {
         textScale = 2f
-    }
-
-    override fun draw(x2: Double, y2: Double) {
-        super.draw(x2, y2)
-        fakeChild.draw()
     }
 
     override fun render() {
