@@ -106,6 +106,22 @@ object Renderer {
         drawRect(x, y, width, height, color = Color.BLUE.withAlpha(alpha), layer = RenderLayer.getGuiTextHighlight())
     }
 
+    fun drawColorGradient(
+        x: Double, y: Double, width: Double, height: Double,
+        color: Color = Color.WHITE
+    ) {
+        val stack = globalStack.peek() ?: return
+        val bufr = getBuffer(DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+
+        bufr.vertex(stack, x.toFloat(), (y + height).toFloat(), 0f).color(Color.BLACK.rgb)
+        bufr.vertex(stack, (x + width).toFloat(), (y + height).toFloat(), 0f).color(Color.BLACK.rgb)
+        bufr.vertex(stack, (x + width).toFloat(), y.toFloat(), 0f).color(color.rgb)
+        bufr.vertex(stack, x.toFloat(), y.toFloat(), 0f).color(Color.WHITE.rgb)
+
+        val end = bufr.endNullable() ?: return
+        QuadLayer.draw(end)
+    }
+
     fun Color.withAlpha(alpha: Float): Color {
         return Color(
             this.red.toFloat() / 255f,

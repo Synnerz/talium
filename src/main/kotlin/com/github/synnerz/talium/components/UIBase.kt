@@ -14,7 +14,6 @@ import com.mojang.blaze3d.opengl.GlStateManager
 import net.minecraft.client.MinecraftClient
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
-import kotlin.math.sign
 
 /**
  * * Base component that every other component _should_ extend to
