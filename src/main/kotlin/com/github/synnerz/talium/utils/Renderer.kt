@@ -23,7 +23,7 @@ object Renderer {
     }
     val fontRenderer: TextRenderer by lazy { MinecraftClient.getInstance().textRenderer }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
-    var stack = Matrix3x2fStack()
+    var stack = Matrix3x2fStack(128)
 
     fun stack() = stack
 
