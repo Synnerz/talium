@@ -32,6 +32,14 @@ object Renderer {
             .builder()
             .build(false)
     )
+    private val TextHighlightLayer = RenderLayer.of(
+        "talium/layer2",
+        1536,
+        RenderPipelines.GUI_TEXT_HIGHLIGHT,
+        RenderLayer.MultiPhaseParameters
+            .builder()
+            .build(false)
+    )
     val fontRenderer: TextRenderer by lazy { MinecraftClient.getInstance().textRenderer }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
     private val globalStack = MatrixStack()
@@ -103,7 +111,7 @@ object Renderer {
 
     @JvmOverloads
     fun drawInvertedColRect(x: Double, y: Double, width: Double, height: Double, alpha: Float = 255f) {
-        drawRect(x, y, width, height, color = Color.BLUE.withAlpha(alpha), layer = RenderLayer.getGuiTextHighlight())
+        drawRect(x, y, width, height, color = Color.BLUE.withAlpha(alpha), layer = TextHighlightLayer)
     }
 
     fun drawColorGradient(
