@@ -109,8 +109,8 @@ open class UITextInput @JvmOverloads constructor(
         UIRect.drawRect(x, y, width, height, radius, bgColor)
 
         if (textScale != 1f) {
-            stack().push()
-            stack().scale(textScale, textScale, 0f)
+            stack().pushMatrix()
+            stack().scale(textScale, textScale)
         }
 
         val textHeight = 9f * textScale
@@ -178,7 +178,7 @@ open class UITextInput @JvmOverloads constructor(
             )
         }
 
-        if (textScale != 1f) stack().pop()
+        if (textScale != 1f) stack().popMatrix()
     }
 
     override fun onUnfocus(event: UIFocusEvent) = apply {

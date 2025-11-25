@@ -26,8 +26,8 @@ open class UIText @JvmOverloads constructor(
         @JvmOverloads
         fun drawText(text: String, x: Double, y: Double, scale: Float = 1f, color: Color = Color.WHITE) {
             if (scale != 1f) {
-                stack().push()
-                stack().scale(scale, scale, 0f)
+                stack().pushMatrix()
+                stack().scale(scale, scale)
             }
 
             Renderer.drawString(
@@ -38,7 +38,7 @@ open class UIText @JvmOverloads constructor(
                 color.rgb
             )
 
-            if (scale != 1f) stack().pop()
+            if (scale != 1f) stack().popMatrix()
         }
 
         @JvmOverloads
@@ -47,8 +47,8 @@ open class UIText @JvmOverloads constructor(
             val textHeight = 9f * scale
 
             if (scale != 1f) {
-                stack().push()
-                stack().scale(scale, scale, 0f)
+                stack().pushMatrix()
+                stack().scale(scale, scale)
             }
 
             Renderer.drawString(
@@ -59,7 +59,7 @@ open class UIText @JvmOverloads constructor(
                 color.rgb
             )
 
-            if (scale != 1f) stack().pop()
+            if (scale != 1f) stack().popMatrix()
         }
     }
 }

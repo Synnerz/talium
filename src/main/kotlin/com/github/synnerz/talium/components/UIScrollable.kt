@@ -51,14 +51,14 @@ open class UIScrollable @JvmOverloads constructor(
         for (child in visibleComponents) {
             child.draw(0.0, miny)
         }
-        stack().pop()
+        stack().popMatrix()
     }
 
     override fun render() {
         UIRect.drawRect(x, y, width, height)
 
-        stack().push()
-        stack().translate(0.0, y, 0.0)
+        stack().popMatrix()
+        stack().translate(0f, y.toFloat())
     }
 
     override fun onMouseScroll(event: UIScrollEvent) = apply {

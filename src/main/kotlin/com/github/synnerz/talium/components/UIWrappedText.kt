@@ -51,13 +51,13 @@ open class UIWrappedText @JvmOverloads constructor(
             }
 
             if (scale != 1f) {
-                stack().push()
-                stack().scale(scale, scale, 0f)
+                stack().pushMatrix()
+                stack().scale(scale, scale)
             }
 
             drawString(toRender.ifEmpty { str }, x.toFloat() / scale, y.toFloat() / scale, color = color.rgb)
 
-            if (scale != 1f) stack().pop()
+            if (scale != 1f) stack().popMatrix()
         }
 
         @JvmOverloads
@@ -88,8 +88,8 @@ open class UIWrappedText @JvmOverloads constructor(
             }
 
             if (scale != 1f) {
-                stack().push()
-                stack().scale(scale, scale, 0f)
+                stack().pushMatrix()
+                stack().scale(scale, scale)
             }
 
             val renderText = fixedString.ifEmpty { str.split("\n") }
@@ -112,7 +112,7 @@ open class UIWrappedText @JvmOverloads constructor(
                 yy += lineHeight.toInt()
             }
 
-            if (scale != 1f) stack().pop()
+            if (scale != 1f) stack().popMatrix()
         }
     }
 }
