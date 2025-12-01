@@ -1,6 +1,5 @@
 package com.github.synnerz.talium.utils.state
 
-import com.github.synnerz.talium.utils.Renderer
 import com.mojang.blaze3d.pipeline.RenderPipeline
 import net.minecraft.client.gl.RenderPipelines
 import net.minecraft.client.gui.ScreenRect
@@ -23,11 +22,11 @@ class ColorCustomQuadState(
         return ScreenRect(x1, y1, x2 - x1, y2 - y1).transformEachVertex(stack)
     }
 
-    override fun setupVertices(vertices: VertexConsumer?, depth: Float) {
-        vertices?.vertex(x1.toFloat(), y2.toFloat(), depth)?.color(BLACK)
-        vertices?.vertex(x2.toFloat(), y2.toFloat(), depth)?.color(BLACK)
-        vertices?.vertex(x2.toFloat(), y1.toFloat(), depth)?.color(color.rgb)
-        vertices?.vertex(x1.toFloat(), y1.toFloat(), depth)?.color(WHITE)
+    override fun setupVertices(vertices: VertexConsumer?) {
+        vertices?.vertex(stack, x1.toFloat(), y2.toFloat())?.color(BLACK)
+        vertices?.vertex(stack, x2.toFloat(), y2.toFloat())?.color(BLACK)
+        vertices?.vertex(stack, x2.toFloat(), y1.toFloat())?.color(color.rgb)
+        vertices?.vertex(stack, x1.toFloat(), y1.toFloat())?.color(WHITE)
     }
 
     override fun pipeline(): RenderPipeline {

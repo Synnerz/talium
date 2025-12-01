@@ -23,15 +23,15 @@ class SimpleLineState(
         return ScreenRect(x1.toInt(), y1.toInt(), x2.toInt() - x1.toInt(), y2.toInt() - y1.toInt()).transformEachVertex(stack)
     }
 
-    override fun setupVertices(vertices: VertexConsumer?, depth: Float) {
+    override fun setupVertices(vertices: VertexConsumer?) {
         val theta = -atan2(y2 - y1, x2 - x1)
         val i = sin(theta) * (thickness / 2)
         val j = cos(theta) * (thickness / 2)
 
-        vertices?.vertex(stack, x1 + i, y1 + j, depth)?.color(color.rgb)
-        vertices?.vertex(stack, x2 + i, y2 + j, depth)?.color(color.rgb)
-        vertices?.vertex(stack, x2 - i, y2 - j, depth)?.color(color.rgb)
-        vertices?.vertex(stack, x1 - i, y1 - j, depth)?.color(color.rgb)
+        vertices?.vertex(stack, x1 + i, y1 + j)?.color(color.rgb)
+        vertices?.vertex(stack, x2 + i, y2 + j)?.color(color.rgb)
+        vertices?.vertex(stack, x2 - i, y2 - j)?.color(color.rgb)
+        vertices?.vertex(stack, x1 - i, y1 - j)?.color(color.rgb)
     }
 
     override fun pipeline(): RenderPipeline {

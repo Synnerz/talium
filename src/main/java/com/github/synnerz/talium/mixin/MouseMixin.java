@@ -2,6 +2,7 @@ package com.github.synnerz.talium.mixin;
 
 import com.github.synnerz.talium.utils.MouseState;
 import net.minecraft.client.Mouse;
+import net.minecraft.client.input.MouseInput;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +29,7 @@ public class MouseMixin {
                     opcode = Opcodes.GETFIELD
             )
     )
-    private void talium$onClick(long window, int button, int action, int mods, CallbackInfo ci) {
-        MouseState.INSTANCE.getButtonsDown().put(button, action);
+    private void talium$onClick(long window, MouseInput input, int action, CallbackInfo ci) {
+        MouseState.INSTANCE.getButtonsDown().put(input.button(), action);
     }
 }
