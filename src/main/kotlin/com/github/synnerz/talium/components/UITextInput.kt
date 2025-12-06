@@ -244,7 +244,6 @@ open class UITextInput @JvmOverloads constructor(
 
         when (keycode) {
             GLFW.GLFW_KEY_ESCAPE -> {
-                focused = false
                 unfocus()
             }
             GLFW.GLFW_KEY_BACKSPACE -> {
