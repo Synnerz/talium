@@ -6,6 +6,7 @@ import com.github.synnerz.talium.utils.state.SimpleLineState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gl.RenderPipelines
+import net.minecraft.client.gui.ScreenRect
 import net.minecraft.client.gui.render.state.ColoredQuadGuiElementRenderState
 import net.minecraft.client.gui.render.state.GuiRenderState
 import net.minecraft.client.gui.render.state.TextGuiElementRenderState
@@ -24,6 +25,7 @@ object Renderer {
     val fontRenderer: TextRenderer by lazy { MinecraftClient.getInstance().textRenderer }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
     var stack = Matrix3x2fStack(128)
+    val scissorStack = ScissorStack()
 
     fun stack() = stack
 
@@ -37,7 +39,7 @@ object Renderer {
             ColoredQuadGuiElementRenderState(
                 RenderPipelines.GUI, TextureSetup.empty(), Matrix3x2f(stack),
                 x1, y1, x2, y2, colorStart.rgb, colorEnd.rgb,
-                null
+                scissorStack.peek()
             )
         )
     }
@@ -51,7 +53,7 @@ object Renderer {
             ColoredQuadGuiElementRenderState(
                 RenderPipelines.GUI_INVERT, TextureSetup.empty(), Matrix3x2f(stack),
                 x1, y1, x2, y2, color.rgb, color.rgb,
-                null
+                scissorStack.peek()
             )
         )
     }
@@ -64,7 +66,8 @@ object Renderer {
         guiRenderState.addSimpleElement(
             ColorCustomQuadState(
                 Matrix3x2f(stack),
-                x1, y1, x2, y2, color
+                x1, y1, x2, y2, color,
+                scissorStack.peek()
             )
         )
     }
@@ -78,7 +81,8 @@ object Renderer {
         guiRenderState.addSimpleElement(
             SimpleLineState(
                 Matrix3x2f(stack),
-                x1, y1, x2, y2, thickness, color
+                x1, y1, x2, y2, thickness, color,
+                scissorStack.peek()
             )
         )
     }
@@ -92,7 +96,8 @@ object Renderer {
         guiRenderState.addText(
             TextGuiElementRenderState(
                 fontRenderer, Text.literal(text).asOrderedText(), Matrix3x2f(stack),
-                x, y, color, 0, shadow, null
+                x, y, color, 0, shadow,
+                scissorStack.peek()
             )
         )
     }
@@ -175,4 +180,18 @@ object Renderer {
     fun String.trimToWidth(width: Double): String = fontRenderer.trimToWidth(this, width.toInt())
 
     fun String.getWidth() = fontRenderer.getWidth(Formatting.strip(this))
+
+    class ScissorStack(val _stack: MutableList<ScreenRect> = mutableListOf()) {
+        fun push(x: Int, y: Int, width: Int, height: Int) {
+            _stack.add(ScreenRect(x, y, width, height))
+        }
+
+        fun peek(): ScreenRect? {
+            return _stack.lastOrNull()
+        }
+
+        fun pop() {
+            _stack.removeLast()
+        }
+    }
 }

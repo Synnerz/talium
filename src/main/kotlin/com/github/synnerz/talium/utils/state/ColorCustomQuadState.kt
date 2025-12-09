@@ -13,7 +13,8 @@ class ColorCustomQuadState(
     val stack: Matrix3x2f,
     val x1: Int, val y1: Int,
     val x2: Int, val y2: Int,
-    val color: Color = Color.WHITE
+    val color: Color = Color.WHITE,
+    val _scissorArea: ScreenRect? = null
 ) : SimpleGuiElementRenderState {
     private val BLACK = Color.BLACK.rgb
     private val WHITE = Color.WHITE.rgb
@@ -38,6 +39,6 @@ class ColorCustomQuadState(
     }
 
     override fun scissorArea(): ScreenRect? {
-        return null
+        return _scissorArea
     }
 }

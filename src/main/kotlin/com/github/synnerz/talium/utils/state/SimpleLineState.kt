@@ -17,7 +17,8 @@ class SimpleLineState(
     val x1: Float, val y1: Float,
     val x2: Float, val y2: Float,
     val thickness: Float = 1f,
-    val color: Color = Color.WHITE
+    val color: Color = Color.WHITE,
+    val _scissorArea: ScreenRect? = null
 ) : SimpleGuiElementRenderState {
     override fun bounds(): ScreenRect? {
         return ScreenRect(x1.toInt(), y1.toInt(), x2.toInt() - x1.toInt(), y2.toInt() - y1.toInt()).transformEachVertex(stack)
@@ -43,6 +44,6 @@ class SimpleLineState(
     }
 
     override fun scissorArea(): ScreenRect? {
-        return null
+        return _scissorArea
     }
 }

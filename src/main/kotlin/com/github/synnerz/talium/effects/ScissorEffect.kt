@@ -1,8 +1,7 @@
 package com.github.synnerz.talium.effects
 
 import com.github.synnerz.talium.components.UIBase
-import com.github.synnerz.talium.utils.ScaledResolution
-import org.lwjgl.opengl.GL11
+import com.github.synnerz.talium.utils.Renderer
 
 /**
  * * Enables scissor effect to be bound to the specified [component]'s bounds
@@ -20,28 +19,19 @@ open class ScissorEffect : UIEffect() {
         var scissorState: Boolean = false
 
         fun enableScissor(comp: UIBase)
-            = enableScissor(comp.x, comp.y, comp.width, comp.height, comp.scaledResolution)
+            = enableScissor(comp.x, comp.y, comp.width, comp.height)
 
-        fun enableScissor(x: Double, y: Double, width: Double, height: Double, sr: ScaledResolution?) {
+        fun enableScissor(x: Double, y: Double, width: Double, height: Double) {
             if (x == -1.0) return
-            val scale = sr?.scaleFactor ?: 1
-            val scaledHeight = sr?.scaledHeight ?: 0
 
-            if (!scissorState) GL11.glEnable(GL11.GL_SCISSOR_TEST)
-            val y2 = (y + height).toInt()
-            GL11.glScissor(
-                x.toInt() * scale,
-                (scaledHeight - y2) * scale,
-                width.toInt() * scale,
-                height.toInt() * scale
-            )
+            Renderer.scissorStack.push(x.toInt(), y.toInt(), width.toInt(), height.toInt())
             scissorState = true
         }
 
         fun disableScissor() {
             if (!scissorState) return
 
-            GL11.glDisable(GL11.GL_SCISSOR_TEST)
+            Renderer.scissorStack.pop()
             scissorState = false
         }
     }
