@@ -24,7 +24,7 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     open fun getScrollY(yOffset: Int): Double {
-        val comp = children.last()
+        val comp = children.lastOrNull() ?: return miny
         if (comp.isDirty()) comp.update()
 
         miny -= yOffset
