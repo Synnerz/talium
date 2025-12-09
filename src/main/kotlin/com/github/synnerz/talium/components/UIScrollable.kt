@@ -57,7 +57,7 @@ open class UIScrollable @JvmOverloads constructor(
     override fun render() {
         UIRect.drawRect(x, y, width, height)
 
-        stack().popMatrix()
+        stack().pushMatrix()
         stack().translate(0f, y.toFloat())
     }
 
