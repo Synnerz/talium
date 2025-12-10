@@ -4,6 +4,8 @@ import com.github.synnerz.talium.effects.OutlineEffect
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
 import com.github.synnerz.talium.utils.Renderer
+import com.github.synnerz.talium.utils.state.GradientRectangleState
+import org.joml.Matrix3x2f
 import java.awt.Color
 import kotlin.math.roundToInt
 
@@ -138,7 +140,7 @@ open class UIColorHuePicker @JvmOverloads constructor(
     parent: UIBase? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     private val hueColors = List(51) {
-        Color(Color.HSBtoRGB(it / 50f, 1f, 0.7f))
+        Color(Color.HSBtoRGB(it / 50f, 1f, 0.7f)).rgb
     }
     private val huePointer = UIRect(0.0, currentHue * 100, 100.0, 2.0, parent = this).also {
         it.addEffect(OutlineEffect())
@@ -147,11 +149,22 @@ open class UIColorHuePicker @JvmOverloads constructor(
     var colorPicker: UIColorPicker? = null
 
     override fun render() {
-        for (idx in hueColors.indices) {
-            val color = hueColors[idx]
-            val yPos = y + ((idx * height) / 50)
-            if (yPos + 2.5 > bounds.y2) break
-            Renderer.drawRect(x, yPos, width, 2.5, color = color)
+        val N = hueColors.size - 1
+        val h = height / N
+        for (idx in 0 until N) {
+            val color1 = hueColors[idx]
+            val color2 = hueColors[idx + 1]
+            val yPos = y + idx * h
+            Renderer.submit(
+                GradientRectangleState(
+                    Matrix3x2f(Renderer.stack),
+                    x, yPos,
+                    x + width, yPos + h,
+                    color1, color1,
+                    color2, color2,
+                    bounds = Renderer.scissorStack.peek()
+                )
+            )
         }
     }
 

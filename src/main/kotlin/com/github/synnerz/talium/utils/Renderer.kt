@@ -9,6 +9,7 @@ import net.minecraft.client.gl.RenderPipelines
 import net.minecraft.client.gui.ScreenRect
 import net.minecraft.client.gui.render.state.ColoredQuadGuiElementRenderState
 import net.minecraft.client.gui.render.state.GuiRenderState
+import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState
 import net.minecraft.client.gui.render.state.TextGuiElementRenderState
 import net.minecraft.client.texture.TextureSetup
 import net.minecraft.text.Text
@@ -28,6 +29,10 @@ object Renderer {
     val scissorStack = ScissorStack()
 
     fun stack() = stack
+
+    fun submit(state: SimpleGuiElementRenderState) {
+        guiRenderState.addSimpleElement(state)
+    }
 
     fun submitRect(
         x1: Int, y1: Int,
