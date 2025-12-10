@@ -1,7 +1,7 @@
 package com.github.synnerz.talium.utils
 
 import com.github.synnerz.talium.mixin.accessor.GameRendererAccessor
-import com.github.synnerz.talium.utils.state.ColorCustomQuadState
+import com.github.synnerz.talium.utils.state.GradientRectangleState
 import com.github.synnerz.talium.utils.state.SimpleLineState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
@@ -59,15 +59,18 @@ object Renderer {
     }
 
     fun submitGradientRect(
-        x1: Int, y1: Int,
-        x2: Int, y2: Int,
+        x1: Double, y1: Double,
+        x2: Double, y2: Double,
         color: Color,
     ) {
         guiRenderState.addSimpleElement(
-            ColorCustomQuadState(
+            GradientRectangleState(
                 Matrix3x2f(stack),
-                x1, y1, x2, y2, color,
-                scissorStack.peek()
+                x1, y1,
+                x2, y2,
+                Color.WHITE.rgb, color.rgb,
+                Color.BLACK.rgb, Color.BLACK.rgb,
+                scissorArea = scissorStack.peek()
             )
         )
     }
@@ -135,7 +138,7 @@ object Renderer {
         color: Color = Color.WHITE
     ) {
         submitGradientRect(
-            x.toInt(), y.toInt(), (x + width).toInt(), (y + height).toInt(),
+            x, y, x + width, y + height,
             color
         )
     }
