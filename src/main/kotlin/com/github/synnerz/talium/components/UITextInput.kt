@@ -273,7 +273,8 @@ open class UITextInput @JvmOverloads constructor(
                 }
             }
             else -> {
-                if (char != null) write(if (isShifting) char.uppercaseChar() else char)
+                if (char != null)
+                    write(if (isShifting) byShift(char) else char)
                 return@apply
             }
         }
@@ -282,6 +283,30 @@ open class UITextInput @JvmOverloads constructor(
     }
 
     companion object {
+        private val specialShiftChars = mapOf(
+            '1' to '!',
+            '2' to '@',
+            '3' to '#',
+            '4' to '$',
+            '5' to '%',
+            '6' to '^',
+            '7' to '&',
+            '8' to '*',
+            '9' to '(',
+            '0' to ')',
+            '-' to '_',
+            '=' to '+',
+            '[' to '{',
+            ']' to '}',
+            '\\' to '|',
+            ';' to ':',
+            '\'' to '"',
+            ',' to '<',
+            '.' to '>',
+            '/' to '?',
+            '`' to '~'
+        )
+
         /**
          * * Checks whether the character is in a valid range
          * * Taken from mojang's `ChatAllowedCharacters` class
@@ -292,5 +317,7 @@ open class UITextInput @JvmOverloads constructor(
         fun isKeyDown(keycode: Int): Boolean {
             return GLFW.glfwGetKey(MinecraftClient.getInstance().window.handle, keycode) == GLFW.GLFW_PRESS
         }
+
+        fun byShift(char: Char): Char = specialShiftChars[char] ?: char.uppercaseChar()
     }
 }
