@@ -627,11 +627,14 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
+    open fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {}
+
     open fun propagateMouseScroll(event: UIScrollEvent) {
         onMouseScroll(event)
         hookMouseScroll?.invoke(event)
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -651,6 +654,7 @@ open class UIBase @JvmOverloads constructor(
         hookMouseClick?.invoke(event)
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -670,6 +674,7 @@ open class UIBase @JvmOverloads constructor(
         hookMouseRelease?.invoke(event)
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -692,6 +697,7 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -714,6 +720,7 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -732,6 +739,7 @@ open class UIBase @JvmOverloads constructor(
         hookMouseHover?.invoke(event)
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -751,6 +759,7 @@ open class UIBase @JvmOverloads constructor(
         hookMouseDrag?.invoke(event)
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -776,6 +785,7 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -799,6 +809,7 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
+        modifyChildMouseEvent(event)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
