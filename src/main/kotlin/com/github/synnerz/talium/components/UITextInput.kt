@@ -273,7 +273,7 @@ open class UITextInput @JvmOverloads constructor(
                 }
             }
             else -> {
-                if (char != null) write(char)
+                if (char != null) write(if (isShifting) char.uppercaseChar() else char)
                 return@apply
             }
         }
