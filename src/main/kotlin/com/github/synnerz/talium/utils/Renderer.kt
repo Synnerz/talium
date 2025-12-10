@@ -7,11 +7,9 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gl.RenderPipelines
 import net.minecraft.client.gui.ScreenRect
-import net.minecraft.client.gui.render.state.ColoredQuadGuiElementRenderState
 import net.minecraft.client.gui.render.state.GuiRenderState
 import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState
 import net.minecraft.client.gui.render.state.TextGuiElementRenderState
-import net.minecraft.client.texture.TextureSetup
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import org.joml.Matrix3x2f
@@ -35,30 +33,35 @@ object Renderer {
     }
 
     fun submitRect(
-        x1: Int, y1: Int,
-        x2: Int, y2: Int,
+        x1: Double, y1: Double,
+        x2: Double, y2: Double,
         colorStart: Color,
         colorEnd: Color = colorStart
     ) {
         guiRenderState.addSimpleElement(
-            ColoredQuadGuiElementRenderState(
-                RenderPipelines.GUI, TextureSetup.empty(), Matrix3x2f(stack),
-                x1, y1, x2, y2, colorStart.rgb, colorEnd.rgb,
-                scissorStack.peek()
+            GradientRectangleState(
+                Matrix3x2f(stack),
+                x1, y1, x2, y2,
+                colorStart.rgb, colorStart.rgb,
+                colorEnd.rgb, colorEnd.rgb,
+                scissorArea = scissorStack.peek()
             )
         )
     }
 
     fun submitInvertedRect(
-        x1: Int, y1: Int,
-        x2: Int, y2: Int,
+        x1: Double, y1: Double,
+        x2: Double, y2: Double,
         color: Color,
     ) {
         guiRenderState.addSimpleElement(
-            ColoredQuadGuiElementRenderState(
-                RenderPipelines.GUI_INVERT, TextureSetup.empty(), Matrix3x2f(stack),
-                x1, y1, x2, y2, color.rgb, color.rgb,
-                scissorStack.peek()
+            GradientRectangleState(
+                Matrix3x2f(stack),
+                x1, y1, x2, y2,
+                color.rgb, color.rgb,
+                color.rgb, color.rgb,
+                RenderPipelines.GUI_INVERT,
+                scissorArea = scissorStack.peek()
             )
         )
     }
@@ -130,12 +133,12 @@ object Renderer {
             return
         }
 
-        submitRect(x.toInt(), y.toInt(), (x + width).toInt(), (y + height).toInt(), color)
+        submitRect(x, y, x + width, y + height, color)
     }
 
     @JvmOverloads
     fun drawInvertedColRect(x: Double, y: Double, width: Double, height: Double, alpha: Float = 255f) {
-        submitInvertedRect(x.toInt(), y.toInt(), (x + width).toInt(), (y + height).toInt(), Color.BLUE.withAlpha(alpha))
+        submitInvertedRect(x, y, x + width, y + height, Color.BLUE.withAlpha(alpha))
     }
 
     fun drawColorGradient(

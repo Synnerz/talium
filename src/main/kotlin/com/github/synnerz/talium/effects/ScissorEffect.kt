@@ -2,6 +2,7 @@ package com.github.synnerz.talium.effects
 
 import com.github.synnerz.talium.components.UIBase
 import com.github.synnerz.talium.utils.Renderer
+import kotlin.math.ceil
 
 /**
  * * Enables scissor effect to be bound to the specified [component]'s bounds
@@ -24,7 +25,7 @@ open class ScissorEffect : UIEffect() {
         fun enableScissor(x: Double, y: Double, width: Double, height: Double) {
             if (x == -1.0) return
 
-            Renderer.scissorStack.push(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+            Renderer.scissorStack.push(x.toInt(), y.toInt(), ceil(width).toInt(), ceil(height).toInt())
             scissorState = true
         }
 
