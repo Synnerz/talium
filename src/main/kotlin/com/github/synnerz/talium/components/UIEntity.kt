@@ -26,7 +26,7 @@ package com.github.synnerz.talium.components
 //    _height: Double,
 //    var entityIn: EntityLivingBase? = null,
 //    var scale: Float = 1f,
-//    parent: UIBase? = null
+//    parent: UIElement? = null
 //) : UIBase(_x, _y, _width, _height, parent) {
 //    override var bgColor: Color = Color(255, 255, 255, 255)
 //
@@ -92,7 +92,7 @@ package com.github.synnerz.talium.components
 //            _height: Double,
 //            entityIn: Any,
 //            scale: Float = 1f,
-//            parent: UIBase? = null
+//            parent: UIElement? = null
 //        ) : UIEntity {
 //            // Unchecked cast wooo
 //            return UIEntity(_x, _y, _width, _height, entityIn as EntityLivingBase, scale, parent)
@@ -108,7 +108,7 @@ package com.github.synnerz.talium.components
 //            uuid: String,
 //            name: String,
 //            scale: Float = 1f,
-//            parent: UIBase? = null
+//            parent: UIElement? = null
 //        ) : UIEntity {
 //            val uuidIn = UUID.fromString(uuid)
 //            val fakeProfile = Minecraft.getMinecraft().sessionService.fillProfileProperties(GameProfile(uuidIn, name), true)

@@ -26,13 +26,15 @@ import java.awt.Color
  * @param parent The parent of this component (can be left as `null`)
  */
 open class UIBase @JvmOverloads constructor(
-    var _x: Double,
-    var _y: Double,
-    var _width: Double,
-    var _height: Double,
-    var parent: UIBase? = null
-) {
-    open val children = mutableListOf<UIBase>()
+    override var _x: Double,
+    override var _y: Double,
+    override var _width: Double,
+    override var _height: Double,
+    override var parent: UIElement? = null
+) : UIElement {
+    override val children = mutableListOf<UIElement>()
+    override val floatingChildren = mutableListOf<FloatingUI>()
+
     /**
      * * This is a list of effects that the current component uses
      * * i.e. [OutlineEffect]
@@ -42,73 +44,69 @@ open class UIBase @JvmOverloads constructor(
      * * These are listeners made by the user
      * * i.e. if i want to listen for a mouseClick on a component, i'll add a click hook
      */
-    var hookMouseScroll: ((event: UIScrollEvent) -> Unit)? = null
-    var hookMouseClick: ((event: UIClickEvent) -> Unit)? = null
-    var hookMouseRelease: ((event: UIClickEvent) -> Unit)? = null
-    var hookMouseEnter: ((event: UIMouseEvent) -> Unit)? = null
-    var hookMouseHover: ((event: UIMouseEvent) -> Unit)? = null
-    var hookMouseLeave: ((event: UIMouseEvent) -> Unit)? = null
-    var hookMouseDrag: ((event: UIDragEvent) -> Unit)? = null
-    var hookFocus: ((event: UIFocusEvent) -> Unit)? = null
-    var hookUnfocus: ((event: UIFocusEvent) -> Unit)? = null
-    var hookKeyType: ((event: UIKeyType) -> Unit)? = null
-    var hookResize: ((comp: UIBase, scaledResolution: ScaledResolution) -> Unit)? = null
-    var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
-    var hookUpdate: (() -> Unit)? = null
+    override var hookMouseScroll: ((event: UIScrollEvent) -> Unit)? = null
+    override var hookMouseClick: ((event: UIClickEvent) -> Unit)? = null
+    override var hookMouseRelease: ((event: UIClickEvent) -> Unit)? = null
+    override var hookMouseEnter: ((event: UIMouseEvent) -> Unit)? = null
+    override var hookMouseHover: ((event: UIMouseEvent) -> Unit)? = null
+    override var hookMouseLeave: ((event: UIMouseEvent) -> Unit)? = null
+    override var hookMouseDrag: ((event: UIDragEvent) -> Unit)? = null
+    override var hookFocus: ((event: UIFocusEvent) -> Unit)? = null
+    override var hookUnfocus: ((event: UIFocusEvent) -> Unit)? = null
+    override var hookKeyType: ((event: UIKeyType) -> Unit)? = null
+    override var hookResize: ((comp: UIElement, scaledResolution: ScaledResolution) -> Unit)? = null
+    override var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
+    override var hookUpdate: (() -> Unit)? = null
     /** * Runs before the event is passed through to the children of this component */
-    var preChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
+    override var preChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
     /** * Runs after the event is passed through to the children of this component */
-    var postChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
+    override var postChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
     /**
      * * Field to check whether this component is dirty or not
      * * When a component is marked as dirty this means that
      * they need to be updated in the size, position and as well as their children's size and position
      * * i.e. if the window is resized this _should_ be marked as dirty, so it can recalculate the position etc
      */
-    private var dirty: Boolean = true
-    var mouseInBounds: Boolean = false
-        internal set
+    override var isSelfDirty: Boolean = true
+    override var mouseInBounds: Boolean = false
     private val mouseState = mutableMapOf<Int, Boolean>()
     private val draggedState = mutableMapOf<Int, State>()
     /**
      * * Used internally to scale the position and size of the component
      * as well as to trigger the [onResize] hook/listener
      */
-    var scaledResolution: ScaledResolution? = null
-        internal set
+    override var scaledResolution: ScaledResolution? = null
     /** * Note: if you call the setter it will not mark the component as dirty */
-    var x: Double = 0.0
+    override var x: Double = 0.0
     /** * Note: if you call the setter it will not mark the component as dirty */
-    var y: Double = 0.0
+    override var y: Double = 0.0
     /** * Note: if you call the setter it will not mark the component as dirty */
-    var width: Double = 0.0
+    override var width: Double = 0.0
     /** * Note: if you call the setter it will not mark the component as dirty */
-    var height: Double = 0.0
-    var bounds: Boundaries = Boundaries(-1.0, -1.0, -1.0, -1.0)
-    open var bgColor: Color = Color(0, 0, 0, 0)
+    override var height: Double = 0.0
+    override var bounds: UIElement.Boundaries = UIElement.Boundaries(-1.0, -1.0, -1.0, -1.0)
+    override var bgColor: Color = Color(0, 0, 0, 0)
     /** * Variable that lets the component be known if its focused or not, mostly used for keyboard inputs */
-    open var focused: Boolean = false
+    override var focused: Boolean = false
     /**
-     * * These are the animations that this [UIBase] component will handle
+     * * These are the animations that this [UIElement] component will handle
      * * Depending on where you want to use them or how to use them the base _should_
      * handle some of the basics for you
      */
     /** * _Should_ be used whenever the component goes left-right or right-left */
-    open var xAnimation: Animation? = null
+    override var xAnimation: Animation? = null
     /** * _Should_ be used whenever the component goes top-bottom or bottom-top */
-    open var yAnimation: Animation? = null
+    override var yAnimation: Animation? = null
     /** * _Should_ be used whenever the component grows or shrinks in width */
-    open var widthAnimation: Animation? = null
+    override var widthAnimation: Animation? = null
     /** * _Should_ be used whenever the component grows or shrinks in height */
-    open var heightAnimation: Animation? = null
+    override var heightAnimation: Animation? = null
     /** * Whether this component is hidden or not */
-    open var hidden: Boolean = false
+    override var hidden: Boolean = false
     /** * The layout to use for the children drawing */
-    open var layout: Layout? = null
+    override var layout: Layout? = null
     /** * Workaround for scroll wheel event **/
     private var hasScrollListener = false
-
-    data class State(var x: Double, var y: Double)
 
     init {
         // Adds [this] component as a children for the specified parent
@@ -116,27 +114,28 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
-     * * Sets the [dirty] variable of this component to the specified state
+     * * Sets the [isSelfDirty] variable of this component to the specified state
      */
-    @JvmOverloads
-    open fun setDirty(state: Boolean = true): UIBase = apply {
-        dirty = state
+    override fun setDirty(state: Boolean): UIElement = apply {
+        isSelfDirty = state
         children.forEach { it.setDirty(state) }
+        floatingChildren.forEach { it.setDirty(state) }
     }
 
     /**
      * * Marks this component as dirty, so it can recalculate positions next render
      */
-    open fun markDirty(): UIBase = apply {
-        dirty = true
+    override fun markDirty(): UIElement = apply {
+        isSelfDirty = true
         children.forEach { it.markDirty() }
+        floatingChildren.forEach { it.markDirty() }
     }
 
     /**
      * * Sets the color of this component
      * * Note: if there is a color effect it will override this color
      */
-    open fun setColor(color: Color) = apply {
+    override fun setColor(color: Color) = apply {
         bgColor = color
     }
 
@@ -152,7 +151,7 @@ open class UIBase @JvmOverloads constructor(
      * * Adds the specified [child] to this component
      * * Note: if the component already has a parent it will be removed and re-assigned to this one
      */
-    open fun addChild(child: UIBase) = apply {
+    override fun addChild(child: UIElement) = apply {
         val oldParent = child.parent
         if (oldParent != null) {
             if (oldParent == this) return@apply
@@ -163,16 +162,19 @@ open class UIBase @JvmOverloads constructor(
         markDirty()
     }
 
+    override fun addFloatingChild(child: FloatingUI) = apply {
+        floatingChildren.add(child)
+    }
+
     /**
      * * Checks whether the specified component is a child of this component
      */
-    open fun hasChild(child: UIBase): Boolean = children.contains(child)
+    override fun hasChild(child: UIElement): Boolean = children.contains(child)
 
     /**
      * * Checks whether this component is a child of the specified [parent] component
      */
-    @JvmOverloads
-    open fun hasParent(parent: UIBase? = null): Boolean {
+    override fun hasParent(parent: UIElement?): Boolean {
         val comp = parent ?: this.parent
         if (comp == null) return false
         return comp == this.parent
@@ -181,7 +183,7 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Sets this component as a child of the specified [parent] component
      */
-    open fun setChildOf(parent: UIBase) = apply {
+    override fun setChildOf(parent: UIElement) = apply {
         if (parent.hasChild(this)) return@apply
         parent.addChild(this)
     }
@@ -190,7 +192,7 @@ open class UIBase @JvmOverloads constructor(
      * * Removes the specified child from this component
      * * @returns a boolean that signifies whether the component was successfully removed or not
      */
-    open fun removeChild(child: UIBase): Boolean {
+    override fun removeChild(child: UIElement): Boolean {
         val removed = children.remove(child)
         markDirty()
         return removed
@@ -200,13 +202,13 @@ open class UIBase @JvmOverloads constructor(
      * * Removes this component from its parent
      * * @returns a boolean that signifies whether the component was successfully removed or not
      */
-    open fun remove(): Boolean = parent?.removeChild(this) ?: false
+    override fun remove(): Boolean = parent?.removeChild(this) ?: false
 
     /**
      * * Clears all the children from this component
      * * Removes this component as their parent as well as marking them dirty
      */
-    open fun clearChildren() = apply {
+    override fun clearChildren() = apply {
         children.forEach {
             it.parent = null
             it.markDirty()
@@ -221,7 +223,7 @@ open class UIBase @JvmOverloads constructor(
      * @param x The X position in percent (`0-100`)
      * @param y The Y position in percent (`0-100`)
      */
-    open fun setPos(x: Double, y: Double) = apply {
+    override fun setPos(x: Double, y: Double) = apply {
         _x = x
         _y = y
         markDirty()
@@ -233,7 +235,7 @@ open class UIBase @JvmOverloads constructor(
      * @param x The X position in percent (`0-100`)
      * @param y The Y position in percent (`0-100`)
      */
-    open fun setPosition(x: Double, y: Double) = setPos(x, y)
+    override fun setPosition(x: Double, y: Double) = setPos(x, y)
 
     /**
      * * Sets the size for this component
@@ -241,7 +243,7 @@ open class UIBase @JvmOverloads constructor(
      * @param width The Width for this component in percent (`0-100`)
      * @param height The Height for this component in percent (`0-100`)
      */
-    open fun setSize(width: Double, height: Double) = apply {
+    override fun setSize(width: Double, height: Double) = apply {
         _width = width
         _height = height
         markDirty()
@@ -251,7 +253,7 @@ open class UIBase @JvmOverloads constructor(
      * * Checks whether the specified [x] and [y] are in the bounds of this component
      * * Note: if the component's bounds have not yet been set it will return `false`
      */
-    open fun inBounds(x: Double, y: Double): Boolean {
+    override fun inBounds(x: Double, y: Double): Boolean {
         if (bounds.x1 == -1.0) return false
         return x in bounds.x1..bounds.x2 && y in bounds.y1..bounds.y2
     }
@@ -259,12 +261,12 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Checks whether the specified [UIMouseEvent] is in the bounds of this component
      */
-    open fun inBounds(event: UIMouseEvent): Boolean = inBounds(event.x, event.y)
+    override fun inBounds(event: UIMouseEvent): Boolean = inBounds(event.x, event.y)
 
     /**
      * * Adds a single [UIEffect] to this component
      */
-    open fun addEffect(effect: UIEffect) = apply {
+    override fun addEffect(effect: UIEffect) = apply {
         effect.component = this
         effects.add(effect)
     }
@@ -272,7 +274,7 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Adds multiple [UIEffect] to this component
      */
-    open fun addEffects(vararg effects: UIEffect) = apply {
+    override fun addEffects(vararg effects: UIEffect) = apply {
         effects.forEach { it.component = this }
         this.effects.addAll(effects)
     }
@@ -280,25 +282,24 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Removes the specified [effect] from this component
      */
-    open fun removeEffect(effect: UIEffect): Boolean = effects.remove(effect)
+    override fun removeEffect(effect: UIEffect): Boolean = effects.remove(effect)
 
     /**
      * * Removes the [UIEffect]s that are instance of the specified [clazz]
      */
-    open fun <T: UIEffect> removeEffects(clazz: Class<T>): Boolean = effects.removeIf { clazz.isInstance(it) }
+    override fun <T: UIEffect> removeEffects(clazz: Class<T>): Boolean = effects.removeIf { clazz.isInstance(it) }
 
     /**
      * * Checks whether this component's [focused] variable is true or false
      */
-    open fun hasFocus(): Boolean = focused
+    override fun hasFocus(): Boolean = focused
 
     /**
      * * Sets the [xAnimation] to the given [Animation] [name]
      * * Note: If the animation was not found it will throw an [IllegalArgumentException]
      * @param maxTime Maximum time the animation should last for in milliseconds
      */
-    @JvmOverloads
-    open fun setXAnimation(name: String, maxTime: Float = 500f) = apply {
+    override fun setXAnimation(name: String, maxTime: Float) = apply {
         xAnimation = Animation(Animations.getParameterByName(name), maxTime)
     }
 
@@ -307,7 +308,7 @@ open class UIBase @JvmOverloads constructor(
      * * Note: If the animation was not found it will throw an [IllegalArgumentException]
      * @param maxTime Maximum time the animation should last for in milliseconds
      */
-    open fun setYAnimation(name: String, maxTime: Float = 500f) = apply {
+    override fun setYAnimation(name: String, maxTime: Float) = apply {
         yAnimation = Animation(Animations.getParameterByName(name), maxTime)
     }
 
@@ -316,7 +317,7 @@ open class UIBase @JvmOverloads constructor(
      * * Note: If the animation was not found it will throw an [IllegalArgumentException]
      * @param maxTime Maximum time the animation should last for in milliseconds
      */
-    open fun setWidthAnimation(name: String, maxTime: Float = 500f) = apply {
+    override fun setWidthAnimation(name: String, maxTime: Float) = apply {
         widthAnimation = Animation(Animations.getParameterByName(name), maxTime)
     }
 
@@ -325,20 +326,20 @@ open class UIBase @JvmOverloads constructor(
      * * Note: If the animation was not found it will throw an [IllegalArgumentException]
      * @param maxTime Maximum time the animation should last for in milliseconds
      */
-    open fun setHeightAnimation(name: String, maxTime: Float = 500f) = apply {
+    override fun setHeightAnimation(name: String, maxTime: Float) = apply {
         heightAnimation = Animation(Animations.getParameterByName(name), maxTime)
     }
 
     /**
-     * * Checks whether this [UIBase] component is dirty
+     * * Checks whether this [UIElement] component is dirty
      */
-    open fun isDirty(): Boolean = dirty
+    override fun isDirty(): Boolean = isSelfDirty
 
     /**
      * * Replaces the specified child with a new one
      * @returns a boolean that specifies whether the component was successfully replaced or not
      */
-    open fun replaceChild(newComp: UIBase, oldComp: UIBase): Boolean {
+    override fun replaceChild(newComp: UIElement, oldComp: UIElement): Boolean {
         val idx = children.indexOf(oldComp)
         if (idx == -1) return false
 
@@ -352,7 +353,7 @@ open class UIBase @JvmOverloads constructor(
      * * Inserts the specified child into the specified index
      * @returns a boolean that specifies whether the component was successfully inserted or not
      */
-    open fun insertChild(comp: UIBase, idx: Int): Boolean {
+    override fun insertChild(comp: UIElement, idx: Int): Boolean {
         if (idx < 0 || idx > children.size) return false
 
         comp.parent = this
@@ -363,14 +364,14 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Sets the [hidden] variable to `true`
      */
-    open fun hide() = apply {
+    override fun hide() = apply {
         hidden = true
     }
 
     /**
      * * Sets the [hidden] variable to `false`
      */
-    open fun unhide() = apply {
+    override fun unhide() = apply {
         hidden = false
     }
 
@@ -380,14 +381,14 @@ open class UIBase @JvmOverloads constructor(
      * and thus has no parent, therefore we can do single calculations here and
      * pass them through to the children so its only done once and not per child
      */
-    open fun isMainComponent(): Boolean = parent == null
+    override fun isMainComponent(): Boolean = parent == null
 
     /**
      * * Gets the component that is located at the specified `x` and `y`
      * * If no component is found it will return `null`
      */
-    open fun getComponentAt(x: Double, y: Double): UIBase? {
-        var comp: UIBase? = null
+    override fun getComponentAt(x: Double, y: Double): UIElement? {
+        var comp: UIElement? = null
         for (child in children) {
             if (child.inBounds(x, y)) {
                 comp = child
@@ -401,14 +402,14 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Un-focuses the component
      */
-    open fun unfocus() {
+    override fun unfocus() {
         propagateUnfocus(UIFocusEvent(-1.0, -1.0, false, this))
     }
 
     /**
      * * Adds a layout to handle the drawing of children
      */
-    open fun addLayout(layout: Layout) = apply {
+    override fun addLayout(layout: Layout) = apply {
         layout.parent = this
         this.layout = layout
     }
@@ -416,27 +417,27 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Removes the current layout
      */
-    open fun removeLayout() = apply {
+    override fun removeLayout() = apply {
         layout = null
     }
 
     /**
-     * * This is the update method, whenever the [dirty] variable is set to true
+     * * This is the update method, whenever the [isSelfDirty] variable is set to true
      * this method gets called in rendering
      * * This is mostly used internally to update size, position and children size and position
      */
-    open fun update() = apply {
+    override fun update() = apply {
         val parentX = parent?.x ?: 0.0
         val parentY = parent?.y ?: 0.0
         val parentWidth = parent?.width ?: scaledResolution?.scaledWidth_double ?: 0.0
         val parentHeight = parent?.height ?: scaledResolution?.scaledHeight_double ?: 0.0
 
-        dirty = false
+        isSelfDirty = false
         x = _x / 100 * parentWidth + parentX
         y = _y / 100 * parentHeight + parentY
         width = _width / 100 * parentWidth
         height = _height / 100 * parentHeight
-        bounds = Boundaries(x, y, x + width, y + height)
+        bounds = UIElement.Boundaries(x, y, x + width, y + height)
         onUpdate()
         hookUpdate?.invoke()
         layout?.onUpdate()
@@ -445,31 +446,32 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Override this method if you need to do something **before** the component is drawn
      */
-    open fun preDraw() {}
+    override fun preDraw() {}
     /**
      * * Override this method if you need to do something **after** the component is drawn
      */
-    open fun postDraw() {}
+    override fun postDraw() {}
     /**
      * * Override this method if you need to do something **before** the children are drawn
      */
-    open fun preChildDraw() {}
+    override fun preChildDraw() {}
     /**
      * * Override this method if you need to do something **after** the children are drawn
      */
-    open fun postChildDraw() {}
+    override fun postChildDraw() {}
     /**
      * * Override this method to draw your custom component
      */
-    open fun render() {}
+    override fun render() {}
 
-    @JvmOverloads
-    open fun drawChildren(x2: Double = 0.0, y2: Double = 0.0) {
-        children.forEach { it.draw(x2, y2) }
+    override fun drawChildren(x2: Double, y2: Double) {
+        children.forEach {
+            if (it is FloatingUI) return@forEach
+            it.draw(x2, y2)
+        }
     }
 
-    @JvmOverloads
-    open fun draw(x2: Double = 0.0, y2: Double = 0.0) {
+    override fun draw(x2: Double, y2: Double) {
         // Check the scaledResolution
         if (isMainComponent()) {
             val sr = ScaledResolution(MinecraftClient.getInstance())
@@ -499,9 +501,8 @@ open class UIBase @JvmOverloads constructor(
             // so only this component needs to handle the inputs and pass them through
             if (isMainComponent()) handleMouseInput()
             // If the component was marked as dirty let's update it
-            if (dirty) {
+            if (isSelfDirty) {
                 update()
-                return
             }
             effects.forEach { it.preDraw() }
             // Prepare animations here so the user does not need to do so
@@ -514,12 +515,16 @@ open class UIBase @JvmOverloads constructor(
             x -= x2
             y -= y2
             render()
+            floatingChildren.forEach { it.updateFloating() }
             x += x2
             y += y2
             layout?.preChildDraw()
             effects.forEach { it.preChildDraw() }
             preChildDraw()
             drawChildren(x2, y2)
+            if (isMainComponent()) {
+                floatingChildren.forEach { it.draw(x2, y2) }
+            }
             layout?.postChildDraw()
             effects.forEach { it.postChildDraw() }
             postChildDraw()
@@ -543,14 +548,14 @@ open class UIBase @JvmOverloads constructor(
      * this will handle all the keytyped as well as only trigger if it's the highest component
      * in the hierarchy
      */
-    open fun handleKeyInput(keycode: Int, scanCode: Int) {
+    override fun handleKeyInput(keycode: Int, scanCode: Int) {
         if (parent != null || !focused) return
         val keyName = GLFW.glfwGetKeyName(keycode, scanCode)
         val char = keyName?.single()
         propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
     }
 
-    open fun handleMouseInput() {
+    override fun handleMouseInput() {
         if (scaledResolution == null) return
 
         val mxd = Renderer.getMouseX(scaledResolution!!)
@@ -627,10 +632,10 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
-    open fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {}
-    open fun <T : UIMouseEvent> resetChildMouseEvent(event: T) {}
+    override fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {}
+    override fun <T : UIMouseEvent> resetChildMouseEvent(event: T) {}
 
-    open fun propagateMouseScroll(event: UIScrollEvent) {
+    override fun propagateMouseScroll(event: UIScrollEvent) {
         onMouseScroll(event)
         hookMouseScroll?.invoke(event)
         if (!event.propagate) return
@@ -651,7 +656,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateMouseClick(event: UIClickEvent) {
+    override fun propagateMouseClick(event: UIClickEvent) {
         onMouseClick(event)
         hookMouseClick?.invoke(event)
         if (!event.propagate) return
@@ -672,7 +677,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateMouseRelease(event: UIClickEvent) {
+    override fun propagateMouseRelease(event: UIClickEvent) {
         onMouseRelease(event)
         hookMouseRelease?.invoke(event)
         if (!event.propagate) return
@@ -693,7 +698,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateMouseEnter(event: UIMouseEvent) {
+    override fun propagateMouseEnter(event: UIMouseEvent) {
         if (!mouseInBounds) {
             onMouseEnter(event)
             hookMouseEnter?.invoke(event)
@@ -717,7 +722,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateMouseLeave(event: UIMouseEvent) {
+    override fun propagateMouseLeave(event: UIMouseEvent) {
         if (mouseInBounds && !inBounds(event)) {
             onMouseLeave(event)
             hookMouseLeave?.invoke(event)
@@ -740,7 +745,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateMouseHover(event: UIMouseEvent) {
+    override fun propagateMouseHover(event: UIMouseEvent) {
         onMouseHover(event)
         hookMouseHover?.invoke(event)
         if (!event.propagate) return
@@ -761,7 +766,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateMouseDrag(event: UIDragEvent) {
+    override fun propagateMouseDrag(event: UIDragEvent) {
         onMouseDrag(event)
         hookMouseDrag?.invoke(event)
         if (!event.propagate) return
@@ -784,7 +789,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateFocus(event: UIFocusEvent) {
+    override fun propagateFocus(event: UIFocusEvent) {
         if (focused != event.state) {
             focused = true
             onFocus(event)
@@ -809,7 +814,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateUnfocus(event: UIFocusEvent) {
+    override fun propagateUnfocus(event: UIFocusEvent) {
         if (focused && !inBounds(event)) {
             focused = false
             onUnfocus(event)
@@ -833,7 +838,7 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    open fun propagateKeyTyped(event: UIKeyType) {
+    override fun propagateKeyTyped(event: UIKeyType) {
         onKeyTyped(event)
         onKeyType(event)
         hookKeyType?.invoke(event)
@@ -847,7 +852,7 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
-    open fun propagateResize(comp: UIBase, scaledResolution: ScaledResolution) {
+    override fun propagateResize(comp: UIElement, scaledResolution: ScaledResolution) {
         markDirty()
         onResize(comp, scaledResolution)
         hookResize?.invoke(comp, scaledResolution)
@@ -855,27 +860,27 @@ open class UIBase @JvmOverloads constructor(
         for (child in children.toList()) child.propagateResize(comp, scaledResolution)
     }
 
-    open fun propagateError(trace: Array<out StackTraceElement>) {
+    override fun propagateError(trace: Array<out StackTraceElement>) {
         onError(trace)
         hookError?.invoke(trace)
 
         for (child in children.toList()) child.propagateError(trace)
     }
 
-    open fun onResize(comp: UIBase, scaledResolution: ScaledResolution) = apply {}
-    open fun onResize(cb: (comp: UIBase, scaledResolution: ScaledResolution) -> Unit) = apply {
+    override fun onResize(comp: UIElement, scaledResolution: ScaledResolution) = apply {}
+    open fun onResize(cb: (comp: UIElement, scaledResolution: ScaledResolution) -> Unit) = apply {
         hookResize = cb
     }
-    open fun onError(trace: Array<out StackTraceElement>) = apply {}
+    override fun onError(trace: Array<out StackTraceElement>) = apply {}
     open fun onError(cb: (trace: Array<out StackTraceElement>) -> Unit) = apply {
         hookError = cb
     }
 
-    open fun onMouseClick(event: UIClickEvent) = apply {}
+    override fun onMouseClick(event: UIClickEvent) = apply {}
     open fun onMouseClick(cb: (event: UIClickEvent) -> Unit) = apply {
         hookMouseClick = cb
     }
-    open fun onMouseDrag(event: UIDragEvent) = apply {}
+    override fun onMouseDrag(event: UIDragEvent) = apply {}
     open fun onMouseDrag(cb: (event: UIDragEvent) -> Unit) = apply {
         hookMouseDrag = cb
     }
@@ -883,70 +888,63 @@ open class UIBase @JvmOverloads constructor(
      * * Triggers whenever the mouse is dragged inside the parent component
      * but the drag was started inside `this` component
      */
-    open fun onMouseDragOut(event: UIDragEvent) = apply {}
-    open fun onMouseRelease(event: UIClickEvent) = apply {}
+    override fun onMouseDragOut(event: UIDragEvent) = apply {}
+    override fun onMouseRelease(event: UIClickEvent) = apply {}
     open fun onMouseRelease(cb: (event: UIClickEvent) -> Unit) = apply {
         hookMouseRelease = cb
     }
-    open fun onMouseEnter(event: UIMouseEvent) = apply {}
+    override fun onMouseEnter(event: UIMouseEvent) = apply {}
     open fun onMouseEnter(cb: (event: UIMouseEvent) -> Unit) = apply {
         hookMouseEnter = cb
     }
-    open fun onMouseHover(event: UIMouseEvent) = apply {}
+    override fun onMouseHover(event: UIMouseEvent) = apply {}
     open fun onMouseHover(cb: (event: UIMouseEvent) -> Unit) = apply {
         hookMouseHover = cb
     }
-    open fun onMouseLeave(event: UIMouseEvent) = apply {}
+    override fun onMouseLeave(event: UIMouseEvent) = apply {}
     open fun onMouseLeave(cb: (event: UIMouseEvent) -> Unit) = apply {
         hookMouseLeave = cb
     }
-    open fun onMouseScroll(event: UIScrollEvent) = apply {}
+    override fun onMouseScroll(event: UIScrollEvent) = apply {}
     open fun onMouseScroll(cb: (event: UIScrollEvent) -> Unit) = apply {
         hookMouseScroll = cb
     }
-    open fun onFocus(event: UIFocusEvent) = apply {}
+    override fun onFocus(event: UIFocusEvent) = apply {}
     open fun onFocus(cb: (event: UIFocusEvent) -> Unit) = apply {
         hookFocus = cb
     }
-    open fun onUnfocus(event: UIFocusEvent) = apply {}
+    override fun onUnfocus(event: UIFocusEvent) = apply {}
     open fun onUnfocus(cb: (event: UIFocusEvent) -> Unit) = apply {
         hookUnfocus = cb
     }
-    open fun onLostFocus(event: UIFocusEvent) = apply {}
+    override fun onLostFocus(event: UIFocusEvent) = apply {}
     open fun onLostFocus(cb: (event: UIFocusEvent) -> Unit) = apply {
         hookUnfocus = cb
     }
 
-    open fun onKeyType(event: UIKeyType) = apply {}
+    override fun onKeyType(event: UIKeyType) = apply {}
     open fun onKeyType(cb: (event: UIKeyType) -> Unit) = apply {
         hookKeyType = cb
     }
-    open fun onKeyTyped(event: UIKeyType) = apply {}
+    override fun onKeyTyped(event: UIKeyType) = apply {}
     open fun onKeyTyped(cb: (event: UIKeyType) -> Unit) = apply {
         hookKeyType = cb
     }
 
-    open fun onUpdate() = apply {}
+    override fun onUpdate() = apply {}
     open fun onUpdate(cb: () -> Unit) = apply {
         hookUpdate = cb
     }
 
-    open fun onPreChildPropagate(event: UIMouseEvent) = apply {}
+    override fun onPreChildPropagate(event: UIMouseEvent) = apply {}
     open fun onPreChildPropagate(cb: (event: UIMouseEvent) -> Unit) = apply {
         preChildPropagate = cb
     }
 
-    open fun onPostChildPropagation(event: UIMouseEvent) = apply {}
+    override fun onPostChildPropagation(event: UIMouseEvent) = apply {}
     open fun onPostChildPropagation(cb: (event: UIMouseEvent) -> Unit) = apply {
         postChildPropagate = cb
     }
 
-    /**
-     * * This class represents the current boundaries of the component
-     * @param x1 X position in pixels
-     * @param y1 Y position in pixels
-     * @param x2 X + Width position in pixels
-     * @param y2 Y + Height position in pixels
-     */
-    data class Boundaries(val x1: Double, val y1: Double, val x2: Double, val y2: Double)
+    data class State(var x: Double, var y: Double)
 }

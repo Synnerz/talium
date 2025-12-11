@@ -11,7 +11,7 @@ open class UIDecimalSlider @JvmOverloads constructor(
     min: Double,
     max: Double,
     radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UISlider(_x, _y, _width, _height, value * 100, min * 100, max * 100, radius, parent) {
     override fun getCurrentValue(): Double = value.roundToInt() / 100.0
 

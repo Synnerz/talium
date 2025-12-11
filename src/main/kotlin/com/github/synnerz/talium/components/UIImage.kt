@@ -16,7 +16,7 @@ package com.github.synnerz.talium.components
 //    _height: Double,
 //    var image: BufferedImage? = null,
 //    var scale: Float = 1f,
-//    parent: UIBase? = null
+//    parent: UIElement? = null
 //) : UIBase(_x, _y, _width, _height, parent) {
 //    override var bgColor: Color = Color(255, 255, 255, 255)
 //    var imgUploaded: Boolean = false
@@ -61,7 +61,7 @@ package com.github.synnerz.talium.components
 //    companion object {
 //        @JvmOverloads
 //        @JvmStatic
-//        fun fromFile(x: Double, y: Double, width: Double, height: Double, file: File, scale: Float = 1f, parent: UIBase? = null): UIImage {
+//        fun fromFile(x: Double, y: Double, width: Double, height: Double, file: File, scale: Float = 1f, parent: UIElement? = null): UIImage {
 //            return UIImage(x, y, width, height, ImageIO.read(file), scale, parent)
 //        }
 //    }

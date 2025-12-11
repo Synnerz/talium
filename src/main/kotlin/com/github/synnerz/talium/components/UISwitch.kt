@@ -18,7 +18,7 @@ open class UISwitch @JvmOverloads constructor(
     _height: Double,
     var state: Boolean = false,
     var radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     open var enabledColor: Color? = null
     open var knob = UIKnobSwitch(radius = radius, parent = this)
@@ -102,7 +102,7 @@ open class UISwitch @JvmOverloads constructor(
 open class UIKnobSwitch @JvmOverloads constructor(
     _height: Double = -1.0,
     var radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(0.0, 0.0, 0.0, _height, parent) {
     /** * The color of this `knob` whenever the [UISwitch.state] is `true` */
     open var enabledColor: Color = Color(0, 255, 0,  255)

@@ -24,7 +24,7 @@ open class UITextInput @JvmOverloads constructor(
     _height: Double,
     var text: String = "",
     var radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     private val keyboard get() = MinecraftClient.getInstance().keyboard
     var cursorAnimation: Animation = Animation(Animations.CIRC_IN_OUT, 650f)

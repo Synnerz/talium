@@ -18,7 +18,7 @@ open class UISlider @JvmOverloads constructor(
     var min: Double = 0.0,
     var max: Double = 1.0,
     var radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     open var thumb = UISliderThumb(15.0, this)
     open var completion = UISliderCompletion(this)
@@ -102,13 +102,13 @@ open class UISlider @JvmOverloads constructor(
 
 open class UISliderThumb(
     _width: Double,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(0.0, 0.0, _width, 0.0, parent) {
     override var bgColor: Color = Color(140, 140, 140, 80)
 }
 
 open class UISliderCompletion(
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(0.0, 0.0, 0.0, 0.0, parent) {
     override var bgColor: Color = Color(140, 140, 140, 80)
 }

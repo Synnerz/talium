@@ -11,7 +11,7 @@ open class UIPercentSlider @JvmOverloads constructor(
     min: Double,
     max: Double,
     radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIDecimalSlider(_x, _y, _width, _height, value, min, max, radius, parent) {
     override fun getDisplayValue(): String = "${value.roundToInt()}%"
 }

@@ -14,7 +14,7 @@ open class UIScrollable @JvmOverloads constructor(
     _y: Double,
     _width: Double,
     _height: Double,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     /*
     in child coordinates
@@ -23,7 +23,7 @@ open class UIScrollable @JvmOverloads constructor(
      */
     var yOffset = 0.0
     var maxY2 = 0.0
-    private var visibleComponents = listOf<UIBase>()
+    private var visibleComponents = listOf<UIElement>()
     var drawScrollbar: Boolean = false
     var scrollBgColor = Color(241, 241, 241, 255)
     var scrollFgColor = Color(136, 136, 136, 255)

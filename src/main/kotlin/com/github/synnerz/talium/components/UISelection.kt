@@ -10,7 +10,7 @@ open class UISelection @JvmOverloads constructor(
     var value: Int = 0,
     val options: List<String> = listOf(),
     var radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     open val centerText = UIText(0.0, 0.0, 100.0, 100.0, options[value], true, this)
 

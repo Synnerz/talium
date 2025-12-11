@@ -1,6 +1,6 @@
 package com.github.synnerz.talium.layout
 
-import com.github.synnerz.talium.components.UIBase
+import com.github.synnerz.talium.components.UIElement
 
 open class GridLayout @JvmOverloads constructor(
     var columns: Int,
@@ -12,7 +12,7 @@ open class GridLayout @JvmOverloads constructor(
     data class GridComp(
         val xOffset: Double = 0.0,
         val yOffset: Double = 0.0,
-        val comp: UIBase,
+        val comp: UIElement,
         var offset: Boolean = false
     )
 
@@ -45,7 +45,7 @@ open class GridLayout @JvmOverloads constructor(
             if (!it.offset) {
                 comp.x += it.xOffset
                 comp.y += it.yOffset
-                comp.bounds = UIBase.Boundaries(comp.x, comp.y, comp.x + comp.width, comp.y + comp.height)
+                comp.bounds = UIElement.Boundaries(comp.x, comp.y, comp.x + comp.width, comp.y + comp.height)
             }
             it.offset = true
         }

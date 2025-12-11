@@ -14,7 +14,7 @@ open class UICheckBox @JvmOverloads constructor(
     _height: Double,
     var value: Boolean = false,
     var radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     open var enabledColor: Color = Color(0, 255, 0)
     open var disabledColor: Color = Color(255, 0, 0)

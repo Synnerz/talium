@@ -1,9 +1,9 @@
 package com.github.synnerz.talium.effects
 
-import com.github.synnerz.talium.components.UIBase
+import com.github.synnerz.talium.components.UIElement
 
 open class UIEffect {
-    var component: UIBase? = null
+    var component: UIElement? = null
     /**
      * * Whether this effect adds its own color to the stack or not
      * * i.e. if i want this effect to color the component red i'd set this to `true`

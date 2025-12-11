@@ -15,7 +15,7 @@ open class UIColorPicker @JvmOverloads constructor(
     _width: Double,
     _height: Double,
     var value: Int = -1, // argb
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     var alpha = value ushr 24
     private val defaultColor = Color(value, true)
@@ -130,7 +130,7 @@ open class UIColorPicker @JvmOverloads constructor(
         hideDropdown()
     }
 
-    open fun createFakeChild(x: Double, y: Double, width: Double, height: Double, parent: UIBase? = null): UIRect {
+    open fun createFakeChild(x: Double, y: Double, width: Double, height: Double, parent: UIElement? = null): UIRect {
         return UIRect(x, y, width, height, parent = parent).apply { hide() }
     }
 }
@@ -141,7 +141,7 @@ open class UIColorHuePicker @JvmOverloads constructor(
     _width: Double,
     _height: Double,
     var currentHue: Double = 1.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     private val hueColors = List(51) {
         Color(Color.HSBtoRGB(it / 50f, 1f, 0.7f)).rgb
@@ -222,7 +222,7 @@ open class UIColorGradient @JvmOverloads constructor(
     var color: Color = Color.WHITE,
     var saturation: Double = 1.0,
     var brightness: Double = 1.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     private val gradientPointer = UIRect(saturation * 100, (1 - brightness) * 100, 4.0, 4.0, parent = this).also {
         it.addEffect(OutlineEffect())

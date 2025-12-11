@@ -10,7 +10,7 @@ open class UIRect @JvmOverloads constructor(
     _width: Double,
     _height: Double,
     var radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     override fun render() {
         drawRect(x, y, width, height, radius, bgColor)

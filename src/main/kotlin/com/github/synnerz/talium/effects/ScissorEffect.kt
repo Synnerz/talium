@@ -1,6 +1,6 @@
 package com.github.synnerz.talium.effects
 
-import com.github.synnerz.talium.components.UIBase
+import com.github.synnerz.talium.components.UIElement
 import com.github.synnerz.talium.utils.Renderer
 import kotlin.math.ceil
 
@@ -19,7 +19,7 @@ open class ScissorEffect : UIEffect() {
     companion object {
         var scissorState: Boolean = false
 
-        fun enableScissor(comp: UIBase)
+        fun enableScissor(comp: UIElement)
             = enableScissor(comp.x, comp.y, comp.width, comp.height)
 
         fun enableScissor(x: Double, y: Double, width: Double, height: Double) {

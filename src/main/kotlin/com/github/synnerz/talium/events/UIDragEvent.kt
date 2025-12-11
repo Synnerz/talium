@@ -1,6 +1,6 @@
 package com.github.synnerz.talium.events
 
-import com.github.synnerz.talium.components.UIBase
+import com.github.synnerz.talium.components.UIElement
 
 open class UIDragEvent(
     var dx: Double,
@@ -8,5 +8,5 @@ open class UIDragEvent(
     x: Double,
     y: Double,
     var button: Int,
-    component: UIBase
+    component: UIElement
 ) : UIMouseEvent(x, y, component)

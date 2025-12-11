@@ -12,7 +12,7 @@ open class UIText @JvmOverloads constructor(
     _height: Double,
     var text: String = "",
     var centered: Boolean = false,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
     override var bgColor: Color = Color.WHITE
     open var textScale: Float = 1f

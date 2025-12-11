@@ -10,7 +10,7 @@ open class UIPasswordInput @JvmOverloads constructor(
     text: String = "",
     var secretChar: String = "*",
     radius: Double = 0.0,
-    parent: UIBase? = null
+    parent: UIElement? = null
 ) : UITextInput(_x, _y, _width, _height, text, radius, parent) {
     // TODO: add a way to toggle this to view/peak the text
     open var protected: Boolean = true

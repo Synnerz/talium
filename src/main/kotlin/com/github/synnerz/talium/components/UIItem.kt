@@ -14,7 +14,7 @@ package com.github.synnerz.talium.components
 //    var item: ItemStack,
 //    var scale: Float = 1f,
 //    var zlevel: Float = 200f,
-//    parent: UIBase? = null
+//    parent: UIElement? = null
 //) : UIBase(_x, _y, _width, _height, parent) {
 //    override var bgColor: Color = Color(255, 255, 255, 255)
 //
