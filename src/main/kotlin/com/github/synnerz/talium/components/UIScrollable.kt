@@ -62,17 +62,12 @@ open class UIScrollable @JvmOverloads constructor(
             UIRect.drawRect(x + width - w, y, w, height, color = scrollBgColor)
             UIRect.drawRect(x + width - w + m, y + yo + m, w - m - m, h - m - m, color = scrollFgColor)
         }
-
-        stack().pushMatrix()
-        stack().translate(0f, -yOffset.toFloat())
     }
 
     override fun drawChildren(x2: Double, y2: Double) {
         for (child in visibleComponents) {
-            child.draw(0.0, 0.0)
+            child.draw(0.0, yOffset)
         }
-
-        stack().popMatrix()
     }
 
     override fun onMouseScroll(event: UIScrollEvent) = apply {
