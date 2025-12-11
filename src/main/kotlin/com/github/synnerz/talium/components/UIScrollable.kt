@@ -73,7 +73,8 @@ open class UIScrollable @JvmOverloads constructor(
     override fun onMouseScroll(event: UIScrollEvent) = apply {
         if (children.isEmpty()) return@apply
 
-        updateScrollY(-10.0 * event.delta.sign)
+        val isCtrl = UITextInput.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)
+        updateScrollY(-(if (isCtrl) 50.0 else 10.0) * event.delta.sign)
     }
 
     override fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {
