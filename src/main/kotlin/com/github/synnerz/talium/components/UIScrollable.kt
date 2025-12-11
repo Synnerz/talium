@@ -3,6 +3,7 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.events.*
 import com.github.synnerz.talium.utils.Renderer.stack
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -79,5 +80,9 @@ open class UIScrollable @JvmOverloads constructor(
 
     override fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {
         event.y += yOffset
+    }
+
+    override fun <T : UIMouseEvent> resetChildMouseEvent(event: T) {
+        event.y -= yOffset
     }
 }

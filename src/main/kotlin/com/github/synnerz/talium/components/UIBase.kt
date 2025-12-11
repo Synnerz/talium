@@ -628,6 +628,7 @@ open class UIBase @JvmOverloads constructor(
     }
 
     open fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {}
+    open fun <T : UIMouseEvent> resetChildMouseEvent(event: T) {}
 
     open fun propagateMouseScroll(event: UIScrollEvent) {
         onMouseScroll(event)
@@ -647,6 +648,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateMouseClick(event: UIClickEvent) {
@@ -667,6 +669,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateMouseRelease(event: UIClickEvent) {
@@ -687,6 +690,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateMouseEnter(event: UIMouseEvent) {
@@ -710,6 +714,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateMouseLeave(event: UIMouseEvent) {
@@ -732,6 +737,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateMouseHover(event: UIMouseEvent) {
@@ -752,6 +758,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateMouseDrag(event: UIDragEvent) {
@@ -774,6 +781,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateFocus(event: UIFocusEvent) {
@@ -798,6 +806,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateUnfocus(event: UIFocusEvent) {
@@ -821,6 +830,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
+        resetChildMouseEvent(event)
     }
 
     open fun propagateKeyTyped(event: UIKeyType) {
