@@ -7,6 +7,7 @@ import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.state.GradientRectangleState
 import org.joml.Matrix3x2f
 import java.awt.Color
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 open class UIColorPicker @JvmOverloads constructor(
@@ -20,11 +21,18 @@ open class UIColorPicker @JvmOverloads constructor(
     var alpha = value ushr 24
     private val defaultColor = Color(value, true)
     private val hsbColor = Color.RGBtoHSB(defaultColor.red, defaultColor.green, defaultColor.blue, null)
-    // This is a fake child for a workaround, so we can have a dropdown-like
-    // feature for the color picker, this "child" will not have [this] as a parent,
-    // so we can branch out and set the width/height to something bigger
-    val fakeChild = createFakeChild(_x, _y + _height + 1, _width + 3, _height + 5, parent = parent)
-    open val alphaSlider = object : UIDecimalSlider(2.0, 84.0, 96.0, 12.0, alpha / 255.0, 0.0, 1.0, parent = fakeChild) {
+
+    val floatingChild = object : FloatingUI(this) {
+        override fun setFloatingPos(parent: UIElement) {
+            x = parent.x
+            y = parent.y + parent.height * 1.01
+            val dim = max(parent.width, parent.height)
+            width = dim * 1.03
+            height = dim * 1.05
+        }
+    }.also { it.hide() }
+    val floatingBg = UIRect(0.0, 0.0, 100.0, 100.0, parent = floatingChild)
+    open val alphaSlider = object : UIDecimalSlider(2.0, 84.0, 96.0, 12.0, alpha / 255.0, 0.0, 1.0, parent = floatingBg) {
         override fun setCurrentX(x: Double) {
             super.setCurrentX(x)
             setAlpha(getCurrentValue())
@@ -38,14 +46,14 @@ open class UIColorPicker @JvmOverloads constructor(
     override var bgColor: Color = Color(0, 0, 0, 0)
         set(value) {
             alphaSlider.setColor(value.brighter())
-            fakeChild.setColor(value)
+            floatingBg.setColor(value)
             field = value
         }
-    open val huePicker = UIColorHuePicker(2.0, 2.0, 15.0, 80.0, hsbColor[0].toDouble(), parent = fakeChild).apply {
+    open val huePicker = UIColorHuePicker(2.0, 2.0, 15.0, 80.0, hsbColor[0].toDouble(), parent = floatingBg).apply {
         colorPicker = this@UIColorPicker
         hide()
     }
-    open val gradientPicker = UIColorGradient(18.0, 2.0, 80.0, 80.0, Color(Color.HSBtoRGB(hsbColor[0], 1f, 1f)), hsbColor[1].toDouble(), hsbColor[2].toDouble(), parent = fakeChild).apply {
+    open val gradientPicker = UIColorGradient(18.0, 2.0, 80.0, 80.0, Color(Color.HSBtoRGB(hsbColor[0], 1f, 1f)), hsbColor[1].toDouble(), hsbColor[2].toDouble(), parent = floatingBg).apply {
         colorPicker = this@UIColorPicker
         hide()
     }
@@ -102,7 +110,7 @@ open class UIColorPicker @JvmOverloads constructor(
     }
 
     open fun hideDropdown() {
-        fakeChild.hide()
+        floatingChild.hide()
         gradientPicker.hide()
         huePicker.hide()
         alphaSlider.hide()
@@ -111,7 +119,7 @@ open class UIColorPicker @JvmOverloads constructor(
     }
 
     open fun unhideDropdown() {
-        fakeChild.unhide()
+        floatingChild.unhide()
         gradientPicker.unhide()
         huePicker.unhide()
         alphaSlider.unhide()
@@ -128,10 +136,6 @@ open class UIColorPicker @JvmOverloads constructor(
         }
 
         hideDropdown()
-    }
-
-    open fun createFakeChild(x: Double, y: Double, width: Double, height: Double, parent: UIElement? = null): UIRect {
-        return UIRect(x, y, width, height, parent = parent).apply { hide() }
     }
 }
 
@@ -180,8 +184,8 @@ open class UIColorHuePicker @JvmOverloads constructor(
         currentHue = (ry / height).coerceIn(0.0, 1.0)
         colorPicker?.setValue(currentHue)
         // Set pointer to the current hue position
-        val percent = currentHue * 100
-        huePointer.y = percent / 100 * height + y
+        huePointer._y = currentHue * 100
+        huePointer.setDirty()
         dragging = true
     }
 
@@ -194,14 +198,12 @@ open class UIColorHuePicker @JvmOverloads constructor(
         colorPicker?.setValue(currentHue)
 
         // Set pointer to the current hue position
-        val percent = currentHue * 100
-        huePointer.y = percent / 100 * height + y
+        huePointer._y = currentHue * 100
+        huePointer.setDirty()
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
         if (event.button != 0) return@apply
-        // On mouse release actually update it, so it doesn't flicker
-        // all over the place whenever the user is dragging it
         huePointer._y = currentHue * 100
         huePointer.setDirty()
         dragging = false
@@ -244,6 +246,10 @@ open class UIColorGradient @JvmOverloads constructor(
         brightness = (1 - (ry / height)).coerceIn(0.0, 1.0)
         colorPicker?.onSatBriChange()
         dragging = true
+
+        gradientPointer._x = saturation * 100
+        gradientPointer._y = (1 - brightness) * 100
+        gradientPointer.setDirty()
     }
 
     override fun onMouseDrag(event: UIDragEvent) = apply {
@@ -257,10 +263,9 @@ open class UIColorGradient @JvmOverloads constructor(
         colorPicker?.onSatBriChange()
 
         // Set pointer to the current saturation/brightness position
-        val percentX = saturation * 100
-        val percentY = (1 - brightness) * 100
-        gradientPointer.x = percentX / 100 * width + x
-        gradientPointer.y = percentY / 100 * height + y
+        gradientPointer._x = saturation * 100
+        gradientPointer._y = (1 - brightness) * 100
+        gradientPointer.setDirty()
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
