@@ -465,7 +465,7 @@ open class UIBase @JvmOverloads constructor(
     override fun render() {}
 
     override fun drawChildren(x2: Double, y2: Double) {
-        children.forEach {
+        children.toList().forEach {
             if (it is FloatingUI) return@forEach
             it.draw(x2, y2)
         }
