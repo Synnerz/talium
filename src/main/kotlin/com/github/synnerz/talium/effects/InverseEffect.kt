@@ -10,7 +10,7 @@ open class InverseEffect : UIEffect() {
     private val color = Color(1f, 1f, 1f, 1f)
     override var forceColor: Boolean = true
 
-    override fun preDraw() {
+    override fun preDraw(x2: Double, y2: Double) {
 //        GlStateManager.enableBlend()
 //        GlStateManager.tryBlendFuncSeparate(775, 0, 1, 0)
 //        color.bind()

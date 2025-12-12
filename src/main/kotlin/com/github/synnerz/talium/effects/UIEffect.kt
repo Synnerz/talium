@@ -12,7 +12,7 @@ open class UIEffect {
     /**
      * * Override this method if you need to do something **before** the component is drawn
      */
-    open fun preDraw() {}
+    open fun preDraw(x2: Double = 0.0, y2: Double = 0.0) {}
     /**
      * * Override this method if you need to do something **after** the component is drawn
      */

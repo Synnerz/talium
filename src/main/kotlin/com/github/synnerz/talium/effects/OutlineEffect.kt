@@ -12,14 +12,14 @@ open class OutlineEffect @JvmOverloads constructor(
     var color: Color = Color(255, 255, 255, 255),
     var radius: Double = 0.0
 ) : UIEffect() {
-    override fun preDraw() {
+    override fun preDraw(x2: Double, y2: Double) {
         if (component == null) return
         if (width == 0.0 || color.alpha == 0) return
 
         if (radius == 0.0) {
             Renderer.drawRect(
-                component!!.x - width / 2,
-                component!!.y - width / 2,
+                (component!!.x - x2) - width / 2,
+                (component!!.y - y2) - width / 2,
                 component!!.width + width,
                 component!!.height + width,
                 false,

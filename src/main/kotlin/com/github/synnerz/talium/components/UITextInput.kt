@@ -36,7 +36,7 @@ open class UITextInput @JvmOverloads constructor(
     open var maxLength: Int = 0
     open var currentOffset: Int = 0
 
-    override fun preDraw() = cursorAnimation.preDraw()
+    override fun preDraw(x2: Double, y2: Double) = cursorAnimation.preDraw()
 
     open fun getSelectionLeft() = min(selectionPos, cursorPos).coerceIn(0, text.length)
 

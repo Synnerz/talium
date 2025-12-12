@@ -315,7 +315,7 @@ interface UIElement {
     /**
      * * Override this method if you need to do something **before** the component is drawn
      */
-    fun preDraw()
+    fun preDraw(x2: Double = 0.0, y2: Double = 0.0)
 
     /**
      * * Override this method if you need to do something **after** the component is drawn

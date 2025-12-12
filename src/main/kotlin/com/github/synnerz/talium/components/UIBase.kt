@@ -446,7 +446,7 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Override this method if you need to do something **before** the component is drawn
      */
-    override fun preDraw() {}
+    override fun preDraw(x2: Double, y2: Double) {}
     /**
      * * Override this method if you need to do something **after** the component is drawn
      */
@@ -504,7 +504,7 @@ open class UIBase @JvmOverloads constructor(
             if (isSelfDirty) {
                 update()
             }
-            effects.forEach { it.preDraw() }
+            effects.forEach { it.preDraw(x2, y2) }
             // Prepare animations here so the user does not need to do so
             xAnimation?.preDraw()
             yAnimation?.preDraw()

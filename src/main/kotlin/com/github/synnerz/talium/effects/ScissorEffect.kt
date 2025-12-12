@@ -8,7 +8,7 @@ import kotlin.math.ceil
  * * Enables scissor effect to be bound to the specified [component]'s bounds
  */
 open class ScissorEffect : UIEffect() {
-    override fun preDraw() {
+    override fun preDraw(x2: Double, y2: Double) {
         if (component == null) return
 
         enableScissor(component!!)
