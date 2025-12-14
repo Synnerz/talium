@@ -23,7 +23,7 @@ open class UIScrollable @JvmOverloads constructor(
      */
     var yOffset = 0.0
     var maxY2 = 0.0
-    private var visibleComponents = listOf<UIElement>()
+    private var visibleComponents = setOf<UIElement>()
     var drawScrollbar: Boolean = false
     var scrollBgColor = Color(241, 241, 241, 255)
     var scrollFgColor = Color(136, 136, 136, 255)
@@ -49,7 +49,7 @@ open class UIScrollable @JvmOverloads constructor(
             bounds.y1 <= it.bounds.y2 - yOffset &&
             bounds.x2 >= it.bounds.x1 &&
             bounds.y2 >= it.bounds.y1 - yOffset
-        }
+        }.toSet()
     }
 
     override fun render() {
@@ -66,8 +66,12 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun drawChildren(x2: Double, y2: Double) {
-        for (child in visibleComponents) {
+        for (child in children) {
+            val h = child.hidden
+            val visible = visibleComponents.contains(child)
+            if (!visible) child.hidden = true
             child.draw(0.0, yOffset)
+            if (!visible) child.hidden = h
         }
     }
 
