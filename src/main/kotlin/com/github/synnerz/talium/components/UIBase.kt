@@ -477,6 +477,7 @@ open class UIBase @JvmOverloads constructor(
             val sr = ScaledResolution(MinecraftClient.getInstance())
             if (scaledResolution == null) {
                 scaledResolution = sr
+                propagateResize(this, sr)
             } else if (
                 scaledResolution!!.scaledWidth != sr.scaledWidth ||
                 scaledResolution!!.scaledHeight != sr.scaledHeight ||
