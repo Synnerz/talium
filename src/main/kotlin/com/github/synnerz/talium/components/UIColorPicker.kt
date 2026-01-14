@@ -90,7 +90,7 @@ open class UIColorPicker @JvmOverloads constructor(
         val ncolor = Color(argb, true)
         val hsb = Color.RGBtoHSB(ncolor.red, ncolor.green, ncolor.blue, null)
         huePicker.setHue(hsb[0].toDouble())
-        gradientPicker.setValue(ncolor, hsb[1].toDouble(), hsb[2].toDouble())
+        gradientPicker.setValue(ncolor, 1.0, 1.0)
         alpha = ncolor.alpha
         colorRect.bgColor = ncolor
         value = colorRect.bgColor.rgb
