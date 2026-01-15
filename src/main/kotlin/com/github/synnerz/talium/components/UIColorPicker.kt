@@ -63,6 +63,7 @@ open class UIColorPicker @JvmOverloads constructor(
     open val arrowText = UIText(0.0, 0.0, 100.0, 100.0, "↓", true, arrowRect).apply {
         textScale = 2f
     }
+    var isMainClicked = false
 
     override fun render() {
         Renderer.drawRect(x, y, width, height, color = bgColor)
@@ -123,8 +124,15 @@ open class UIColorPicker @JvmOverloads constructor(
         arrowToggle = true
     }
 
-    override fun onMouseRelease(event: UIClickEvent) = apply {
+    override fun onMouseClick(event: UIClickEvent) = apply {
         if (event.button != 0) return@apply
+
+        isMainClicked = true
+    }
+
+    override fun onMouseRelease(event: UIClickEvent) = apply {
+        if (event.button != 0 || !isMainClicked) return@apply
+        isMainClicked = false
 
         if (!arrowToggle) {
             unhideDropdown()
