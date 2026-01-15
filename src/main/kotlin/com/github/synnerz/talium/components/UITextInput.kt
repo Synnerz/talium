@@ -9,8 +9,10 @@ import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.getWidth
 import com.github.synnerz.talium.utils.Renderer.stack
 import com.github.synnerz.talium.utils.Renderer.trimToWidth
+import com.github.synnerz.talium.utils.Renderer.withAlpha
 import net.minecraft.client.MinecraftClient
 import org.lwjgl.glfw.GLFW
+import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
 
@@ -146,17 +148,17 @@ open class UITextInput @JvmOverloads constructor(
                         "_",
                         (x.toFloat() + n) / textScale,
                         (y + heightCenter).toFloat() / textScale,
-                        color = 14737632
+                        color = -1
                     )
             }
             // Else we render the blinking `|`
             else {
-                Renderer.drawInvertedColRect(
+                Renderer.drawRect(
                     (x + n) / textScale,
                     (y + heightCenter) / textScale,
                     1.0,
                     maxSelectHeight,
-                    cursorAlpha.toFloat()
+                    color = Color.WHITE.withAlpha(cursorAlpha.toFloat())
                 )
             }
 
@@ -189,6 +191,10 @@ open class UITextInput @JvmOverloads constructor(
     }
     // TODO: mouse to cursor position for cursor selection when clicking on the text input
     // TODO: mouse drag selection to select text whenever the user drags the mouse on the text input
+
+    override fun onFocus(event: UIFocusEvent) = apply {
+        cursorPos = text.length
+    }
 
     open fun write(str: String) {
         for (c in str.toCharArray()) {
