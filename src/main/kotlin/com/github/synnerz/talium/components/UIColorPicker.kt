@@ -108,6 +108,7 @@ open class UIColorPicker @JvmOverloads constructor(
 
     open fun hideDropdown() {
         floatingChild.hide()
+        floatingChild.unfocus()
         gradientPicker.hide()
         huePicker.hide()
         alphaSlider.hide()
@@ -117,6 +118,7 @@ open class UIColorPicker @JvmOverloads constructor(
 
     open fun unhideDropdown() {
         floatingChild.unhide()
+        floatingChild.focused = true
         gradientPicker.unhide()
         huePicker.unhide()
         alphaSlider.unhide()
