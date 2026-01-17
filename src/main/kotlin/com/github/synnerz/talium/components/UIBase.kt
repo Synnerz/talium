@@ -603,7 +603,7 @@ open class UIBase @JvmOverloads constructor(
                 }
                 if (focused && !insideBounds) {
                     propagateUnfocus(focusEvent)
-                } else {
+                } else if (!oldState) {
                     for (child in children) {
                         child.propagateUnfocus(focusEvent)
                         if (!focusEvent.propagate) break
