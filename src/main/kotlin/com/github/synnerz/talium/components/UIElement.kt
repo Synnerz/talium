@@ -1,6 +1,10 @@
 package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.animations.Animation
+import com.github.synnerz.talium.constraints.UIHeightConstraint
+import com.github.synnerz.talium.constraints.UIWidthConstraint
+import com.github.synnerz.talium.constraints.UIXConstraint
+import com.github.synnerz.talium.constraints.UIYConstraint
 import com.github.synnerz.talium.effects.UIEffect
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
@@ -86,6 +90,21 @@ interface UIElement {
 
     /** * The layout to use for the children drawing */
     var layout: Layout?
+
+    /** * The child's index whenever it was added to its parent, note that if no parent then it will be -1 */
+    var childAt: Int
+
+    /** * The X Constraint for this component */
+    var xConstraint: UIXConstraint?
+
+    /** * The Y Constraint for this component */
+    var yConstraint: UIYConstraint?
+
+    /** * The Width Constraint for this component */
+    var widthConstraint: UIWidthConstraint?
+
+    /** * The Height Constraint for this component */
+    var heightConstraint: UIHeightConstraint?
 
     /**
      * * Field to check whether this component is dirty or not

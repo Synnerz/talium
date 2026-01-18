@@ -2,6 +2,10 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.animations.Animation
 import com.github.synnerz.talium.animations.Animations
+import com.github.synnerz.talium.constraints.UIHeightConstraint
+import com.github.synnerz.talium.constraints.UIWidthConstraint
+import com.github.synnerz.talium.constraints.UIXConstraint
+import com.github.synnerz.talium.constraints.UIYConstraint
 import com.github.synnerz.talium.effects.OutlineEffect
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.effects.UIEffect
@@ -107,10 +111,16 @@ open class UIBase @JvmOverloads constructor(
     override var layout: Layout? = null
     /** * Workaround for scroll wheel event **/
     private var hasScrollListener = false
+    override var childAt = -1
+    override var xConstraint: UIXConstraint? = null
+    override var yConstraint: UIYConstraint? = null
+    override var widthConstraint: UIWidthConstraint? = null
+    override var heightConstraint: UIHeightConstraint? = null
 
     init {
         // Adds [this] component as a children for the specified parent
         parent?.children?.add(this)
+        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
     }
 
     /**
@@ -366,6 +376,7 @@ open class UIBase @JvmOverloads constructor(
      */
     override fun hide() = apply {
         hidden = true
+        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
     }
 
     /**
@@ -373,6 +384,7 @@ open class UIBase @JvmOverloads constructor(
      */
     override fun unhide() = apply {
         hidden = false
+        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
     }
 
     /**
@@ -433,14 +445,20 @@ open class UIBase @JvmOverloads constructor(
         val parentHeight = parent?.height ?: scaledResolution?.scaledHeight_double ?: 0.0
 
         isSelfDirty = false
-        x = _x / 100 * parentWidth + parentX
-        y = _y / 100 * parentHeight + parentY
-        width = _width / 100 * parentWidth
-        height = _height / 100 * parentHeight
+        x = xConstraint?.x() ?: (_x / 100 * parentWidth + parentX)
+        y = yConstraint?.y() ?: (_y / 100 * parentHeight + parentY)
+        width = widthConstraint?.width() ?: (_width / 100 * parentWidth)
+        height = heightConstraint?.height() ?: (_height / 100 * parentHeight)
         bounds = UIElement.Boundaries(x, y, x + width, y + height)
+        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
+
         onUpdate()
         hookUpdate?.invoke()
         layout?.onUpdate()
+        xConstraint?.onUpdate()
+        yConstraint?.onUpdate()
+        widthConstraint?.onUpdate()
+        heightConstraint?.onUpdate()
     }
 
     /**
