@@ -91,9 +91,6 @@ interface UIElement {
     /** * The layout to use for the children drawing */
     var layout: Layout?
 
-    /** * The child's index whenever it was added to its parent, note that if no parent then it will be -1 */
-    var childAt: Int
-
     /** * The X Constraint for this component */
     var xConstraint: UIXConstraint?
 
@@ -294,6 +291,9 @@ interface UIElement {
      * * Sets the [hidden] variable to `false`
      */
     fun unhide(): UIElement
+
+    /** * Called whenever a constraint _should_ be updated, for example whenever calling [hide] */
+    fun recalculateConstraint()
 
     /**
      * * Checks whether this component is the main component

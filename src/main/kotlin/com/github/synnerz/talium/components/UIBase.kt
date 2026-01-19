@@ -111,7 +111,6 @@ open class UIBase @JvmOverloads constructor(
     override var layout: Layout? = null
     /** * Workaround for scroll wheel event **/
     private var hasScrollListener = false
-    override var childAt = -1
     override var xConstraint: UIXConstraint? = null
     override var yConstraint: UIYConstraint? = null
     override var widthConstraint: UIWidthConstraint? = null
@@ -120,7 +119,6 @@ open class UIBase @JvmOverloads constructor(
     init {
         // Adds [this] component as a children for the specified parent
         parent?.children?.add(this)
-        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
     }
 
     /**
@@ -376,7 +374,7 @@ open class UIBase @JvmOverloads constructor(
      */
     override fun hide() = apply {
         hidden = true
-        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
+        recalculateConstraint()
     }
 
     /**
@@ -384,7 +382,30 @@ open class UIBase @JvmOverloads constructor(
      */
     override fun unhide() = apply {
         hidden = false
-        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
+        recalculateConstraint()
+    }
+
+    override fun recalculateConstraint() {
+        if (
+            xConstraint == null &&
+            yConstraint == null &&
+            widthConstraint == null &&
+            heightConstraint == null
+        ) return
+
+        val idx = parent?.children?.indexOf(this) ?: return
+        if (idx == -1) return
+        val children = parent!!.children
+
+        for (jdx in idx until children.size - 1) {
+            val child = children[jdx]
+            if (
+                child.xConstraint != null ||
+                child.yConstraint != null ||
+                child.widthConstraint != null ||
+                child.heightConstraint != null
+            ) child.markDirty()
+        }
     }
 
     /**
@@ -450,7 +471,6 @@ open class UIBase @JvmOverloads constructor(
         width = widthConstraint?.width() ?: (_width / 100 * parentWidth)
         height = heightConstraint?.height() ?: (_height / 100 * parentHeight)
         bounds = UIElement.Boundaries(x, y, x + width, y + height)
-        childAt = (parent?.children?.filter { !it.hidden }?.size ?: 0) - 1
 
         onUpdate()
         hookUpdate?.invoke()
