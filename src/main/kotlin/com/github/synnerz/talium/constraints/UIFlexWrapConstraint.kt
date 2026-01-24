@@ -4,12 +4,7 @@ import com.github.synnerz.talium.components.UIElement
 
 class UIFlexWrapConstraint(
     override var value: Double,
-    override var parent: UIElement,
 ) : UIPositionConstraint {
-    override fun x(): Double {
-        return x(parent)
-    }
-
     override fun x(parent: UIElement): Double {
         val idx = parent.parent!!.children.indexOf(parent)
         if (idx == -1 || idx == 0) return parent.parent?.x ?: 0.0
@@ -22,12 +17,6 @@ class UIFlexWrapConstraint(
         }
 
         return sibling.bounds.x1
-    }
-
-    override fun onUpdate() {}
-
-    override fun y(): Double {
-        return y(parent)
     }
 
     override fun y(parent: UIElement): Double {
@@ -53,4 +42,6 @@ class UIFlexWrapConstraint(
 
         return result
     }
+
+    override fun onUpdate(parent: UIElement) {}
 }

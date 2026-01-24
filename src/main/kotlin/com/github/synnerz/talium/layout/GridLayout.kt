@@ -24,8 +24,6 @@ open class GridLayout @JvmOverloads constructor(
         grid.clear()
 
         for (child in parent!!.children.toList()) {
-            if (child.isDirty()) child.update()
-
             if (currentCol >= columns) {
                 yOffset = (yOffset + (columnHeight + yPadding)).coerceAtMost(parent!!.height)
                 currentCol = 0

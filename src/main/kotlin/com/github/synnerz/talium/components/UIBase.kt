@@ -72,6 +72,7 @@ open class UIBase @JvmOverloads constructor(
      * * i.e. if the window is resized this _should_ be marked as dirty, so it can recalculate the position etc
      */
     override var isSelfDirty: Boolean = true
+    override var isChildDirty: Boolean = false
     override var mouseInBounds: Boolean = false
     private val mouseState = mutableMapOf<Int, Boolean>()
     private val draggedState = mutableMapOf<Int, State>()
@@ -137,6 +138,12 @@ open class UIBase @JvmOverloads constructor(
         isSelfDirty = true
         children.forEach { it.markDirty() }
         floatingChildren.forEach { it.markDirty() }
+        parent?.markChildDirty()
+    }
+
+    override fun markChildDirty(): UIElement = apply {
+        isChildDirty = true
+        parent?.markChildDirty()
     }
 
     /**
@@ -341,7 +348,7 @@ open class UIBase @JvmOverloads constructor(
     /**
      * * Checks whether this [UIElement] component is dirty
      */
-    override fun isDirty(): Boolean = isSelfDirty
+    override fun isDirty(): Boolean = isSelfDirty || (isChildDirty && isDynamic())
 
     /**
      * * Replaces the specified child with a new one
@@ -454,31 +461,106 @@ open class UIBase @JvmOverloads constructor(
         layout = null
     }
 
-    /**
-     * * This is the update method, whenever the [isSelfDirty] variable is set to true
-     * this method gets called in rendering
-     * * This is mostly used internally to update size, position and children size and position
-     */
-    override fun update() = apply {
-        val parentX = parent?.x ?: 0.0
-        val parentY = parent?.y ?: 0.0
-        val parentWidth = parent?.width ?: scaledResolution?.scaledWidth_double ?: 0.0
-        val parentHeight = parent?.height ?: scaledResolution?.scaledHeight_double ?: 0.0
+    fun isDynamic() =
+        xConstraint != null ||
+        yConstraint != null ||
+        widthConstraint != null ||
+        heightConstraint != null
 
-        isSelfDirty = false
-        x = xConstraint?.x() ?: (_x / 100 * parentWidth + parentX)
-        y = yConstraint?.y() ?: (_y / 100 * parentHeight + parentY)
-        width = widthConstraint?.width() ?: (_width / 100 * parentWidth)
-        height = heightConstraint?.height() ?: (_height / 100 * parentHeight)
+    override fun getLayoutElement(): UIElement? {
+        return if (isDynamic()) parent?.getLayoutElement()
+            else this
+    }
+
+    override fun updateFixed() = apply {
+        if (isDynamic()) return@apply
+
+        val p = parent?.getLayoutElement()
+
+        val parentX = p?.x ?: 0.0
+        val parentY = p?.y ?: 0.0
+        val parentWidth = p?.width ?: scaledResolution?.scaledWidth_double ?: 0.0
+        val parentHeight = p?.height ?: scaledResolution?.scaledHeight_double ?: 0.0
+
+        x = _x / 100 * parentWidth + parentX
+        y = _y / 100 * parentHeight + parentY
+        width = _width / 100 * parentWidth
+        height = _height / 100 * parentHeight
         bounds = UIElement.Boundaries(x, y, x + width, y + height)
+    }
 
+    override fun updateDynamic() = apply {
+        if (!isDynamic()) return@apply
+
+        val p = parent?.getLayoutElement()
+
+        val parentX = p?.x ?: 0.0
+        val parentY = p?.y ?: 0.0
+        val parentWidth = p?.width ?: scaledResolution?.scaledWidth_double ?: 0.0
+        val parentHeight = p?.height ?: scaledResolution?.scaledHeight_double ?: 0.0
+
+        x = xConstraint?.x(this) ?: (_x / 100 * parentWidth + parentX)
+        y = yConstraint?.y(this) ?: (_y / 100 * parentHeight + parentY)
+        width = widthConstraint?.width(this) ?: (_width / 100 * parentWidth)
+        height = heightConstraint?.height(this) ?: (_height / 100 * parentHeight)
+        bounds = UIElement.Boundaries(x, y, x + width, y + height)
+    }
+
+    override fun updateLayout() = apply {
         onUpdate()
         hookUpdate?.invoke()
         layout?.onUpdate()
-        xConstraint?.onUpdate()
-        yConstraint?.onUpdate()
-        widthConstraint?.onUpdate()
-        heightConstraint?.onUpdate()
+        xConstraint?.onUpdate(this)
+        yConstraint?.onUpdate(this)
+        widthConstraint?.onUpdate(this)
+        heightConstraint?.onUpdate(this)
+    }
+
+    fun calculateLayout() {
+        val q = ArrayDeque<UIElement>()
+        val sizeQ = ArrayDeque<UIElement>()
+        val layoutQ = ArrayDeque<UIElement>()
+
+        q.add(this)
+        sizeQ.add(this)
+        layoutQ.add(this)
+        while (true) {
+            val e = q.removeFirstOrNull() ?: break
+
+            e.isSelfDirty = false
+            e.isChildDirty = false
+
+            e.children.forEach {
+                if (!it.isDirty()) return@forEach
+
+                sizeQ.add(it)
+                layoutQ.add(it)
+
+                it.updateFixed()
+            }
+        }
+
+        while (true) {
+            val e = sizeQ.removeLastOrNull() ?: break
+
+            e.updateDynamic()
+        }
+
+        while (true) {
+            val e = layoutQ.removeFirstOrNull() ?: break
+
+            e.updateLayout()
+        }
+    }
+
+    override fun checkUpdate() = apply {
+        if (isDynamic()) {
+            if (isChildDirty || isSelfDirty) calculateLayout()
+        } else if (isSelfDirty) {
+            isSelfDirty = false
+            updateFixed()
+            updateLayout()
+        }
     }
 
     /**
@@ -539,10 +621,7 @@ open class UIBase @JvmOverloads constructor(
             // this _should_ mean that the component is at the top of the hierarchy
             // so only this component needs to handle the inputs and pass them through
             if (isMainComponent()) handleMouseInput()
-            // If the component was marked as dirty let's update it
-            if (isSelfDirty) {
-                update()
-            }
+            checkUpdate()
             effects.forEach { it.preDraw(x2, y2) }
             // Prepare animations here so the user does not need to do so
             xAnimation?.preDraw()

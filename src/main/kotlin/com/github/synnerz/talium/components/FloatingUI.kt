@@ -4,7 +4,7 @@ abstract class FloatingUI(val origParent: UIElement) : UIBase(0.0, 0.0, 0.0, 0.0
     private var setParent = false
     // FIXME: doesn't work properly with constraints
 
-    override fun update() = apply {}
+    override fun checkUpdate() = apply {}
 
     abstract fun setFloatingPos(parent: UIElement)
 
@@ -30,10 +30,6 @@ abstract class FloatingUI(val origParent: UIElement) : UIBase(0.0, 0.0, 0.0, 0.0
         onUpdate()
         hookUpdate?.invoke()
         layout?.onUpdate()
-        xConstraint?.onUpdate()
-        yConstraint?.onUpdate()
-        widthConstraint?.onUpdate()
-        heightConstraint?.onUpdate()
 
         markDirty()
         isSelfDirty = false

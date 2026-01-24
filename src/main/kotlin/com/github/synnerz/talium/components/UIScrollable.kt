@@ -33,7 +33,7 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun onUpdate() = apply {
-        children.forEach { if (it.isDirty()) it.update() }
+        children.forEach { it.checkUpdate() }
         updateScrollY()
     }
 

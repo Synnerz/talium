@@ -110,6 +110,7 @@ interface UIElement {
      * * i.e. if the window is resized this _should_ be marked as dirty, so it can recalculate the position etc
      */
     var isSelfDirty: Boolean
+    var isChildDirty: Boolean
 
     /**
      * * This class represents the current boundaries of the component
@@ -129,6 +130,8 @@ interface UIElement {
      * * Marks this component as dirty, so it can recalculate positions next render
      */
     fun markDirty(): UIElement
+
+    fun markChildDirty(): UIElement
 
     /**
      * * Sets the color of this component
@@ -324,12 +327,15 @@ interface UIElement {
      */
     fun removeLayout(): UIElement
 
-    /**
-     * * This is the update method, whenever the [dirty] variable is set to true
-     * this method gets called in rendering
-     * * This is mostly used internally to update size, position and children size and position
-     */
-    fun update(): UIElement
+    fun getLayoutElement(): UIElement?
+
+    fun updateFixed(): UIElement
+
+    fun updateDynamic(): UIElement
+
+    fun updateLayout(): UIElement
+
+    fun checkUpdate(): UIElement
 
     /**
      * * Override this method if you need to do something **before** the component is drawn
