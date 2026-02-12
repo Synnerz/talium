@@ -6,12 +6,7 @@ import com.github.synnerz.talium.constraints.UIWidthConstraint
 import com.github.synnerz.talium.constraints.UIXConstraint
 import com.github.synnerz.talium.constraints.UIYConstraint
 import com.github.synnerz.talium.effects.UIEffect
-import com.github.synnerz.talium.events.UIClickEvent
-import com.github.synnerz.talium.events.UIDragEvent
-import com.github.synnerz.talium.events.UIFocusEvent
-import com.github.synnerz.talium.events.UIKeyType
-import com.github.synnerz.talium.events.UIMouseEvent
-import com.github.synnerz.talium.events.UIScrollEvent
+import com.github.synnerz.talium.events.*
 import com.github.synnerz.talium.layout.Layout
 import com.github.synnerz.talium.utils.ScaledResolution
 import java.awt.Color
@@ -39,6 +34,7 @@ interface UIElement {
     var hookFocus: ((event: UIFocusEvent) -> Unit)?
     var hookUnfocus: ((event: UIFocusEvent) -> Unit)?
     var hookKeyType: ((event: UIKeyType) -> Unit)?
+    var hookCharType: ((event: UICharEvent) -> Unit)?
     var hookResize: ((comp: UIElement, scaledResolution: ScaledResolution) -> Unit)?
     var hookError: ((trace: Array<out StackTraceElement>) -> Unit)?
     var hookUpdate: (() -> Unit)?
@@ -372,6 +368,7 @@ interface UIElement {
      * in the hierarchy
      */
     fun handleKeyInput(keycode: Int, scanCode: Int)
+    fun handleCharType(codepoint: Int, codeStr: String)
     fun handleMouseInput()
     fun <T : UIMouseEvent> modifyChildMouseEvent(event: T)
     fun <T : UIMouseEvent> resetChildMouseEvent(event: T)
@@ -385,6 +382,7 @@ interface UIElement {
     fun propagateFocus(event: UIFocusEvent)
     fun propagateUnfocus(event: UIFocusEvent)
     fun propagateKeyTyped(event: UIKeyType)
+    fun propagatgeCharTyped(event: UICharEvent)
     fun propagateResize(comp: UIElement, scaledResolution: ScaledResolution)
     fun propagateError(trace: Array<out StackTraceElement>)
     fun onResize(comp: UIElement, scaledResolution: ScaledResolution): UIElement
@@ -407,6 +405,8 @@ interface UIElement {
     fun onLostFocus(event: UIFocusEvent): UIElement
     fun onKeyType(event: UIKeyType): UIElement
     fun onKeyTyped(event: UIKeyType): UIElement
+    fun onCharType(event: UICharEvent): UIElement
+    fun onCharTyped(event: UICharEvent): UIElement
     fun onUpdate(): UIElement
     fun onPreChildPropagate(event: UIMouseEvent): UIElement
     fun onPostChildPropagation(event: UIMouseEvent): UIElement

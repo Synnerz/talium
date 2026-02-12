@@ -58,6 +58,7 @@ open class UIBase @JvmOverloads constructor(
     override var hookFocus: ((event: UIFocusEvent) -> Unit)? = null
     override var hookUnfocus: ((event: UIFocusEvent) -> Unit)? = null
     override var hookKeyType: ((event: UIKeyType) -> Unit)? = null
+    override var hookCharType: ((event: UICharEvent) -> Unit)? = null
     override var hookResize: ((comp: UIElement, scaledResolution: ScaledResolution) -> Unit)? = null
     override var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
     override var hookUpdate: (() -> Unit)? = null
@@ -673,6 +674,11 @@ open class UIBase @JvmOverloads constructor(
         propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
     }
 
+    override fun handleCharType(codepoint: Int, codeStr: String) {
+        if (parent != null || !focused) return
+        propagatgeCharTyped(UICharEvent(codepoint, codeStr, this))
+    }
+
     override fun handleMouseInput() {
         if (scaledResolution == null) return
 
@@ -970,6 +976,20 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
+    override fun propagatgeCharTyped(event: UICharEvent) {
+        onCharTyped(event)
+        onCharType(event)
+        hookCharType?.invoke(event)
+        if (!event.propagate) return
+
+        for (child in children.toList()) {
+            if (!child.focused || child.hidden) continue
+
+            child.propagatgeCharTyped(event)
+            if (!event.propagate) break
+        }
+    }
+
     override fun propagateResize(comp: UIElement, scaledResolution: ScaledResolution) {
         markDirty()
         onResize(comp, scaledResolution)
@@ -1047,6 +1067,16 @@ open class UIBase @JvmOverloads constructor(
     override fun onKeyTyped(event: UIKeyType) = apply {}
     open fun onKeyTyped(cb: (event: UIKeyType) -> Unit) = apply {
         hookKeyType = cb
+    }
+
+    override fun onCharType(event: UICharEvent) = apply {}
+    open fun onCharType(cb: (UICharEvent) -> Unit) = apply {
+        hookCharType = cb
+    }
+
+    override fun onCharTyped(event: UICharEvent) = apply {}
+    open fun onCharTyped(cb: (UICharEvent) -> Unit) {
+        hookCharType = cb
     }
 
     override fun onUpdate() = apply {}
