@@ -2,6 +2,7 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.animations.Animation
 import com.github.synnerz.talium.animations.Animations
+import com.github.synnerz.talium.events.UICharEvent
 import com.github.synnerz.talium.events.UIFocusEvent
 import com.github.synnerz.talium.events.UIKeyType
 import com.github.synnerz.talium.utils.MathLib
@@ -35,6 +36,7 @@ open class UITextInput @JvmOverloads constructor(
     var cursorAlpha: Double = 255.0
     var shouldBlink: Boolean = false
     var selectionPos: Int = 0
+    var shouldAddNext = false
     open var maxLength: Int = 0
     open var currentOffset: Int = 0
 
@@ -218,9 +220,7 @@ open class UITextInput @JvmOverloads constructor(
     }
 
     override fun onKeyType(event: UIKeyType) = apply {
-        val c = event.char ?: if (event.keycode == GLFW.GLFW_KEY_SPACE) " ".single() else null
         val keycode = event.keycode
-        val char = if (c != null && c in CharCategory.PRIVATE_USE) Char.MIN_VALUE else c
         val isShifting = isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT) || isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)
         val isCtrl = isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) || isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)
 
@@ -279,8 +279,7 @@ open class UITextInput @JvmOverloads constructor(
                 }
             }
             else -> {
-                if (char != null)
-                    write(if (isShifting) byShift(char) else char)
+                shouldAddNext = true
                 return@apply
             }
         }
@@ -288,31 +287,15 @@ open class UITextInput @JvmOverloads constructor(
         if (!isShifting) selectionPos = cursorPos
     }
 
-    companion object {
-        private val specialShiftChars = mapOf(
-            '1' to '!',
-            '2' to '@',
-            '3' to '#',
-            '4' to '$',
-            '5' to '%',
-            '6' to '^',
-            '7' to '&',
-            '8' to '*',
-            '9' to '(',
-            '0' to ')',
-            '-' to '_',
-            '=' to '+',
-            '[' to '{',
-            ']' to '}',
-            '\\' to '|',
-            ';' to ':',
-            '\'' to '"',
-            ',' to '<',
-            '.' to '>',
-            '/' to '?',
-            '`' to '~'
-        )
+    override fun onCharType(event: UICharEvent) = apply {
+        if (!shouldAddNext) return@apply
 
+        write(event.str)
+
+        shouldAddNext = false
+    }
+
+    companion object {
         /**
          * * Checks whether the character is in a valid range
          * * Taken from mojang's `ChatAllowedCharacters` class
@@ -323,7 +306,5 @@ open class UITextInput @JvmOverloads constructor(
         fun isKeyDown(keycode: Int): Boolean {
             return GLFW.glfwGetKey(MinecraftClient.getInstance().window.handle, keycode) == GLFW.GLFW_PRESS
         }
-
-        fun byShift(char: Char): Char = specialShiftChars[char] ?: char.uppercaseChar()
     }
 }
