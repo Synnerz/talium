@@ -674,9 +674,9 @@ open class UIBase @JvmOverloads constructor(
         propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
     }
 
-    override fun handleCharType(codepoint: Int, codeStr: String) {
+    override fun handleCharType(codepoint: Int, codeStr: String, modifiers: Int) {
         if (parent != null || !focused) return
-        propagatgeCharTyped(UICharEvent(codepoint, codeStr, this))
+        propagatgeCharTyped(UICharEvent(codepoint, codeStr, modifiers, this))
     }
 
     override fun handleMouseInput() {

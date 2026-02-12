@@ -368,7 +368,7 @@ interface UIElement {
      * in the hierarchy
      */
     fun handleKeyInput(keycode: Int, scanCode: Int)
-    fun handleCharType(codepoint: Int, codeStr: String)
+    fun handleCharType(codepoint: Int, codeStr: String, modifiers: Int)
     fun handleMouseInput()
     fun <T : UIMouseEvent> modifyChildMouseEvent(event: T)
     fun <T : UIMouseEvent> resetChildMouseEvent(event: T)
