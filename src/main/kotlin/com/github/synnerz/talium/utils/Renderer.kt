@@ -108,6 +108,7 @@ object Renderer {
             TextGuiElementRenderState(
                 fontRenderer, Text.literal(text).asOrderedText(), Matrix3x2f(stack),
                 x, y, color, 0, shadow,
+                false, // surely this is right ?
                 scissorStack.peek()
             )
         )
