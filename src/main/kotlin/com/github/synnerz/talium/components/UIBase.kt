@@ -530,7 +530,7 @@ open class UIBase @JvmOverloads constructor(
             e.isChildDirty = false
 
             e.children.forEach {
-                // if (!it.isDirty()) return@forEach
+                if (!it.isDirty()) return@forEach
 
                 q.add(it)
                 sizeQ.add(it)
