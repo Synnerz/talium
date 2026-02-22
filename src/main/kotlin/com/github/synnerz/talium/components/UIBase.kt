@@ -473,10 +473,10 @@ open class UIBase @JvmOverloads constructor(
             else this
     }
 
-    override fun updateFixed() = apply {
+    override fun updateFixed(finalize: Boolean) = apply {
         if (isDynamic()) return@apply
 
-        val p = parent?.getLayoutElement()
+        val p = if (finalize) parent else parent?.getLayoutElement()
 
         val parentX = p?.x ?: 0.0
         val parentY = p?.y ?: 0.0
@@ -520,11 +520,9 @@ open class UIBase @JvmOverloads constructor(
     fun calculateLayout() {
         val q = ArrayDeque<UIElement>()
         val sizeQ = ArrayDeque<UIElement>()
-        val layoutQ = ArrayDeque<UIElement>()
 
         q.add(this)
         sizeQ.add(this)
-        layoutQ.add(this)
         while (true) {
             val e = q.removeFirstOrNull() ?: break
 
@@ -532,14 +530,17 @@ open class UIBase @JvmOverloads constructor(
             e.isChildDirty = false
 
             e.children.forEach {
-                if (!it.isDirty()) return@forEach
+                // if (!it.isDirty()) return@forEach
 
+                q.add(it)
                 sizeQ.add(it)
-                layoutQ.add(it)
 
-                it.updateFixed()
+                it.updateFixed(false)
             }
         }
+
+        val layoutQ = ArrayDeque(sizeQ)
+        val finalizeQ = ArrayDeque(sizeQ)
 
         while (true) {
             val e = sizeQ.removeLastOrNull() ?: break
@@ -552,6 +553,12 @@ open class UIBase @JvmOverloads constructor(
 
             e.updateLayout()
         }
+
+        while (true) {
+            val e = finalizeQ.removeLastOrNull() ?: break
+
+            e.updateFixed(true)
+        }
     }
 
     override fun checkUpdate() = apply {
@@ -559,7 +566,7 @@ open class UIBase @JvmOverloads constructor(
             if (isChildDirty || isSelfDirty) calculateLayout()
         } else if (isSelfDirty) {
             isSelfDirty = false
-            updateFixed()
+            updateFixed(false)
             updateLayout()
         }
     }
