@@ -325,7 +325,7 @@ interface UIElement {
 
     fun getLayoutElement(): UIElement?
 
-    fun updateFixed(): UIElement
+    fun updateFixed(finalize: Boolean): UIElement
 
     fun updateDynamic(): UIElement
 
