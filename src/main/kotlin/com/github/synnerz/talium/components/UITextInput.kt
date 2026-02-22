@@ -62,6 +62,7 @@ open class UITextInput @JvmOverloads constructor(
             text = text.substring(0, cursorPos - 1) + text.substring(cursorPos)
             cursorPos--
             selectionPos = cursorPos
+            propagatgeCharTyped(UICharEvent(-1, "", 0, this))
             return
         }
         val from = getSelectionLeft()
@@ -70,6 +71,7 @@ open class UITextInput @JvmOverloads constructor(
         deleteText(from, to)
         cursorPos = from
         selectionPos = from
+        propagatgeCharTyped(UICharEvent(-1, "", 0, this))
     }
 
     open fun getPreviousWord(): Int {
@@ -288,6 +290,7 @@ open class UITextInput @JvmOverloads constructor(
     }
 
     override fun onCharType(event: UICharEvent) = apply {
+        if (event.codepoint == -1 && event.str.isEmpty() && event.modifiers == 0) return@apply
         if (!shouldAddNext) return@apply
 
         write(event.str)
