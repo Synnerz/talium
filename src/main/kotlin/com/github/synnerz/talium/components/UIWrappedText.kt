@@ -37,16 +37,20 @@ open class UIWrappedText @JvmOverloads constructor(
             var addedNW = 0
             val limitHeight = height * scale
             var currentWidth = 0
+            var lastChar = Char.MIN_VALUE
+            var lastFormat = ""
 
             for (char in str) {
                 if (addedNW * (9 * scale) >= limitHeight) break
                 currentWidth += "$char".getWidth()
                 toRender += char
+                if (lastChar == '§' && char != '§') lastFormat = "§$char"
+                lastChar = char
 
                 if ((currentWidth * scale) < width) continue
 
                 addedNW++
-                toRender += "\n"
+                toRender += "\n$lastFormat"
                 currentWidth = 0
             }
 
@@ -79,7 +83,7 @@ open class UIWrappedText @JvmOverloads constructor(
                 if (fixedString.size * (9 * scale) >= limitHeight) return@forEachIndexed
                 currentString += char
                 currentWidth += "$char".getWidth()
-                if (lastChar == '§' && char.isLetter() && char != '§') lastFormat = "§$char"
+                if (lastChar == '§' && char != '§') lastFormat = "§$char"
                 lastChar = char
 
                 if (currentWidth * scale >= width) {
