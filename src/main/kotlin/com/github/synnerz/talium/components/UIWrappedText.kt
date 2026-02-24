@@ -72,18 +72,22 @@ open class UIWrappedText @JvmOverloads constructor(
             var currentWidth = 0
             val limitHeight = height * scale
             val fixedString = mutableListOf<String>()
+            var lastChar = Char.MIN_VALUE
+            var lastFormat = ""
 
             str.forEachIndexed { idx, char ->
                 if (fixedString.size * (9 * scale) >= limitHeight) return@forEachIndexed
                 currentString += char
                 currentWidth += "$char".getWidth()
+                if (lastChar == '§' && char.isLetter() && char != '§') lastFormat = "§$char"
+                lastChar = char
 
                 if (currentWidth * scale >= width) {
-                    fixedString.add(currentString.trim())
+                    fixedString.add("$lastFormat${currentString.trim()}")
                     currentString = ""
                     currentWidth = 0
                 } else if (idx == str.length - 1) {
-                    fixedString.add(currentString.trim())
+                    fixedString.add("$lastFormat${currentString.trim()}")
                 }
             }
 
