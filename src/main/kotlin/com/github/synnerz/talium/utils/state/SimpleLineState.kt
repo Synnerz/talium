@@ -1,11 +1,11 @@
 package com.github.synnerz.talium.utils.state
 
 import com.mojang.blaze3d.pipeline.RenderPipeline
-import net.minecraft.client.gl.RenderPipelines
-import net.minecraft.client.gui.ScreenRect
-import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState
-import net.minecraft.client.render.VertexConsumer
-import net.minecraft.client.texture.TextureSetup
+import com.mojang.blaze3d.vertex.VertexConsumer
+import net.minecraft.client.gui.navigation.ScreenRectangle
+import net.minecraft.client.gui.render.TextureSetup
+import net.minecraft.client.renderer.RenderPipelines
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState
 import org.joml.Matrix3x2f
 import java.awt.Color
 import kotlin.math.atan2
@@ -18,21 +18,21 @@ class SimpleLineState(
     val x2: Float, val y2: Float,
     val thickness: Float = 1f,
     val color: Color = Color.WHITE,
-    val _scissorArea: ScreenRect? = null
-) : SimpleGuiElementRenderState {
-    override fun bounds(): ScreenRect? {
-        return ScreenRect(x1.toInt(), y1.toInt(), x2.toInt() - x1.toInt(), y2.toInt() - y1.toInt()).transformEachVertex(stack)
+    val _scissorArea: ScreenRectangle? = null
+) : GuiElementRenderState {
+    override fun bounds(): ScreenRectangle? {
+        return ScreenRectangle(x1.toInt(), y1.toInt(), x2.toInt() - x1.toInt(), y2.toInt() - y1.toInt()).transformAxisAligned(stack)
     }
 
-    override fun setupVertices(vertices: VertexConsumer?) {
+    override fun buildVertices(vertexConsumer: VertexConsumer) {
         val theta = -atan2(y2 - y1, x2 - x1)
         val i = sin(theta) * (thickness / 2)
         val j = cos(theta) * (thickness / 2)
 
-        vertices?.vertex(stack, x1 + i, y1 + j)?.color(color.rgb)
-        vertices?.vertex(stack, x2 + i, y2 + j)?.color(color.rgb)
-        vertices?.vertex(stack, x2 - i, y2 - j)?.color(color.rgb)
-        vertices?.vertex(stack, x1 - i, y1 - j)?.color(color.rgb)
+        vertexConsumer.addVertexWith2DPose(stack, x1 + i, y1 + j).setColor(color.rgb)
+        vertexConsumer.addVertexWith2DPose(stack, x2 + i, y2 + j).setColor(color.rgb)
+        vertexConsumer.addVertexWith2DPose(stack, x2 - i, y2 - j).setColor(color.rgb)
+        vertexConsumer.addVertexWith2DPose(stack, x1 - i, y1 - j).setColor(color.rgb)
     }
 
     override fun pipeline(): RenderPipeline {
@@ -40,10 +40,10 @@ class SimpleLineState(
     }
 
     override fun textureSetup(): TextureSetup {
-        return TextureSetup.empty()
+        return TextureSetup.noTexture()
     }
 
-    override fun scissorArea(): ScreenRect? {
+    override fun scissorArea(): ScreenRectangle? {
         return _scissorArea
     }
 }

@@ -3,7 +3,7 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
 import com.github.synnerz.talium.events.UIKeyType
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.Minecraft
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import kotlin.math.min
@@ -68,7 +68,7 @@ open class UISlider @JvmOverloads constructor(
     }
 
     override fun onKeyType(event: UIKeyType) = apply {
-        val window = MinecraftClient.getInstance().window.handle
+        val window = Minecraft.getInstance().window.handle()
         val isCtrl = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS ||
                 GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS
 

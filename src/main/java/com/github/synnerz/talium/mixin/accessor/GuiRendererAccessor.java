@@ -1,12 +1,12 @@
 package com.github.synnerz.talium.mixin.accessor;
 
 import net.minecraft.client.gui.render.GuiRenderer;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(GameRenderer.class)
-public interface GameRendererAccessor {
+@Mixin(GuiRenderer.class)
+public interface GuiRendererAccessor {
     @Accessor
-    GuiRenderer getGuiRenderer();
+    GuiRenderState getRenderState();
 }

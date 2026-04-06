@@ -1,17 +1,18 @@
 package com.github.synnerz.talium.utils
 
 import com.github.synnerz.talium.mixin.accessor.GameRendererAccessor
+import com.github.synnerz.talium.mixin.accessor.GuiRendererAccessor
 import com.github.synnerz.talium.utils.state.GradientRectangleState
 import com.github.synnerz.talium.utils.state.SimpleLineState
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.font.TextRenderer
-import net.minecraft.client.gl.RenderPipelines
-import net.minecraft.client.gui.ScreenRect
-import net.minecraft.client.gui.render.state.GuiRenderState
-import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState
-import net.minecraft.client.gui.render.state.TextGuiElementRenderState
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
+import net.minecraft.ChatFormatting
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.navigation.ScreenRectangle
+import net.minecraft.client.renderer.RenderPipelines
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState
+import net.minecraft.client.renderer.state.gui.GuiRenderState
+import net.minecraft.client.renderer.state.gui.GuiTextRenderState
+import net.minecraft.network.chat.Component
 import org.joml.Matrix3x2f
 import org.joml.Matrix3x2fStack
 import java.awt.Color
@@ -19,17 +20,17 @@ import kotlin.math.max
 
 object Renderer {
     private val guiRenderState: GuiRenderState by lazy {
-        (MinecraftClient.getInstance().gameRenderer as GameRendererAccessor).guiState
+        ((Minecraft.getInstance().gameRenderer as GameRendererAccessor).guiRenderer as GuiRendererAccessor).renderState
     }
-    val fontRenderer: TextRenderer by lazy { MinecraftClient.getInstance().textRenderer }
+    val fontRenderer: Font by lazy { Minecraft.getInstance().font }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
     var stack = Matrix3x2fStack(128)
     val scissorStack = ScissorStack()
 
     fun stack() = stack
 
-    fun submit(state: SimpleGuiElementRenderState) {
-        guiRenderState.addSimpleElement(state)
+    fun submit(state: GuiElementRenderState) {
+        guiRenderState.addGuiElement(state)
     }
 
     fun submitRect(
@@ -38,7 +39,7 @@ object Renderer {
         colorStart: Color,
         colorEnd: Color = colorStart
     ) {
-        guiRenderState.addSimpleElement(
+        guiRenderState.addGuiElement(
             GradientRectangleState(
                 Matrix3x2f(stack),
                 x1, y1, x2, y2,
@@ -54,7 +55,7 @@ object Renderer {
         x2: Double, y2: Double,
         color: Color,
     ) {
-        guiRenderState.addSimpleElement(
+        guiRenderState.addGuiElement(
             GradientRectangleState(
                 Matrix3x2f(stack),
                 x1, y1, x2, y2,
@@ -71,7 +72,7 @@ object Renderer {
         x2: Double, y2: Double,
         color: Color,
     ) {
-        guiRenderState.addSimpleElement(
+        guiRenderState.addGuiElement(
             GradientRectangleState(
                 Matrix3x2f(stack),
                 x1, y1,
@@ -89,7 +90,7 @@ object Renderer {
         thickness: Float = 1f,
         color: Color
     ) {
-        guiRenderState.addSimpleElement(
+        guiRenderState.addGuiElement(
             SimpleLineState(
                 Matrix3x2f(stack),
                 x1, y1, x2, y2, thickness, color,
@@ -105,8 +106,8 @@ object Renderer {
         shadow: Boolean = true
     ) {
         guiRenderState.addText(
-            TextGuiElementRenderState(
-                fontRenderer, Text.literal(text).asOrderedText(), Matrix3x2f(stack),
+            GuiTextRenderState(
+                fontRenderer, Component.literal(text).visualOrderText, Matrix3x2f(stack),
                 x, y, color, 0, shadow,
                 false, // surely this is right ?
                 scissorStack.peek()
@@ -162,17 +163,17 @@ object Renderer {
     }
 
     fun getMouseX(sr: ScaledResolution): Double =
-        sr.mc.mouse.x * sr.mc.window.scaledWidth / max(1, sr.mc.window.width)
+        sr.mc.mouseHandler.xpos() * sr.mc.window.guiScaledWidth / max(1, sr.mc.window.width)
 
     fun getMouseY(sr: ScaledResolution): Double =
-        sr.mc.mouse.y * sr.mc.window.scaledHeight / max(1, sr.mc.window.height)
+        sr.mc.mouseHandler.ypos() * sr.mc.window.guiScaledHeight / max(1, sr.mc.window.height)
 
     @JvmOverloads
     fun drawString(text: String, x: Float, y: Float, shadow: Boolean = false, color: Int = WHITE) {
         var _y = y
         text.split('\n').forEach {
             submitText(it, x.toInt(), _y.toInt(), color, shadow)
-            _y += fontRenderer.fontHeight
+            _y += fontRenderer.lineHeight
         }
     }
 
@@ -189,16 +190,16 @@ object Renderer {
         return str
     }
 
-    fun String.trimToWidth(width: Double): String = fontRenderer.trimToWidth(this, width.toInt())
+    fun String.trimToWidth(width: Double): String = fontRenderer.plainSubstrByWidth(this, width.toInt())
 
-    fun String.getWidth() = fontRenderer.getWidth(Formatting.strip(this))
+    fun String.getWidth() = fontRenderer.width(ChatFormatting.stripFormatting(this)!!)
 
-    class ScissorStack(val _stack: MutableList<ScreenRect> = mutableListOf()) {
+    class ScissorStack(val _stack: MutableList<ScreenRectangle> = mutableListOf()) {
         fun push(x: Int, y: Int, width: Int, height: Int) {
-            _stack.add(ScreenRect(x, y, width, height))
+            _stack.add(ScreenRectangle(x, y, width, height))
         }
 
-        fun peek(): ScreenRect? {
+        fun peek(): ScreenRectangle? {
             return _stack.lastOrNull()
         }
 

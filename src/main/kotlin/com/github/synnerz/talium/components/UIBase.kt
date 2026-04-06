@@ -15,7 +15,7 @@ import com.github.synnerz.talium.utils.MouseState
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.ScaledResolution
 import com.mojang.blaze3d.opengl.GlStateManager
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.Minecraft
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
 
@@ -602,7 +602,7 @@ open class UIBase @JvmOverloads constructor(
     override fun draw(x2: Double, y2: Double) {
         // Check the scaledResolution
         if (isMainComponent()) {
-            val sr = ScaledResolution(MinecraftClient.getInstance())
+            val sr = ScaledResolution(Minecraft.getInstance())
             if (scaledResolution == null) {
                 scaledResolution = sr
                 propagateResize(this, sr)

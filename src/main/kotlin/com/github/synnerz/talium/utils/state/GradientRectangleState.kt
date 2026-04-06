@@ -1,11 +1,11 @@
 package com.github.synnerz.talium.utils.state
 
 import com.mojang.blaze3d.pipeline.RenderPipeline
-import net.minecraft.client.gl.RenderPipelines
-import net.minecraft.client.gui.ScreenRect
-import net.minecraft.client.gui.render.state.SimpleGuiElementRenderState
-import net.minecraft.client.render.VertexConsumer
-import net.minecraft.client.texture.TextureSetup
+import com.mojang.blaze3d.vertex.VertexConsumer
+import net.minecraft.client.gui.navigation.ScreenRectangle
+import net.minecraft.client.gui.render.TextureSetup
+import net.minecraft.client.renderer.RenderPipelines
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState
 import org.joml.Matrix3x2f
 import kotlin.math.ceil
 
@@ -17,9 +17,9 @@ class GradientRectangleState(
     val col12: Int, val col22: Int,
     val pipeline: RenderPipeline? = null,
     val textureSetup: TextureSetup? = null,
-    val scissorArea: ScreenRect? = null,
-    bounds: ScreenRect? = null,
-) : SimpleGuiElementRenderState {
+    val scissorArea: ScreenRectangle? = null,
+    bounds: ScreenRectangle? = null,
+) : GuiElementRenderState {
     constructor(
         pose: Matrix3x2f,
         x1: Double, y1: Double,
@@ -28,8 +28,8 @@ class GradientRectangleState(
         col12: Int, col22: Int,
         pipeline: RenderPipeline? = null,
         textureSetup: TextureSetup? = null,
-        scissorArea: ScreenRect? = null,
-        bounds: ScreenRect? = null,
+        scissorArea: ScreenRectangle? = null,
+        bounds: ScreenRectangle? = null,
     ) : this(
         pose,
         x1.toFloat(), y1.toFloat(),
@@ -50,15 +50,15 @@ class GradientRectangleState(
     )
 
     override fun pipeline(): RenderPipeline = pipeline ?: RenderPipelines.GUI
-    override fun textureSetup(): TextureSetup = textureSetup ?: TextureSetup.empty()
-    override fun scissorArea(): ScreenRect? = scissorArea
-    override fun bounds(): ScreenRect? = bounds
+    override fun textureSetup(): TextureSetup = textureSetup ?: TextureSetup.noTexture()
+    override fun scissorArea(): ScreenRectangle? = scissorArea
+    override fun bounds(): ScreenRectangle? = bounds
 
-    override fun setupVertices(vertices: VertexConsumer) {
-        vertices.vertex(pose, x1, y2).color(col12)
-        vertices.vertex(pose, x2, y2).color(col22)
-        vertices.vertex(pose, x2, y1).color(col21)
-        vertices.vertex(pose, x1, y1).color(col11)
+    override fun buildVertices(vertexConsumer: VertexConsumer) {
+        vertexConsumer.addVertexWith2DPose(pose, x1, y2).setColor(col12)
+        vertexConsumer.addVertexWith2DPose(pose, x2, y2).setColor(col22)
+        vertexConsumer.addVertexWith2DPose(pose, x2, y1).setColor(col21)
+        vertexConsumer.addVertexWith2DPose(pose, x1, y1).setColor(col11)
     }
 
     private fun createBounds(
@@ -67,12 +67,12 @@ class GradientRectangleState(
         x2: Int,
         y2: Int,
         pose: Matrix3x2f,
-        scissorArea: ScreenRect?,
-    ): ScreenRect? {
-        val screenRect = ScreenRect(
+        scissorArea: ScreenRectangle?,
+    ): ScreenRectangle? {
+        val screenRect = ScreenRectangle(
             x1, y1,
             x2 - x1, y2 - y1
-        ).transformEachVertex(pose)
+        ).transformAxisAligned(pose)
         return if (scissorArea != null) scissorArea.intersection(screenRect) else screenRect
     }
 }

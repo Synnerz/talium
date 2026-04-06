@@ -1,8 +1,8 @@
 package com.github.synnerz.talium.mixin;
 
 import com.github.synnerz.talium.utils.MouseState;
-import net.minecraft.client.Mouse;
-import net.minecraft.client.input.MouseInput;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.client.input.MouseButtonInfo;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,11 +10,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(Mouse.class)
+@Mixin(MouseHandler.class)
 public class MouseMixin {
     @Inject(
-            method = "onMouseScroll",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z"),
+            method = "onScroll",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;mouseScrolled(DDDD)Z"),
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private void talium$onPreScroll(long window, double horizontal, double vertical, CallbackInfo ci, boolean bl, double d, double hrz, double vrt, double mx, double my) {
@@ -22,14 +22,14 @@ public class MouseMixin {
     }
 
     @Inject(
-            method = "onMouseButton",
+            method = "onButton",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;",
+                    target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;",
                     opcode = Opcodes.GETFIELD
             )
     )
-    private void talium$onClick(long window, MouseInput input, int action, CallbackInfo ci) {
-        MouseState.INSTANCE.getButtonsDown().put(input.button(), action);
+    private void talium$onClick(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
+        MouseState.INSTANCE.getButtonsDown().put(rawButtonInfo.button(), action);
     }
 }

@@ -11,7 +11,7 @@ import com.github.synnerz.talium.utils.Renderer.getWidth
 import com.github.synnerz.talium.utils.Renderer.stack
 import com.github.synnerz.talium.utils.Renderer.trimToWidth
 import com.github.synnerz.talium.utils.Renderer.withAlpha
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.Minecraft
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import kotlin.math.max
@@ -29,7 +29,7 @@ open class UITextInput @JvmOverloads constructor(
     var radius: Double = 0.0,
     parent: UIElement? = null
 ) : UIBase(_x, _y, _width, _height, parent) {
-    private val keyboard get() = MinecraftClient.getInstance().keyboard
+    private val keyboard get() = Minecraft.getInstance().keyboardHandler
     var cursorAnimation: Animation = Animation(Animations.CIRC_IN_OUT, 650f)
     var cursorPos: Int = 0
     var textScale: Float = 1f
@@ -307,7 +307,7 @@ open class UITextInput @JvmOverloads constructor(
         fun isAllowedCharacter(char: Char): Boolean = char.code != 167 && char >= ' ' && char.code != 127
 
         fun isKeyDown(keycode: Int): Boolean {
-            return GLFW.glfwGetKey(MinecraftClient.getInstance().window.handle, keycode) == GLFW.GLFW_PRESS
+            return GLFW.glfwGetKey(Minecraft.getInstance().window.handle(), keycode) == GLFW.GLFW_PRESS
         }
     }
 }

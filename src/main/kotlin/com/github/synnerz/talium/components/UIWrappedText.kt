@@ -101,7 +101,7 @@ open class UIWrappedText @JvmOverloads constructor(
             }
 
             val renderText = fixedString.ifEmpty { str.split("\n") }
-            val lineHeight = fontRenderer.fontHeight * scale
+            val lineHeight = fontRenderer.lineHeight * scale
             val totalHeight = renderText.size * lineHeight
             var yy = 0
 
