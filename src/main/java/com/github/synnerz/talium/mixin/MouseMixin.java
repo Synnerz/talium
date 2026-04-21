@@ -25,8 +25,9 @@ public class MouseMixin {
             method = "onButton",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;",
-                    opcode = Opcodes.GETFIELD
+                    target = "Lnet/minecraft/client/Minecraft;gui:Lnet/minecraft/client/gui/Gui;",
+                    opcode = Opcodes.GETFIELD,
+                    ordinal = 3
             )
     )
     private void talium$onClick(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {

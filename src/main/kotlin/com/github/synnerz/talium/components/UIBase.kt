@@ -15,6 +15,7 @@ import com.github.synnerz.talium.utils.MouseState
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.ScaledResolution
 import com.mojang.blaze3d.opengl.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
@@ -619,7 +620,7 @@ open class UIBase @JvmOverloads constructor(
         // Avoid doing any further computation if the component is hidden
         if (hidden) return
 
-        if (isMainComponent()) {
+        if (isMainComponent() && RenderSystem.tryGetDevice()?.deviceInfo?.backendName()?.lowercase() == "opengl") {
             GlStateManager._enableBlend()
             GlStateManager._disableCull()
         }
@@ -662,8 +663,10 @@ open class UIBase @JvmOverloads constructor(
         } finally {
             // Reset stack state only if it's the main component
             if (isMainComponent()) {
-                GlStateManager._disableBlend()
-                GlStateManager._enableCull()
+                if (RenderSystem.tryGetDevice()?.deviceInfo?.backendName()?.lowercase() == "opengl") {
+                    GlStateManager._disableBlend()
+                    GlStateManager._enableCull()
+                }
                 ScissorEffect.disableScissor()
             }
         }
