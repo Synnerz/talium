@@ -621,7 +621,7 @@ open class UIBase @JvmOverloads constructor(
         if (hidden) return
 
         if (isMainComponent() && RenderSystem.tryGetDevice()?.deviceInfo?.backendName()?.lowercase() == "opengl") {
-            GlStateManager._enableBlend()
+            GlStateManager._enableBlend(0)
             GlStateManager._disableCull()
         }
 
@@ -664,7 +664,7 @@ open class UIBase @JvmOverloads constructor(
             // Reset stack state only if it's the main component
             if (isMainComponent()) {
                 if (RenderSystem.tryGetDevice()?.deviceInfo?.backendName()?.lowercase() == "opengl") {
-                    GlStateManager._disableBlend()
+                    GlStateManager._disableBlend(0)
                     GlStateManager._enableCull()
                 }
                 ScissorEffect.disableScissor()
