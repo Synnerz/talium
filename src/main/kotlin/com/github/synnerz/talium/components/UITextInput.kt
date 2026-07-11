@@ -239,6 +239,7 @@ open class UITextInput @JvmOverloads constructor(
                 }
                 GLFW.GLFW_KEY_V -> {
                     write(keyboard.clipboard)
+                    propagateCharTyped(UICharEvent(-1, "", 0, this))
                     return@apply
                 }
                 GLFW.GLFW_KEY_X -> {
