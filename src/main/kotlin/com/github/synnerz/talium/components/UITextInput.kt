@@ -62,7 +62,7 @@ open class UITextInput @JvmOverloads constructor(
             text = text.substring(0, cursorPos - 1) + text.substring(cursorPos)
             cursorPos--
             selectionPos = cursorPos
-            propagatgeCharTyped(UICharEvent(-1, "", 0, this))
+            propagateCharTyped(UICharEvent(-1, "", 0, this))
             return
         }
         val from = getSelectionLeft()
@@ -71,7 +71,7 @@ open class UITextInput @JvmOverloads constructor(
         deleteText(from, to)
         cursorPos = from
         selectionPos = from
-        propagatgeCharTyped(UICharEvent(-1, "", 0, this))
+        propagateCharTyped(UICharEvent(-1, "", 0, this))
     }
 
     open fun getPreviousWord(): Int {
