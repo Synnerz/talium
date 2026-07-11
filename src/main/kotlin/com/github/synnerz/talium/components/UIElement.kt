@@ -382,7 +382,7 @@ interface UIElement {
     fun propagateFocus(event: UIFocusEvent)
     fun propagateUnfocus(event: UIFocusEvent)
     fun propagateKeyTyped(event: UIKeyType)
-    fun propagatgeCharTyped(event: UICharEvent)
+    fun propagateCharTyped(event: UICharEvent)
     fun propagateResize(comp: UIElement, scaledResolution: ScaledResolution)
     fun propagateError(trace: Array<out StackTraceElement>)
     fun onResize(comp: UIElement, scaledResolution: ScaledResolution): UIElement
