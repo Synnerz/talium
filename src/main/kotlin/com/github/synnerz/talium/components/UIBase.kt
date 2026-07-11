@@ -686,7 +686,7 @@ open class UIBase @JvmOverloads constructor(
 
     override fun handleCharType(codepoint: Int, codeStr: String, modifiers: Int) {
         if (parent != null || !focused) return
-        propagatgeCharTyped(UICharEvent(codepoint, codeStr, modifiers, this))
+        propagateCharTyped(UICharEvent(codepoint, codeStr, modifiers, this))
     }
 
     override fun handleMouseInput() {
@@ -986,7 +986,7 @@ open class UIBase @JvmOverloads constructor(
         }
     }
 
-    override fun propagatgeCharTyped(event: UICharEvent) {
+    override fun propagateCharTyped(event: UICharEvent) {
         onCharTyped(event)
         onCharType(event)
         hookCharType?.invoke(event)
@@ -995,7 +995,7 @@ open class UIBase @JvmOverloads constructor(
         for (child in children.toList()) {
             if (!child.focused || child.hidden) continue
 
-            child.propagatgeCharTyped(event)
+            child.propagateCharTyped(event)
             if (!event.propagate) break
         }
     }
