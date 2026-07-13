@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(MouseHandler.class)
+@Mixin(value = MouseHandler.class, priority = 1003)
 public class MouseMixin {
     @Inject(
             method = "onScroll",
