@@ -163,10 +163,10 @@ object Renderer {
     }
 
     fun getMouseX(sr: ScaledResolution): Double =
-        sr.mc.mouseHandler.xpos() * sr.mc.window.guiScaledWidth / max(1, sr.mc.window.width)
+        sr.mc.mouseHandler.getScaledXPos(sr.mc.window)
 
     fun getMouseY(sr: ScaledResolution): Double =
-        sr.mc.mouseHandler.ypos() * sr.mc.window.guiScaledHeight / max(1, sr.mc.window.height)
+        sr.mc.mouseHandler.getScaledYPos(sr.mc.window)
 
     @JvmOverloads
     fun drawString(text: String, x: Float, y: Float, shadow: Boolean = false, color: Int = WHITE) {
