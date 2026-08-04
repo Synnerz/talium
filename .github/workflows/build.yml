@@ -21,10 +21,10 @@ jobs:
       - name: capture jar
         uses: actions/upload-artifact@v7
         with:
-          path: build/libs/!(*-sources).jar
+          path: build/libs/talium-[0-9]*.jar
           archive: false
-      - name: capture sources jar
+      - name: capture jars
         uses: actions/upload-artifact@v7
         with:
-          path: build/libs/*-sources.jar
-          archive: false
+          name: Artifacts
+          path: build/libs/
