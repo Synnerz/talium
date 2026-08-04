@@ -83,10 +83,12 @@ open class UIScrollable @JvmOverloads constructor(
     }
 
     override fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {
+        println("yOffset(+${yOffset})")
         event.y += yOffset
     }
 
     override fun <T : UIMouseEvent> resetChildMouseEvent(event: T) {
+        println("yOffset(-${yOffset})")
         event.y -= yOffset
     }
 }
