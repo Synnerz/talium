@@ -680,7 +680,7 @@ open class UIBase @JvmOverloads constructor(
     override fun handleKeyInput(keycode: Int, scanCode: Int) {
         if (parent != null || !focused) return
         val keyName = SDLKeyboard.SDL_GetKeyName(keycode)
-        val char = keyName?.single()
+        val char = keyName?.singleOrNull()
         propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
     }
 
