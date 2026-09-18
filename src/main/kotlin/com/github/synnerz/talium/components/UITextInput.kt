@@ -13,8 +13,6 @@ import com.github.synnerz.talium.utils.Renderer.trimToWidth
 import com.github.synnerz.talium.utils.Renderer.withAlpha
 import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.client.Minecraft
-import org.lwjgl.sdl.SDLEvents.SDL_EVENT_KEY_DOWN
-import org.lwjgl.sdl.SDLKeycode
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -225,26 +223,26 @@ open class UITextInput @JvmOverloads constructor(
 
     override fun onKeyType(event: UIKeyType) = apply {
         val keycode = event.keycode
-        val isShifting = isKeyDown(SDLKeycode.SDLK_RSHIFT) || isKeyDown(SDLKeycode.SDLK_LSHIFT)
-        val isCtrl = isKeyDown(SDLKeycode.SDLK_RCTRL) || isKeyDown(SDLKeycode.SDLK_LCTRL)
+        val isShifting = isKeyDown(InputConstants.KEY_RSHIFT) || isKeyDown(InputConstants.KEY_LSHIFT)
+        val isCtrl = isKeyDown(InputConstants.KEY_RCONTROL) || isKeyDown(InputConstants.KEY_LCONTROL)
 
         if (isCtrl) {
             when (keycode) {
-                SDLKeycode.SDLK_A -> {
+                InputConstants.KEY_A -> {
                     cursorPos = 0
                     selectionPos = text.length
                     return@apply
                 }
-                SDLKeycode.SDLK_C -> {
+                InputConstants.KEY_C -> {
                     keyboard.clipboard = getSelectedText()
                     return@apply
                 }
-                SDLKeycode.SDLK_V -> {
+                InputConstants.KEY_V -> {
                     write(keyboard.clipboard)
                     propagateCharTyped(UICharEvent(-1, "", 0, this))
                     return@apply
                 }
-                SDLKeycode.SDLK_X -> {
+                InputConstants.KEY_X -> {
                     keyboard.clipboard = getSelectedText()
                     deleteText()
                     return@apply
@@ -254,30 +252,30 @@ open class UITextInput @JvmOverloads constructor(
         }
 
         when (keycode) {
-            SDLKeycode.SDLK_ESCAPE -> {
+            InputConstants.KEY_ESCAPE -> {
                 unfocus()
             }
-            SDLKeycode.SDLK_BACKSPACE -> {
+            InputConstants.KEY_BACKSPACE -> {
                 deleteText()
                 return@apply
             }
-            SDLKeycode.SDLK_DELETE -> {
+            InputConstants.KEY_DELETE -> {
                 deleteText()
                 return@apply
             }
-            SDLKeycode.SDLK_HOME -> {
+            InputConstants.KEY_HOME -> {
                 cursorPos = 0
             }
-            SDLKeycode.SDLK_END -> {
+            InputConstants.KEY_END -> {
                 cursorPos = text.length
             }
-            SDLKeycode.SDLK_RIGHT -> {
+            InputConstants.KEY_RIGHT -> {
                 if (cursorPos != text.length) {
                     if (isCtrl) cursorPos += getNextWord()
                     else cursorPos++
                 }
             }
-            SDLKeycode.SDLK_LEFT -> {
+            InputConstants.KEY_LEFT -> {
                 if (cursorPos != 0) {
                     if (isCtrl) cursorPos -= getPreviousWord()
                     else cursorPos--
