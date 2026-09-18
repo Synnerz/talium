@@ -3,7 +3,7 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
 import com.github.synnerz.talium.events.UIKeyType
-import org.lwjgl.sdl.SDLKeycode
+import com.mojang.blaze3d.platform.InputConstants
 import java.awt.Color
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -68,22 +68,22 @@ open class UISlider @JvmOverloads constructor(
 
     override fun onKeyType(event: UIKeyType) = apply {
         val isCtrl =
-            UITextInput.isKeyDown(SDLKeycode.SDLK_LCTRL) ||
-            UITextInput.isKeyDown(SDLKeycode.SDLK_RCTRL)
+            UITextInput.isKeyDown(InputConstants.KEY_LCONTROL) ||
+            UITextInput.isKeyDown(InputConstants.KEY_RCONTROL)
 
         when (event.keycode) {
-            SDLKeycode.SDLK_LEFT -> {
+            InputConstants.KEY_LEFT -> {
                 if (isCtrl) setCurrentValue(value - ctrlStep)
                 else setCurrentValue(value - keyStep)
             }
-            SDLKeycode.SDLK_RIGHT -> {
+            InputConstants.KEY_RIGHT -> {
                 if (isCtrl) setCurrentValue(value + ctrlStep)
                 else setCurrentValue(value + keyStep)
             }
-            SDLKeycode.SDLK_HOME -> {
+            InputConstants.KEY_HOME -> {
                 setCurrentValue(min)
             }
-            SDLKeycode.SDLK_END -> {
+            InputConstants.KEY_END -> {
                 setCurrentValue(max)
             }
         }
