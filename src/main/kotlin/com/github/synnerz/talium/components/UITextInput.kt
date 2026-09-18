@@ -11,8 +11,10 @@ import com.github.synnerz.talium.utils.Renderer.getWidth
 import com.github.synnerz.talium.utils.Renderer.stack
 import com.github.synnerz.talium.utils.Renderer.trimToWidth
 import com.github.synnerz.talium.utils.Renderer.withAlpha
+import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.client.Minecraft
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.sdl.SDLEvents.SDL_EVENT_KEY_DOWN
+import org.lwjgl.sdl.SDLKeycode
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -223,26 +225,26 @@ open class UITextInput @JvmOverloads constructor(
 
     override fun onKeyType(event: UIKeyType) = apply {
         val keycode = event.keycode
-        val isShifting = isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT) || isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)
-        val isCtrl = isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL) || isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)
+        val isShifting = isKeyDown(SDLKeycode.SDLK_RSHIFT) || isKeyDown(SDLKeycode.SDLK_LSHIFT)
+        val isCtrl = isKeyDown(SDLKeycode.SDLK_RCTRL) || isKeyDown(SDLKeycode.SDLK_LCTRL)
 
         if (isCtrl) {
             when (keycode) {
-                GLFW.GLFW_KEY_A -> {
+                SDLKeycode.SDLK_A -> {
                     cursorPos = 0
                     selectionPos = text.length
                     return@apply
                 }
-                GLFW.GLFW_KEY_C -> {
+                SDLKeycode.SDLK_C -> {
                     keyboard.clipboard = getSelectedText()
                     return@apply
                 }
-                GLFW.GLFW_KEY_V -> {
+                SDLKeycode.SDLK_V -> {
                     write(keyboard.clipboard)
                     propagateCharTyped(UICharEvent(-1, "", 0, this))
                     return@apply
                 }
-                GLFW.GLFW_KEY_X -> {
+                SDLKeycode.SDLK_X -> {
                     keyboard.clipboard = getSelectedText()
                     deleteText()
                     return@apply
@@ -252,30 +254,30 @@ open class UITextInput @JvmOverloads constructor(
         }
 
         when (keycode) {
-            GLFW.GLFW_KEY_ESCAPE -> {
+            SDLKeycode.SDLK_ESCAPE -> {
                 unfocus()
             }
-            GLFW.GLFW_KEY_BACKSPACE -> {
+            SDLKeycode.SDLK_BACKSPACE -> {
                 deleteText()
                 return@apply
             }
-            GLFW.GLFW_KEY_DELETE -> {
+            SDLKeycode.SDLK_DELETE -> {
                 deleteText()
                 return@apply
             }
-            GLFW.GLFW_KEY_HOME -> {
+            SDLKeycode.SDLK_HOME -> {
                 cursorPos = 0
             }
-            GLFW.GLFW_KEY_END -> {
+            SDLKeycode.SDLK_END -> {
                 cursorPos = text.length
             }
-            GLFW.GLFW_KEY_RIGHT -> {
+            SDLKeycode.SDLK_RIGHT -> {
                 if (cursorPos != text.length) {
                     if (isCtrl) cursorPos += getNextWord()
                     else cursorPos++
                 }
             }
-            GLFW.GLFW_KEY_LEFT -> {
+            SDLKeycode.SDLK_LEFT -> {
                 if (cursorPos != 0) {
                     if (isCtrl) cursorPos -= getPreviousWord()
                     else cursorPos--
@@ -308,7 +310,7 @@ open class UITextInput @JvmOverloads constructor(
         fun isAllowedCharacter(char: Char): Boolean = char.code != 167 && char >= ' ' && char.code != 127
 
         fun isKeyDown(keycode: Int): Boolean {
-            return GLFW.glfwGetKey(Minecraft.getInstance().window.handle(), keycode) == GLFW.GLFW_PRESS
+            return InputConstants.isKeyDown(keycode)
         }
     }
 }

@@ -14,10 +14,10 @@ import com.github.synnerz.talium.layout.Layout
 import com.github.synnerz.talium.utils.MouseState
 import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.ScaledResolution
-import com.mojang.blaze3d.opengl.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.renderpearl.backend.opengl.GlStateManager
 import net.minecraft.client.Minecraft
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.sdl.SDLKeyboard
 import java.awt.Color
 
 /**
@@ -679,7 +679,7 @@ open class UIBase @JvmOverloads constructor(
      */
     override fun handleKeyInput(keycode: Int, scanCode: Int) {
         if (parent != null || !focused) return
-        val keyName = GLFW.glfwGetKeyName(keycode, scanCode)
+        val keyName = SDLKeyboard.SDL_GetKeyName(keycode)
         val char = keyName?.single()
         propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
     }

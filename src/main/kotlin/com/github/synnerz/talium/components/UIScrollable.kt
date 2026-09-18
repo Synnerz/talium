@@ -2,8 +2,7 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.events.*
-import com.github.synnerz.talium.utils.Renderer.stack
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.sdl.SDLKeycode
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -78,7 +77,7 @@ open class UIScrollable @JvmOverloads constructor(
     override fun onMouseScroll(event: UIScrollEvent) = apply {
         if (children.isEmpty()) return@apply
 
-        val isCtrl = UITextInput.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)
+        val isCtrl = UITextInput.isKeyDown(SDLKeycode.SDLK_LCTRL)
         updateScrollY(-(if (isCtrl) 50.0 else 10.0) * event.delta.sign)
     }
 

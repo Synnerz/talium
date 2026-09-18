@@ -3,8 +3,7 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.events.UIDragEvent
 import com.github.synnerz.talium.events.UIKeyType
-import net.minecraft.client.Minecraft
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.sdl.SDLKeycode
 import java.awt.Color
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -68,23 +67,23 @@ open class UISlider @JvmOverloads constructor(
     }
 
     override fun onKeyType(event: UIKeyType) = apply {
-        val window = Minecraft.getInstance().window.handle()
-        val isCtrl = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS ||
-                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS
+        val isCtrl =
+            UITextInput.isKeyDown(SDLKeycode.SDLK_LCTRL) ||
+            UITextInput.isKeyDown(SDLKeycode.SDLK_RCTRL)
 
         when (event.keycode) {
-            GLFW.GLFW_KEY_LEFT -> {
+            SDLKeycode.SDLK_LEFT -> {
                 if (isCtrl) setCurrentValue(value - ctrlStep)
                 else setCurrentValue(value - keyStep)
             }
-            GLFW.GLFW_KEY_RIGHT -> {
+            SDLKeycode.SDLK_RIGHT -> {
                 if (isCtrl) setCurrentValue(value + ctrlStep)
                 else setCurrentValue(value + keyStep)
             }
-            GLFW.GLFW_KEY_HOME -> {
+            SDLKeycode.SDLK_HOME -> {
                 setCurrentValue(min)
             }
-            GLFW.GLFW_KEY_END -> {
+            SDLKeycode.SDLK_END -> {
                 setCurrentValue(max)
             }
         }

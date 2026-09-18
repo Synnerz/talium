@@ -1,7 +1,5 @@
 package com.github.synnerz.talium.utils
 
-import org.lwjgl.glfw.GLFW
-
 object MouseState {
     private val scrollListeners = mutableListOf<(Double, Double, Int) -> Unit>()
     val buttonsDown = mutableMapOf(
@@ -15,7 +13,7 @@ object MouseState {
         7 to 0
     )
 
-    fun isButtonDown(btn: Int) = buttonsDown[btn] == GLFW.GLFW_PRESS
+    fun isButtonDown(btn: Int) = buttonsDown[btn] == 1
 
     fun triggerMouseScroll(mx: Double, my: Double, delta: Int) {
         for (cb in scrollListeners)
