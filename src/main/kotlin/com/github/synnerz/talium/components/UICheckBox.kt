@@ -4,6 +4,7 @@ import com.github.synnerz.talium.animations.Animation
 import com.github.synnerz.talium.animations.Animations
 import com.github.synnerz.talium.events.UIClickEvent
 import com.github.synnerz.talium.utils.MathLib
+import com.github.synnerz.talium.utils.Renderer
 import com.github.synnerz.talium.utils.Renderer.withAlpha
 import java.awt.Color
 
@@ -46,7 +47,7 @@ open class UICheckBox @JvmOverloads constructor(
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
         value = !value
         xAnimation?.start()
     }

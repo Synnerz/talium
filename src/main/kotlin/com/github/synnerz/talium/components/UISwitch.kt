@@ -86,7 +86,7 @@ open class UISwitch @JvmOverloads constructor(
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
         state = !state
         xAnimation!!.start()
     }

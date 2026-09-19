@@ -44,7 +44,7 @@ open class UIDropDown @JvmOverloads constructor(
                 setColor(bgColor.brighter())
                 addChild(UIText(0.0, 0.0, 100.0, 100.0, it, true))
                 onMouseRelease { event ->
-                    if (event.button != 0) return@onMouseRelease
+                    if (event.button != Renderer.LMBTN) return@onMouseRelease
                     setOption(idx)
                     hideDropdown()
                 }
@@ -69,7 +69,7 @@ open class UIDropDown @JvmOverloads constructor(
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
 
         if (!arrowToggle) {
             unhideDropdown()

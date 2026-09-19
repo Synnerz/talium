@@ -1,6 +1,7 @@
 package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.events.UIClickEvent
+import com.github.synnerz.talium.utils.Renderer
 
 open class UISelection @JvmOverloads constructor(
     _x: Double,
@@ -16,7 +17,7 @@ open class UISelection @JvmOverloads constructor(
 
     open var rightArrow = object : UISelectionArrow(85.0, 0.0, 15.0, 100.0, ">", this) {
         override fun onMouseRelease(event: UIClickEvent) = apply {
-            if (event.button != 0) return@apply
+            if (event.button != Renderer.LMBTN) return@apply
             setOption(value + 1)
         }
     }
@@ -30,14 +31,14 @@ open class UISelection @JvmOverloads constructor(
         }
     open var leftArrow = object : UISelectionArrow(0.0, 0.0, 15.0, 100.0, "<", this) {
         override fun onMouseRelease(event: UIClickEvent) = apply {
-            if (event.button != 0) return@apply
+            if (event.button != Renderer.LMBTN) return@apply
             setOption(value - 1)
         }
     }
         set(value) {
             if (!value.hasParent()) value.setChildOf(this)
             value.onMouseRelease {
-                if (it.button != 0) return@onMouseRelease
+                if (it.button != Renderer.LMBTN) return@onMouseRelease
                 setOption(this.value - 1)
             }
             field = value

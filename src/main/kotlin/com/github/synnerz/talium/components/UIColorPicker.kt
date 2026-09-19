@@ -127,13 +127,13 @@ open class UIColorPicker @JvmOverloads constructor(
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
 
         isMainClicked = true
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
-        if (event.button != 0 || !isMainClicked) return@apply
+        if (event.button != Renderer.LMBTN || !isMainClicked) return@apply
         isMainClicked = false
 
         if (!arrowToggle) {
@@ -183,7 +183,7 @@ open class UIColorHuePicker @JvmOverloads constructor(
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
 
         val ry = (event.y - y).coerceIn(0.0, height) - 1
 
@@ -196,7 +196,7 @@ open class UIColorHuePicker @JvmOverloads constructor(
     }
 
     override fun onMouseDrag(event: UIDragEvent) = apply {
-        if (!dragging || event.button != 0) return@apply
+        if (!dragging || event.button != Renderer.LMBTN) return@apply
 
         val ry = (event.y - y).coerceIn(0.0, height) - 1
 
@@ -209,7 +209,7 @@ open class UIColorHuePicker @JvmOverloads constructor(
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
         huePointer._y = currentHue * 100
         huePointer.setDirty()
         dragging = false
@@ -243,7 +243,7 @@ open class UIColorGradient @JvmOverloads constructor(
     }
 
     override fun onMouseClick(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
 
         val rx = (event.x - x).coerceIn(0.0, width)
         val ry = (event.y - y).coerceIn(0.0, height)
@@ -259,7 +259,7 @@ open class UIColorGradient @JvmOverloads constructor(
     }
 
     override fun onMouseDrag(event: UIDragEvent) = apply {
-        if (!dragging || event.button != 0) return@apply
+        if (!dragging || event.button != Renderer.LMBTN) return@apply
 
         val rx = (event.x - x).coerceIn(0.0, width)
         val ry = (event.y - y).coerceIn(0.0, height)
@@ -275,7 +275,7 @@ open class UIColorGradient @JvmOverloads constructor(
     }
 
     override fun onMouseRelease(event: UIClickEvent) = apply {
-        if (event.button != 0) return@apply
+        if (event.button != Renderer.LMBTN) return@apply
         gradientPointer._x = saturation * 100
         gradientPointer._y = (1 - brightness) * 100
         gradientPointer.setDirty()
