@@ -2,6 +2,7 @@ package com.github.synnerz.talium.components
 
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.events.*
+import com.mojang.blaze3d.platform.InputConstants
 import org.lwjgl.sdl.SDLKeycode
 import java.awt.Color
 import kotlin.math.max
@@ -77,7 +78,7 @@ open class UIScrollable @JvmOverloads constructor(
     override fun onMouseScroll(event: UIScrollEvent) = apply {
         if (children.isEmpty()) return@apply
 
-        val isCtrl = UITextInput.isKeyDown(SDLKeycode.SDLK_LCTRL)
+        val isCtrl = UITextInput.isKeyDown(InputConstants.KEY_LCONTROL)
         updateScrollY(-(if (isCtrl) 50.0 else 10.0) * event.delta.sign)
     }
 
