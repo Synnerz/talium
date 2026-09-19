@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * * Component that handles input-like behavior
@@ -181,6 +182,13 @@ open class UITextInput @JvmOverloads constructor(
                 (y + heightCenter) / textScale,
                 right,
                 maxSelectHeight
+            )
+
+            scaledResolution?.mc?.textInputManager()?.setTextInputArea(
+                ((x + n) / textScale).roundToInt(),
+                ((y + heightCenter) / textScale).roundToInt(),
+                ((x + n) / textScale).roundToInt() + 1,
+                ((y + heightCenter) / textScale).roundToInt() + maxSelectHeight.roundToInt(),
             )
         }
 
