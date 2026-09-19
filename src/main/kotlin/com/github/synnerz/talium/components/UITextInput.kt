@@ -200,12 +200,14 @@ open class UITextInput @JvmOverloads constructor(
         shouldBlink = false
         cursorPos = text.length
         selectionPos = cursorPos
+        scaledResolution?.mc?.textInputManager()?.onTextInputFocusChange(this, false)
     }
     // TODO: mouse to cursor position for cursor selection when clicking on the text input
     // TODO: mouse drag selection to select text whenever the user drags the mouse on the text input
 
     override fun onFocus(event: UIFocusEvent) = apply {
         cursorPos = text.length
+        scaledResolution?.mc?.textInputManager()?.onTextInputFocusChange(this, true)
     }
 
     open fun write(str: String) {
