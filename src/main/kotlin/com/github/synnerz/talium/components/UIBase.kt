@@ -718,7 +718,7 @@ open class UIBase @JvmOverloads constructor(
         mouseInBounds = insideBounds
 
         // Handle mouse click/release/drag
-        for (btn in 0..8) {
+        for (btn in 1..8) {
             val oldState = mouseState[btn] ?: false
             val btnState = MouseState.isButtonDown(btn)
             if (oldState != btnState) {
