@@ -3,7 +3,6 @@ package com.github.synnerz.talium.components
 import com.github.synnerz.talium.effects.ScissorEffect
 import com.github.synnerz.talium.events.*
 import com.mojang.blaze3d.platform.InputConstants
-import org.lwjgl.sdl.SDLKeycode
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -24,9 +23,15 @@ open class UIScrollable @JvmOverloads constructor(
     var yOffset = 0.0
     var maxY2 = 0.0
     private var visibleComponents = setOf<UIElement>()
-    var drawScrollbar: Boolean = false
+    var drawScrollbar = false
+    var scrollBarFocused = false
     var scrollBgColor = Color(241, 241, 241, 255)
     var scrollFgColor = Color(136, 136, 136, 255)
+
+    data class ScrollBarBound(
+        val x1: Double, val y1: Double, val width1: Double, val height1: Double,
+        val x2: Double, val y2: Double, val width2: Double, val height2: Double,
+    )
 
     init {
         addEffect(ScissorEffect())
@@ -52,16 +57,26 @@ open class UIScrollable @JvmOverloads constructor(
         }.toSet()
     }
 
+    fun scrollbarBounds(): ScrollBarBound {
+        val w = min(5.0, width * 0.1)
+        val h = (height / maxY2) * height
+        val yo = (yOffset / maxY2) * height
+        val m = w * 0.075
+
+        return ScrollBarBound(
+            x + width - w, y, w, height,
+            x + width - w + m, y + yo + m, w - m - m, h - m - m
+        )
+    }
+
     override fun render() {
         UIRect.drawRect(x, y, width, height, color = bgColor)
 
         if (drawScrollbar && maxY2 > height) {
-            val w = min(5.0, width * 0.1)
-            val h = (height / maxY2) * height
-            val yo = (yOffset / maxY2) * height
-            val m = w * 0.075
-            UIRect.drawRect(x + width - w, y, w, height, color = scrollBgColor)
-            UIRect.drawRect(x + width - w + m, y + yo + m, w - m - m, h - m - m, color = scrollFgColor)
+            val (x1, y1, width1, height1, x2, y2, width2, height2) = scrollbarBounds()
+
+            UIRect.drawRect(x1, y1, width1, height1, color = scrollBgColor)
+            UIRect.drawRect(x2, y2, width2, height2, color = scrollFgColor)
         }
     }
 
@@ -80,6 +95,27 @@ open class UIScrollable @JvmOverloads constructor(
 
         val isCtrl = UITextInput.isKeyDown(InputConstants.KEY_LCONTROL)
         updateScrollY(-(if (isCtrl) 50.0 else 10.0) * event.delta.sign)
+    }
+
+    override fun onMouseClick(event: UIClickEvent) = apply {
+        if (!drawScrollbar) return@apply
+        val (_, _, _, _, x2, y2, width2, height2) = scrollbarBounds()
+        if (event.x !in x2..x2 + width2 || event.y !in y2..y2 + height2) return@apply
+
+        scrollBarFocused = true
+    }
+
+    override fun onMouseRelease(event: UIClickEvent) = apply {
+        if (!scrollBarFocused || !drawScrollbar) return@apply
+        // TODO: if released outside bounds, it will break and leave this enabled
+        scrollBarFocused = false
+    }
+
+    override fun onMouseDragOut(event: UIDragEvent) = apply {
+        if (!scrollBarFocused || !drawScrollbar || maxY2 < height) return@apply
+
+        val isCtrl = UITextInput.isKeyDown(InputConstants.KEY_LCONTROL)
+        updateScrollY((if (isCtrl) 20.0 else 8.0) * event.dy.sign)
     }
 
     override fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {
