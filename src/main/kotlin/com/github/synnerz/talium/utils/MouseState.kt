@@ -12,7 +12,7 @@ object MouseState {
         4 to 0,
         5 to 0,
         6 to 0,
-        7 to 0
+        7 to 0,
     )
 
     fun isButtonDown(btn: Int) = buttonsDown[btn] == GLFW.GLFW_PRESS
@@ -24,5 +24,9 @@ object MouseState {
 
     fun onMouseScroll(cb: (Double, Double, Int) -> Unit) {
         scrollListeners.add(cb)
+    }
+
+    fun resetButtons() {
+        buttonsDown.keys.reversed().forEach { buttonsDown[it] = 0 }
     }
 }

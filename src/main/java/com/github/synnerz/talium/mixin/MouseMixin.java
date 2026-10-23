@@ -1,7 +1,11 @@
 package com.github.synnerz.talium.mixin;
 
 import com.github.synnerz.talium.utils.MouseState;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.MouseHandler;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonInfo;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,5 +36,21 @@ public class MouseMixin {
     )
     private void talium$onClick(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
         MouseState.INSTANCE.getButtonsDown().put(rawButtonInfo.button(), action);
+    }
+
+    @WrapOperation(
+            method = "onButton",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/Gui;screen()Lnet/minecraft/client/gui/screens/Screen;",
+                    ordinal = 1
+            )
+    )
+    private Screen talium$onResetState(Gui instance, Operation<Screen> original) {
+        var screen = original.call(instance);
+
+        if (screen == null) MouseState.INSTANCE.resetButtons();
+
+        return screen;
     }
 }
