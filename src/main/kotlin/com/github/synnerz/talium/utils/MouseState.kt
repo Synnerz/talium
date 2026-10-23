@@ -10,7 +10,7 @@ object MouseState {
         5 to 0,
         6 to 0,
         7 to 0,
-        8 to 0
+        8 to 0,
     )
 
     fun isButtonDown(btn: Int) = buttonsDown[btn] == 1
@@ -22,5 +22,9 @@ object MouseState {
 
     fun onMouseScroll(cb: (Double, Double, Int) -> Unit) {
         scrollListeners.add(cb)
+    }
+
+    fun resetButtons() {
+        buttonsDown.keys.reversed().forEach { buttonsDown[it] = 0 }
     }
 }
