@@ -113,9 +113,13 @@ open class UIScrollable @JvmOverloads constructor(
 
     override fun onMouseDragOut(event: UIDragEvent) = apply {
         if (!scrollBarFocused || !drawScrollbar || maxY2 < height) return@apply
+        if (event.dy == 0.0) return@apply
 
-        val isCtrl = UITextInput.isKeyDown(InputConstants.KEY_LCONTROL)
-        updateScrollY((if (isCtrl) 20.0 else 8.0) * event.dy.sign)
+        val maxScroll = max(0.0, maxY2 - height)
+        val scrollbarHeight = scrollbarBounds().height2
+        val yScale = max(1.0, maxScroll / (height - scrollbarHeight))
+
+        updateScrollY(event.dy * yScale)
     }
 
     override fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {
