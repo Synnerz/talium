@@ -40,10 +40,10 @@ interface UIElement {
     var hookUpdate: (() -> Unit)?
 
     /** * Runs before the event is passed through to the children of this component */
-    var preChildPropagate: ((event: UIMouseEvent) -> Unit)?
+    var preChildPropagate: ((event: UIEvent) -> Unit)?
 
     /** * Runs after the event is passed through to the children of this component */
-    var postChildPropagate: ((event: UIMouseEvent) -> Unit)?
+    var postChildPropagate: ((event: UIEvent) -> Unit)?
     var mouseInBounds: Boolean
 
     /**
@@ -118,7 +118,7 @@ interface UIElement {
     data class Boundaries(val x1: Double, val y1: Double, val x2: Double, val y2: Double)
 
     /**
-     * * Sets the [dirty] variable of this component to the specified state
+     * * Sets the `dirty` variable of this component to the specified state
      */
     fun setDirty(state: Boolean = true): UIElement
 
@@ -309,6 +309,11 @@ interface UIElement {
     fun getComponentAt(x: Double, y: Double): UIElement?
 
     /**
+     * * Focuses the component
+     */
+    fun focus()
+
+    /**
      * * Un-focuses the component
      */
     fun unfocus()
@@ -372,6 +377,8 @@ interface UIElement {
     fun handleMouseInput()
     fun <T : UIMouseEvent> modifyChildMouseEvent(event: T)
     fun <T : UIMouseEvent> resetChildMouseEvent(event: T)
+    fun modifyChildDragEvent(event: UIDragEvent)
+    fun resetChildDragEvent(event: UIDragEvent)
     fun propagateMouseScroll(event: UIScrollEvent)
     fun propagateMouseClick(event: UIClickEvent)
     fun propagateMouseRelease(event: UIClickEvent)
@@ -388,13 +395,11 @@ interface UIElement {
     fun onResize(comp: UIElement, scaledResolution: ScaledResolution): UIElement
     fun onError(trace: Array<out StackTraceElement>): UIElement
     fun onMouseClick(event: UIClickEvent): UIElement
-    fun onMouseDrag(event: UIDragEvent): UIElement
-
     /**
      * * Triggers whenever the mouse is dragged inside the parent component
      * but the drag was started inside `this` component
      */
-    fun onMouseDragOut(event: UIDragEvent): UIElement
+    fun onMouseDrag(event: UIDragEvent): UIElement
     fun onMouseRelease(event: UIClickEvent): UIElement
     fun onMouseEnter(event: UIMouseEvent): UIElement
     fun onMouseHover(event: UIMouseEvent): UIElement
@@ -408,6 +413,6 @@ interface UIElement {
     fun onCharType(event: UICharEvent): UIElement
     fun onCharTyped(event: UICharEvent): UIElement
     fun onUpdate(): UIElement
-    fun onPreChildPropagate(event: UIMouseEvent): UIElement
-    fun onPostChildPropagation(event: UIMouseEvent): UIElement
+    fun onPreChildPropagate(event: UIEvent): UIElement
+    fun onPostChildPropagation(event: UIEvent): UIElement
 }
