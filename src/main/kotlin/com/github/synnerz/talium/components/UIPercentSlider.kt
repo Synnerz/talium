@@ -14,4 +14,6 @@ open class UIPercentSlider @JvmOverloads constructor(
     parent: UIElement? = null
 ) : UIDecimalSlider(_x, _y, _width, _height, value, min, max, radius, parent) {
     override fun getDisplayValue(): String = "${value.roundToInt()}%"
+
+    override fun validateString(str: String): Boolean  = str.all { it.isDigit() || it == '.' }
 }

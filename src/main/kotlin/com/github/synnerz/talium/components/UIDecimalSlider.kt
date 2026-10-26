@@ -16,4 +16,16 @@ open class UIDecimalSlider @JvmOverloads constructor(
     override fun getCurrentValue(): Double = value.roundToInt() / 100.0
 
     override fun getDisplayValue(): String = String.format("%.1f", getCurrentValue())
+
+    override fun validateString(str: String): Boolean  = str.all { it.isDigit() || it == '.' }
+
+    override fun onInputEnter(str: String) {
+        val input = str.toDoubleOrNull() ?: return
+        if (input < 1.0) {
+            setCurrentValue(input * 100)
+            return
+        }
+
+        setCurrentValue(input)
+    }
 }
