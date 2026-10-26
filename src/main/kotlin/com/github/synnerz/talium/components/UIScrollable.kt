@@ -65,7 +65,7 @@ open class UIScrollable @JvmOverloads constructor(
 
         return ScrollBarBound(
             x + width - w, y, w, height,
-            x + width - w + m, y + yo + m, w - m - m, h - m - m
+            x + width - w + m, y + yo + m, w - m - m, h - m - m,
         )
     }
 
@@ -111,7 +111,7 @@ open class UIScrollable @JvmOverloads constructor(
         scrollBarFocused = false
     }
 
-    override fun onMouseDragOut(event: UIDragEvent) = apply {
+    override fun onMouseDrag(event: UIDragEvent) = apply {
         if (!scrollBarFocused || !drawScrollbar || maxY2 < height) return@apply
         if (event.dy == 0.0) return@apply
 
@@ -128,5 +128,15 @@ open class UIScrollable @JvmOverloads constructor(
 
     override fun <T : UIMouseEvent> resetChildMouseEvent(event: T) {
         event.y -= yOffset
+    }
+
+    override fun modifyChildDragEvent(event: UIDragEvent) {
+        event.y += yOffset
+        event.currY += yOffset
+    }
+
+    override fun resetChildDragEvent(event: UIDragEvent) {
+        event.y -= yOffset
+        event.currY -= yOffset
     }
 }

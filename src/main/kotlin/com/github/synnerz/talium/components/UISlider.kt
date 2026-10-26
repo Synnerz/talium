@@ -8,6 +8,7 @@ import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 open class UISlider @JvmOverloads constructor(
     _x: Double,
@@ -23,6 +24,7 @@ open class UISlider @JvmOverloads constructor(
     open var thumb = UISliderThumb(15.0, this)
     open var completion = UISliderCompletion(this)
     open var textScale: Float = 1f
+    open var valueStep: Double = Double.MIN_VALUE
     /**
      * * Field that decides how many steps it'll take per arrow key press
      * * i.e. left arrow: slider goes down once since `1` is default
@@ -43,13 +45,13 @@ open class UISlider @JvmOverloads constructor(
         UIRect.drawRect(x, y, width, height, radius, bgColor)
 
         // Completion bar
-        val handleX = min((value - min) / (max - min) * width, width)
+        val handleX = ((value - min) / (max - min)).coerceIn(0.0, 1.0) * width
         UIRect.drawRect(x, y, handleX, height, radius, completion.bgColor)
 
         // Thumb
-        val thumbX = (x + handleX - (thumb.width / 2.0)).coerceIn(x, (x + width) - thumb.width)
-        val thumbY = y - 2
         val thumbWidth = thumb.width.coerceIn(0.0, width)
+        val thumbX = x + handleX - (thumbWidth / 2.0)
+        val thumbY = y - 2
         val thumbHeight = height + 4
         UIRect.drawRect(thumbX, thumbY, thumbWidth, thumbHeight, radius, thumb.bgColor)
 
@@ -61,10 +63,10 @@ open class UISlider @JvmOverloads constructor(
         setCurrentX(event.x)
     }
 
-    override fun onMouseDragOut(event: UIDragEvent) = apply {
+    override fun onMouseDrag(event: UIDragEvent) = apply {
         if (!focused) return@apply
 
-        setCurrentX(event.x)
+        setCurrentX(event.currX)
     }
 
     override fun onKeyType(event: UIKeyType) = apply {
@@ -90,9 +92,14 @@ open class UISlider @JvmOverloads constructor(
         }
     }
 
-    open fun setCurrentX(x: Double) {
+    fun setCurrentX(x: Double) {
         val rx = x - this.x
-        value = ((rx.toFloat() / width) * (max - min) + min).coerceIn(min, max)
+        val v = (rx / width).coerceIn(0.0, 1.0) * (max - min)
+        val mul = v / valueStep
+        setCurrentValue(
+            if (valueStep == Double.MIN_VALUE || mul.isInfinite()) v + min
+            else mul.roundToLong() * valueStep + min
+        )
     }
 
     open fun setCurrentValue(value: Double) {
