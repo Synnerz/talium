@@ -21,11 +21,7 @@ open class UIDecimalSlider @JvmOverloads constructor(
 
     override fun onInputEnter(str: String) {
         val input = str.toDoubleOrNull() ?: return
-        if (input < 1.0) {
-            setCurrentValue(input * 100)
-            return
-        }
 
-        setCurrentValue(input)
+        setCurrentValue(input * 100)
     }
 }
