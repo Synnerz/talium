@@ -33,11 +33,6 @@ open class UIColorPicker @JvmOverloads constructor(
     }.also { it.hide() }
     val floatingBg = UIRect(0.0, 0.0, 100.0, 100.0, parent = floatingChild)
     open val alphaSlider = object : UIDecimalSlider(2.0, 84.0, 96.0, 12.0, alpha / 255.0, 0.0, 1.0, parent = floatingBg) {
-        override fun setCurrentX(x: Double) {
-            super.setCurrentX(x)
-            setAlpha(getCurrentValue())
-        }
-
         override fun setCurrentValue(value: Double) {
             super.setCurrentValue(value)
             setAlpha(getCurrentValue())
@@ -198,7 +193,7 @@ open class UIColorHuePicker @JvmOverloads constructor(
     override fun onMouseDrag(event: UIDragEvent) = apply {
         if (!dragging || event.button != Renderer.LMBTN) return@apply
 
-        val ry = (event.y - y).coerceIn(0.0, height) - 1
+        val ry = (event.currY - y).coerceIn(0.0, height) - 1
 
         currentHue = (ry / height).coerceIn(0.0, 1.0)
         colorPicker?.setValue(currentHue)
