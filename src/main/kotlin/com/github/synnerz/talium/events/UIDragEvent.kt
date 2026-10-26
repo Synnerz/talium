@@ -7,6 +7,8 @@ open class UIDragEvent(
     var dy: Double,
     x: Double,
     y: Double,
+    var currX: Double,
+    var currY: Double,
     var button: Int,
     component: UIElement
 ) : UIMouseEvent(x, y, component)

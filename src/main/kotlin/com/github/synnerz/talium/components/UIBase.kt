@@ -64,9 +64,9 @@ open class UIBase @JvmOverloads constructor(
     override var hookError: ((trace: Array<out StackTraceElement>) -> Unit)? = null
     override var hookUpdate: (() -> Unit)? = null
     /** * Runs before the event is passed through to the children of this component */
-    override var preChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
+    override var preChildPropagate: ((event: UIEvent) -> Unit)? = null
     /** * Runs after the event is passed through to the children of this component */
-    override var postChildPropagate: ((event: UIMouseEvent) -> Unit)? = null
+    override var postChildPropagate: ((event: UIEvent) -> Unit)? = null
     /**
      * * Field to check whether this component is dirty or not
      * * When a component is marked as dirty this means that
@@ -193,8 +193,7 @@ open class UIBase @JvmOverloads constructor(
      */
     override fun hasParent(parent: UIElement?): Boolean {
         val comp = parent ?: this.parent
-        if (comp == null) return false
-        return comp == this.parent
+        return comp != null && comp == this.parent
     }
 
     /**
@@ -271,8 +270,7 @@ open class UIBase @JvmOverloads constructor(
      * * Note: if the component's bounds have not yet been set it will return `false`
      */
     override fun inBounds(x: Double, y: Double): Boolean {
-        if (bounds.x1 == -1.0) return false
-        return x in bounds.x1..bounds.x2 && y in bounds.y1..bounds.y2
+        return bounds.x1 != -1.0 && x in bounds.x1..bounds.x2 && y in bounds.y1..bounds.y2
     }
 
     /**
@@ -442,10 +440,17 @@ open class UIBase @JvmOverloads constructor(
     }
 
     /**
+     * * Focuses the component
+     */
+    override fun focus() {
+        propagateFocus(UIFocusEvent(true, this, null))
+    }
+
+    /**
      * * Un-focuses the component
      */
     override fun unfocus() {
-        propagateUnfocus(UIFocusEvent(-1.0, -1.0, false, this))
+        propagateUnfocus(UIFocusEvent(false, this, null))
     }
 
     /**
@@ -710,11 +715,11 @@ open class UIBase @JvmOverloads constructor(
         // Handle mouseEnter/Hover/Leave
         val mouseEvent = UIMouseEvent(mxd, myd, this)
         if (insideBounds) {
-            propagateMouseEnter(mouseEvent)
+            if (!mouseInBounds) propagateMouseEnter(mouseEvent)
             propagateMouseHover(mouseEvent)
+        } else if (mouseInBounds) {
+            propagateMouseLeave(mouseEvent)
         }
-        propagateMouseLeave(mouseEvent)
-
         mouseInBounds = insideBounds
 
         // Handle mouse click/release/drag
@@ -725,49 +730,45 @@ open class UIBase @JvmOverloads constructor(
                 mouseState[btn] = btnState
 
                 val clickEvent = UIClickEvent(mxd, myd, btn, this)
-                val focusEvent = UIFocusEvent(mxd, myd, false, this)
 
-                if (insideBounds) {
-                    if (oldState) propagateMouseRelease(clickEvent)
-                    else {
+                if (btnState) {
+                    if (insideBounds) {
                         propagateMouseClick(clickEvent)
-                        propagateFocus(UIFocusEvent(mxd, myd, true, this))
+                        draggedState[btn] = State(mxd, myd, mxd, myd)
+                        propagateFocus(UIFocusEvent(true, this, clickEvent))
+                    } else {
+                        propagateUnfocus(UIFocusEvent(false, this, clickEvent))
                     }
+                } else {
+                    if (insideBounds || btn in draggedState) propagateMouseRelease(clickEvent)
+                    draggedState.remove(btn)
                 }
-                if (focused && !insideBounds) {
-                    propagateUnfocus(focusEvent)
-                } else if (!oldState) {
-                    for (child in children) {
-                        child.propagateUnfocus(focusEvent)
-                        if (!focusEvent.propagate) break
-                    }
-                }
-
-                if (btnState) draggedState[btn] = State(mxd, myd)
-                else draggedState.remove(btn)
             }
 
-            if (btn !in draggedState) continue
-            val state = draggedState[btn]
-            if (state!!.x == mxd && state.y == myd) continue
+            val state = draggedState[btn] ?: continue
+            if (state.x == mxd && state.y == myd) continue
 
-            if (insideBounds) {
-                propagateMouseDrag(UIDragEvent(
+            propagateMouseDrag(
+                UIDragEvent(
                     mxd - state.x,
                     myd - state.y,
+                    state.sx,
+                    state.sy,
                     mxd,
                     myd,
                     btn,
-                    this)
+                    this,
                 )
-            }
+            )
 
-            draggedState[btn] = State(mxd, myd)
+            draggedState[btn] = State(mxd, myd, state.sx, state.sy)
         }
     }
 
     override fun <T : UIMouseEvent> modifyChildMouseEvent(event: T) {}
     override fun <T : UIMouseEvent> resetChildMouseEvent(event: T) {}
+    override fun modifyChildDragEvent(event: UIDragEvent) {}
+    override fun resetChildDragEvent(event: UIDragEvent) {}
 
     override fun propagateMouseScroll(event: UIScrollEvent) {
         onMouseScroll(event)
@@ -910,9 +911,7 @@ open class UIBase @JvmOverloads constructor(
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (child.hidden) continue
-            child.onMouseDragOut(event)
-            if (!child.inBounds(event)) continue
+            if (!child.inBounds(event) && child.hidden) continue
 
             child.propagateMouseDrag(event)
             if (!event.propagate) break
@@ -924,20 +923,22 @@ open class UIBase @JvmOverloads constructor(
     }
 
     override fun propagateFocus(event: UIFocusEvent) {
-        if (focused != event.state) {
+        if (!focused) {
             focused = true
             onFocus(event)
             hookFocus?.invoke(event)
-            focused = event.state
         }
         if (!event.propagate) return
 
-        modifyChildMouseEvent(event)
+        val cause = event.cause
+
+        if (cause != null) modifyChildMouseEvent(cause)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
         for (child in children.toList()) {
-            if (!child.inBounds(event) || child.hidden) continue
+            if (child.hidden) continue
+            if (cause != null && !child.inBounds(cause)) continue
 
             child.propagateFocus(event)
             if (!event.propagate) break
@@ -945,11 +946,11 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
-        resetChildMouseEvent(event)
+        if (cause != null) resetChildMouseEvent(cause)
     }
 
     override fun propagateUnfocus(event: UIFocusEvent) {
-        if (focused && !inBounds(event)) {
+        if (focused) {
             focused = false
             onUnfocus(event)
             onLostFocus(event)
@@ -957,7 +958,9 @@ open class UIBase @JvmOverloads constructor(
         }
         if (!event.propagate) return
 
-        modifyChildMouseEvent(event)
+        val cause = event.cause
+
+        if (cause != null) modifyChildMouseEvent(cause)
         onPreChildPropagate(event)
         preChildPropagate?.let { it(event) }
 
@@ -969,7 +972,7 @@ open class UIBase @JvmOverloads constructor(
 
         onPostChildPropagation(event)
         postChildPropagate?.let { it(event) }
-        resetChildMouseEvent(event)
+        if (cause != null) resetChildMouseEvent(cause)
     }
 
     override fun propagateKeyTyped(event: UIKeyType) {
@@ -1029,14 +1032,13 @@ open class UIBase @JvmOverloads constructor(
         hookMouseClick = cb
     }
     override fun onMouseDrag(event: UIDragEvent) = apply {}
-    open fun onMouseDrag(cb: (event: UIDragEvent) -> Unit) = apply {
-        hookMouseDrag = cb
-    }
     /**
      * * Triggers whenever the mouse is dragged inside the parent component
      * but the drag was started inside `this` component
      */
-    override fun onMouseDragOut(event: UIDragEvent) = apply {}
+    open fun onMouseDrag(cb: (event: UIDragEvent) -> Unit) = apply {
+        hookMouseDrag = cb
+    }
     override fun onMouseRelease(event: UIClickEvent) = apply {}
     open fun onMouseRelease(cb: (event: UIClickEvent) -> Unit) = apply {
         hookMouseRelease = cb
@@ -1094,15 +1096,15 @@ open class UIBase @JvmOverloads constructor(
         hookUpdate = cb
     }
 
-    override fun onPreChildPropagate(event: UIMouseEvent) = apply {}
-    open fun onPreChildPropagate(cb: (event: UIMouseEvent) -> Unit) = apply {
+    override fun onPreChildPropagate(event: UIEvent) = apply {}
+    open fun onPreChildPropagate(cb: (event: UIEvent) -> Unit) = apply {
         preChildPropagate = cb
     }
 
-    override fun onPostChildPropagation(event: UIMouseEvent) = apply {}
-    open fun onPostChildPropagation(cb: (event: UIMouseEvent) -> Unit) = apply {
+    override fun onPostChildPropagation(event: UIEvent) = apply {}
+    open fun onPostChildPropagation(cb: (event: UIEvent) -> Unit) = apply {
         postChildPropagate = cb
     }
 
-    data class State(var x: Double, var y: Double)
+    data class State(val x: Double, val y: Double, val sx: Double, val sy: Double)
 }
