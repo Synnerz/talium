@@ -4,7 +4,10 @@
 	"version": "${version}",
 	"name": "Talium",
 	"description": "Rendering 2D library",
-	"authors": ["DocilElm"],
+	"authors": [
+		"DocilElm",
+		"chicken man"
+	],
 	"contact": {
 		"homepage": "https://github.com/Synnerz/",
 		"sources": "https://github.com/Synnerz/talium"
