@@ -144,7 +144,7 @@ open class UISlider @JvmOverloads constructor(
         }
     }
 
-    override fun onLostFocus(event: UIFocusEvent) = apply {
+    override fun onUnfocus(event: UIFocusEvent) = apply {
         inputFocused = false
         input.unfocus()
         input.hide()
@@ -210,8 +210,8 @@ open class UISliderInput(
         selectionPos = text.length
     }
 
-    override fun onLostFocus(event: UIFocusEvent) = apply {
-        super.onLostFocus(event)
+    override fun onUnfocus(event: UIFocusEvent) = apply {
+        super.onUnfocus(event)
 
         val slider = parent as? UISlider ?: return@apply
         if (!slider.inputFocused) return@apply
