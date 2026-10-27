@@ -728,9 +728,11 @@ open class UIBase @JvmOverloads constructor(
         if (insideBounds) {
             propagateMouseEnter(mouseEvent)
             propagateMouseHover(mouseEvent)
-        } else {
-            propagateMouseLeave(mouseEvent)
         }
+        // this function handles the actual leaving part itself
+        // no need to add extra guards
+        propagateMouseLeave(mouseEvent)
+        mouseInBounds = insideBounds
 
         // Handle mouse click/release/drag
         for (btn in 0..8) {
