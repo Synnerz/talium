@@ -726,12 +726,11 @@ open class UIBase @JvmOverloads constructor(
         // Handle mouseEnter/Hover/Leave
         val mouseEvent = UIMouseEvent(mxd, myd, this)
         if (insideBounds) {
-            if (!mouseInBounds) propagateMouseEnter(mouseEvent)
+            propagateMouseEnter(mouseEvent)
             propagateMouseHover(mouseEvent)
-        } else if (mouseInBounds) {
+        } else {
             propagateMouseLeave(mouseEvent)
         }
-        mouseInBounds = insideBounds
 
         // Handle mouse click/release/drag
         for (btn in 0..8) {
