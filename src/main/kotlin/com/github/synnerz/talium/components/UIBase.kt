@@ -686,7 +686,7 @@ open class UIBase @JvmOverloads constructor(
         if (parent != null || !focused) return
         val keyName = GLFW.glfwGetKeyName(keycode, scanCode)
         val char = keyName?.single()
-        propagateKeyTyped(UIKeyType(keycode, char, char.toString(), this))
+        propagateKeyTyped(UIKeyType(keycode, scanCode, char, char.toString(), this))
     }
 
     override fun handleCharType(codepoint: Int, codeStr: String, modifiers: Int) {
