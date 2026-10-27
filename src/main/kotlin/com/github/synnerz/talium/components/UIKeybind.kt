@@ -72,7 +72,7 @@ open class UIKeybind @JvmOverloads constructor(
             if (keycode < -1) return "M${abs(-100 % keycode)}"
             if (keycode == -1) return "UNKNOWN"
 
-            val name = InputConstants.Type.KEYBOARD.getOrCreate(keycode).displayName.string
+            val name = InputConstants.Type.KEYSYM.getOrCreate(keycode).displayName.string
             return "KEY ${name.replace("Keypad ", "KP")}"
         }
     }
