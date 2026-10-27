@@ -319,6 +319,12 @@ interface UIElement {
     fun unfocus()
 
     /**
+     * * If there's any [UIKeybind] components found that have focus on them,
+     *  it will remove the focus and return `true`/`false` if a component was unfocused
+     */
+    fun unfocusKeybinds(): Boolean
+
+    /**
      * * Adds a layout to handle the drawing of children
      */
     fun addLayout(layout: Layout): UIElement
