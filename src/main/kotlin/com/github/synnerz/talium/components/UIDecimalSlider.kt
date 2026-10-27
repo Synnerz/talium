@@ -1,7 +1,5 @@
 package com.github.synnerz.talium.components
 
-import kotlin.math.roundToInt
-
 open class UIDecimalSlider @JvmOverloads constructor(
     _x: Double,
     _y: Double,
@@ -12,16 +10,8 @@ open class UIDecimalSlider @JvmOverloads constructor(
     max: Double,
     radius: Double = 0.0,
     parent: UIElement? = null
-) : UISlider(_x, _y, _width, _height, value * 100, min * 100, max * 100, radius, parent) {
-    override fun getCurrentValue(): Double = value.roundToInt() / 100.0
+) : UISlider(_x, _y, _width, _height, value, min, max, radius, parent) {
+    override fun getDisplayValue(): String = String.format("%.2f", getCurrentValue())
 
-    override fun getDisplayValue(): String = String.format("%.1f", getCurrentValue())
-
-    override fun validateString(str: String): Boolean  = str.all { it.isDigit() || it == '.' }
-
-    override fun onInputEnter(str: String) {
-        val input = str.toDoubleOrNull() ?: return
-
-        setCurrentValue(input * 100)
-    }
+    override fun validateString(str: String): Boolean = str.all { it.isDigit() || it == '.' }
 }
