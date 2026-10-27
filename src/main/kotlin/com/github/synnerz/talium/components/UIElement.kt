@@ -39,8 +39,8 @@ interface UIElement {
     var hookError: ((trace: Array<out StackTraceElement>) -> Unit)?
     var hookUpdate: (() -> Unit)?
 
-    /** * Runs before the event is passed through to the children of this component */
-    var preChildPropagate: ((event: UIEvent) -> Unit)?
+    /** * Runs before the event is passed through to each child of this component */
+    var preChildPropagate: ((event: UIEvent, child: UIElement) -> Boolean)?
 
     /** * Runs after the event is passed through to the children of this component */
     var postChildPropagate: ((event: UIEvent) -> Unit)?
@@ -387,13 +387,10 @@ interface UIElement {
     fun resetChildDragEvent(event: UIDragEvent)
     fun propagateMouseScroll(event: UIScrollEvent)
     fun propagateMouseClick(event: UIClickEvent)
-    fun propagateMouseRelease(event: UIClickEvent)
-    fun propagateMouseEnter(event: UIMouseEvent)
-    fun propagateMouseLeave(event: UIMouseEvent)
-    fun propagateMouseHover(event: UIMouseEvent)
+    fun propagateMouseRelease(event: UIClickEvent, drag: UIMouseEvent?)
+    fun propagateMouseMove(event: UIMouseEvent)
     fun propagateMouseDrag(event: UIDragEvent)
     fun propagateFocus(event: UIFocusEvent)
-    fun propagateUnfocus(event: UIFocusEvent)
     fun propagateKeyTyped(event: UIKeyType)
     fun propagateCharTyped(event: UICharEvent)
     fun propagateResize(comp: UIElement, scaledResolution: ScaledResolution)
@@ -413,12 +410,13 @@ interface UIElement {
     fun onMouseScroll(event: UIScrollEvent): UIElement
     fun onFocus(event: UIFocusEvent): UIElement
     fun onUnfocus(event: UIFocusEvent): UIElement
+    @Deprecated("", ReplaceWith("onUnfocus(event)"))
     fun onLostFocus(event: UIFocusEvent): UIElement
     fun onKeyType(event: UIKeyType): UIElement
     fun onKeyTyped(event: UIKeyType): UIElement
     fun onCharType(event: UICharEvent): UIElement
     fun onCharTyped(event: UICharEvent): UIElement
     fun onUpdate(): UIElement
-    fun onPreChildPropagate(event: UIEvent): UIElement
+    fun onPreChildPropagate(event: UIEvent, child: UIElement): Boolean
     fun onPostChildPropagation(event: UIEvent): UIElement
 }
