@@ -24,6 +24,8 @@ object Renderer {
     }
     val fontRenderer: Font by lazy { Minecraft.getInstance().font }
     private const val WHITE: Int = 0xFFFFFFFF.toInt()
+    const val LMBTN = 0
+    const val RMBTN = 1
     var stack = Matrix3x2fStack(128)
     val scissorStack = ScissorStack()
 
