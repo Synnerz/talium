@@ -453,6 +453,17 @@ open class UIBase @JvmOverloads constructor(
         propagateUnfocus(UIFocusEvent(false, this, null))
     }
 
+    override fun unfocusKeybinds(): Boolean {
+        if (this is UIKeybind) {
+            val hadFocus = focused
+            if (hadFocus) unfocus()
+
+            return hadFocus
+        }
+
+        return children.any { it.unfocusKeybinds() }
+    }
+
     /**
      * * Adds a layout to handle the drawing of children
      */
