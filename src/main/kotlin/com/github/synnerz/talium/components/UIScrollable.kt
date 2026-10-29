@@ -97,7 +97,7 @@ open class UIScrollable @JvmOverloads constructor(
         updateScrollY(-(if (isCtrl) 50.0 else 10.0) * event.delta.sign)
     }
 
-    override fun onMouseClick(event: UIClickEvent) = apply {
+    override fun onMouseDown(event: UIClickEvent) = apply {
         if (!drawScrollbar) return@apply
         val (_, _, _, _, x2, y2, width2, height2) = scrollbarBounds()
         if (event.x !in x2..x2 + width2 || event.y !in y2..y2 + height2) return@apply

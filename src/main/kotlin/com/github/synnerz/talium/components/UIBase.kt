@@ -50,8 +50,9 @@ open class UIBase @JvmOverloads constructor(
      * * i.e. if i want to listen for a mouseClick on a component, i'll add a click hook
      */
     override var hookMouseScroll: ((event: UIScrollEvent) -> Unit)? = null
-    override var hookMouseClick: ((event: UIClickEvent) -> Unit)? = null
+    override var hookMouseDown: ((event: UIClickEvent) -> Unit)? = null
     override var hookMouseRelease: ((event: UIClickEvent) -> Unit)? = null
+    override var hookMouseClick: ((event: UIClickEvent) -> Unit)? = null
     override var hookMouseEnter: ((event: UIMouseEvent) -> Unit)? = null
     override var hookMouseHover: ((event: UIMouseEvent) -> Unit)? = null
     override var hookMouseLeave: ((event: UIMouseEvent) -> Unit)? = null
@@ -76,8 +77,11 @@ open class UIBase @JvmOverloads constructor(
     override var isSelfDirty: Boolean = true
     override var isChildDirty: Boolean = false
     override var mouseInBounds: Boolean = false
+    override var mouseDownInBounds: Boolean = false
     private val mouseState = mutableMapOf<Int, Boolean>()
     private val draggedState = mutableMapOf<Int, State>()
+    private var lastMouseX = 0.0
+    private var lastMouseY = 0.0
     /**
      * * Used internally to scale the position and size of the component
      * as well as to trigger the [onResize] hook/listener
@@ -450,7 +454,7 @@ open class UIBase @JvmOverloads constructor(
      * * Un-focuses the component
      */
     override fun unfocus() {
-        propagateFocus(UIFocusEvent(false, this))
+        propagateUnfocus(UIFocusEvent(false, this))
     }
 
     override fun unfocusKeybinds(): Boolean {
@@ -724,8 +728,12 @@ open class UIBase @JvmOverloads constructor(
         }
 
         // Handle mouseEnter/Hover/Leave
-        val mouseEvent = UIMouseEvent(mxd, myd, this)
-        propagateMouseMove(mouseEvent)
+        if (mxd != lastMouseX || myd != lastMouseY) {
+            val mouseEvent = UIMouseEvent(mxd, myd, this)
+            propagateMouseMove(mouseEvent)
+            lastMouseX = mxd
+            lastMouseY = myd
+        }
 
         // Handle mouse click/release/drag
         for (btn in 0..8) {
@@ -739,9 +747,10 @@ open class UIBase @JvmOverloads constructor(
                 if (btnState) {
                     propagateFocus(UIFocusEvent(clickEvent, this))
                     if (insideBounds) {
-                        propagateMouseClick(clickEvent)
+                        propagateMouseDown(clickEvent)
                         draggedState[btn] = State(mxd, myd, mxd, myd)
                     }
+                    propagateUnfocus(UIFocusEvent(clickEvent, this))
                 } else {
                     val dragPos = draggedState[btn]?.let { UIMouseEvent(it.sx, it.sy, this) }
                     propagateMouseRelease(clickEvent, dragPos)
@@ -798,9 +807,10 @@ open class UIBase @JvmOverloads constructor(
         resetChildMouseEvent(event)
     }
 
-    override fun propagateMouseClick(event: UIClickEvent) {
-        onMouseClick(event)
-        hookMouseClick?.invoke(event)
+    override fun propagateMouseDown(event: UIClickEvent) {
+        onMouseDown(event)
+        hookMouseDown?.invoke(event)
+        mouseDownInBounds = true
         if (!event.propagate) return
 
         modifyChildMouseEvent(event)
@@ -812,7 +822,7 @@ open class UIBase @JvmOverloads constructor(
                 onPreChildPropagate(event, child) &&
                 preChildPropagate?.invoke(event, child) ?: true
             ) {
-                child.propagateMouseClick(event)
+                child.propagateMouseDown(event)
                 if (!event.propagate) break
             }
         }
@@ -825,6 +835,11 @@ open class UIBase @JvmOverloads constructor(
     override fun propagateMouseRelease(event: UIClickEvent, drag: UIMouseEvent?) {
         onMouseRelease(event)
         hookMouseRelease?.invoke(event)
+        if (inBounds(event) && mouseDownInBounds) {
+            onMouseClick(event)
+            hookMouseClick?.invoke(event)
+        }
+        mouseDownInBounds = false
         if (!event.propagate) return
 
         modifyChildMouseEvent(event)
@@ -832,7 +847,7 @@ open class UIBase @JvmOverloads constructor(
 
         for (child in children.toList()) {
             if (child.hidden) continue
-            if (!child.inBounds(event) && (drag == null || !child.inBounds(drag))) continue
+            if (!child.inBounds(event) && !child.mouseDownInBounds) continue
 
             if (
                 onPreChildPropagate(event, child) &&
@@ -894,6 +909,7 @@ open class UIBase @JvmOverloads constructor(
 
         for (child in children.toList()) {
             if (!child.inBounds(event) || child.hidden) continue
+            if (!child.mouseDownInBounds) continue
 
             if (
                 onPreChildPropagate(event, child) &&
@@ -911,17 +927,10 @@ open class UIBase @JvmOverloads constructor(
 
     override fun propagateFocus(event: UIFocusEvent) {
         val state = event.forceState ?: inBounds(event.cause!!)
-        if (focused != state) {
-            focused = state
-            if (state) {
-                onFocus(event)
-                hookFocus?.invoke(event)
-            } else {
-                @Suppress("DEPRECATION")
-                onLostFocus(event)
-                onUnfocus(event)
-                hookUnfocus?.invoke(event)
-            }
+        if (!focused && state) {
+            focused = true
+            onFocus(event)
+            hookFocus?.invoke(event)
         }
         if (!event.propagate) return
 
@@ -936,6 +945,37 @@ open class UIBase @JvmOverloads constructor(
                 preChildPropagate?.invoke(event, child) ?: true
             ) {
                 child.propagateFocus(event)
+                if (!event.propagate) break
+            }
+        }
+
+        onPostChildPropagation(event)
+        postChildPropagate?.let { it(event) }
+        if (cause != null) resetChildMouseEvent(cause)
+    }
+
+    override fun propagateUnfocus(event: UIFocusEvent) {
+        val state = event.forceState ?: inBounds(event.cause!!)
+        if (focused && !state) {
+            focused = false
+            @Suppress("DEPRECATION")
+            onLostFocus(event)
+            onUnfocus(event)
+            hookUnfocus?.invoke(event)
+        }
+        if (!event.propagate) return
+
+        val cause = event.cause
+        if (cause != null) modifyChildMouseEvent(cause)
+
+        for (child in children.toList()) {
+            if (child.hidden) continue
+
+            if (
+                onPreChildPropagate(event, child) &&
+                preChildPropagate?.invoke(event, child) ?: true
+            ) {
+                child.propagateUnfocus(event)
                 if (!event.propagate) break
             }
         }
@@ -1013,6 +1053,14 @@ open class UIBase @JvmOverloads constructor(
         hookError = cb
     }
 
+    override fun onMouseDown(event: UIClickEvent) = apply {}
+    open fun onMouseDown(cb: (event: UIClickEvent) -> Unit) = apply {
+        hookMouseClick = cb
+    }
+    override fun onMouseRelease(event: UIClickEvent) = apply {}
+    open fun onMouseRelease(cb: (event: UIClickEvent) -> Unit) = apply {
+        hookMouseRelease = cb
+    }
     override fun onMouseClick(event: UIClickEvent) = apply {}
     open fun onMouseClick(cb: (event: UIClickEvent) -> Unit) = apply {
         hookMouseClick = cb
@@ -1024,10 +1072,6 @@ open class UIBase @JvmOverloads constructor(
      */
     open fun onMouseDrag(cb: (event: UIDragEvent) -> Unit) = apply {
         hookMouseDrag = cb
-    }
-    override fun onMouseRelease(event: UIClickEvent) = apply {}
-    open fun onMouseRelease(cb: (event: UIClickEvent) -> Unit) = apply {
-        hookMouseRelease = cb
     }
     override fun onMouseEnter(event: UIMouseEvent) = apply {}
     open fun onMouseEnter(cb: (event: UIMouseEvent) -> Unit) = apply {

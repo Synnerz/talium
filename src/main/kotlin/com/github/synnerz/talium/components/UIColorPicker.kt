@@ -58,7 +58,6 @@ open class UIColorPicker @JvmOverloads constructor(
     open val arrowText = UIText(0.0, 0.0, 100.0, 100.0, "↓", true, arrowRect).apply {
         textScale = 2f
     }
-    var isMainClicked = false
 
     override fun render() {
         Renderer.drawRect(x, y, width, height, color = bgColor)
@@ -124,19 +123,8 @@ open class UIColorPicker @JvmOverloads constructor(
     override fun onMouseClick(event: UIClickEvent) = apply {
         if (event.button != 0) return@apply
 
-        isMainClicked = true
-    }
-
-    override fun onMouseRelease(event: UIClickEvent) = apply {
-        if (event.button != 0 || !isMainClicked) return@apply
-        isMainClicked = false
-
-        if (!arrowToggle) {
-            unhideDropdown()
-            return@apply
-        }
-
-        hideDropdown()
+        if (arrowToggle) hideDropdown()
+        else unhideDropdown()
     }
 }
 
@@ -177,7 +165,7 @@ open class UIColorHuePicker @JvmOverloads constructor(
         }
     }
 
-    override fun onMouseClick(event: UIClickEvent) = apply {
+    override fun onMouseDown(event: UIClickEvent) = apply {
         if (event.button != 0) return@apply
 
         val ry = (event.y - y).coerceIn(0.0, height) - 1
@@ -237,7 +225,7 @@ open class UIColorGradient @JvmOverloads constructor(
         Renderer.drawColorGradient(x, y, width, height, color)
     }
 
-    override fun onMouseClick(event: UIClickEvent) = apply {
+    override fun onMouseDown(event: UIClickEvent) = apply {
         if (event.button != 0) return@apply
 
         val rx = (event.x - x).coerceIn(0.0, width)

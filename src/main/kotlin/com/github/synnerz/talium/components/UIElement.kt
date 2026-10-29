@@ -25,8 +25,9 @@ interface UIElement {
      * * i.e. if i want to listen for a mouseClick on a component, i'll add a click hook
      */
     var hookMouseScroll: ((event: UIScrollEvent) -> Unit)?
-    var hookMouseClick: ((event: UIClickEvent) -> Unit)?
+    var hookMouseDown: ((event: UIClickEvent) -> Unit)?
     var hookMouseRelease: ((event: UIClickEvent) -> Unit)?
+    var hookMouseClick: ((event: UIClickEvent) -> Unit)?
     var hookMouseEnter: ((event: UIMouseEvent) -> Unit)?
     var hookMouseHover: ((event: UIMouseEvent) -> Unit)?
     var hookMouseLeave: ((event: UIMouseEvent) -> Unit)?
@@ -45,6 +46,7 @@ interface UIElement {
     /** * Runs after the event is passed through to the children of this component */
     var postChildPropagate: ((event: UIEvent) -> Unit)?
     var mouseInBounds: Boolean
+    var mouseDownInBounds: Boolean
 
     /**
      * * Used internally to scale the position and size of the component
@@ -386,24 +388,26 @@ interface UIElement {
     fun modifyChildDragEvent(event: UIDragEvent)
     fun resetChildDragEvent(event: UIDragEvent)
     fun propagateMouseScroll(event: UIScrollEvent)
-    fun propagateMouseClick(event: UIClickEvent)
+    fun propagateMouseDown(event: UIClickEvent)
     fun propagateMouseRelease(event: UIClickEvent, drag: UIMouseEvent?)
     fun propagateMouseMove(event: UIMouseEvent)
     fun propagateMouseDrag(event: UIDragEvent)
     fun propagateFocus(event: UIFocusEvent)
+    fun propagateUnfocus(event: UIFocusEvent)
     fun propagateKeyTyped(event: UIKeyType)
     fun propagateCharTyped(event: UICharEvent)
     fun propagateResize(comp: UIElement, scaledResolution: ScaledResolution)
     fun propagateError(trace: Array<out StackTraceElement>)
     fun onResize(comp: UIElement, scaledResolution: ScaledResolution): UIElement
     fun onError(trace: Array<out StackTraceElement>): UIElement
+    fun onMouseDown(event: UIClickEvent): UIElement
+    fun onMouseRelease(event: UIClickEvent): UIElement
     fun onMouseClick(event: UIClickEvent): UIElement
     /**
      * * Triggers whenever the mouse is dragged inside the parent component
      * but the drag was started inside `this` component
      */
     fun onMouseDrag(event: UIDragEvent): UIElement
-    fun onMouseRelease(event: UIClickEvent): UIElement
     fun onMouseEnter(event: UIMouseEvent): UIElement
     fun onMouseHover(event: UIMouseEvent): UIElement
     fun onMouseLeave(event: UIMouseEvent): UIElement

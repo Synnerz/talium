@@ -99,7 +99,7 @@ open class UISlider @JvmOverloads constructor(
         input.bounds = UIElement.Boundaries(thumbX, thumbY, thumbX + thumbWidth, thumbY + thumbHeight)
     }
 
-    override fun onMouseClick(event: UIClickEvent) = apply {
+    override fun onMouseDown(event: UIClickEvent) = apply {
         if (event.button == Renderer.RMBTN) {
             inputFocused = !inputFocused
             if (inputFocused) {
