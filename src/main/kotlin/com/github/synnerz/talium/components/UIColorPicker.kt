@@ -244,8 +244,8 @@ open class UIColorGradient @JvmOverloads constructor(
     override fun onMouseDrag(event: UIDragEvent) = apply {
         if (!dragging || event.button != Renderer.LMBTN) return@apply
 
-        val rx = (event.x - x).coerceIn(0.0, width)
-        val ry = (event.y - y).coerceIn(0.0, height)
+        val rx = (event.currX - x).coerceIn(0.0, width)
+        val ry = (event.currY - y).coerceIn(0.0, height)
 
         saturation = (rx / width).coerceIn(0.0, 0.94)
         brightness = (1 - (ry / height)).coerceIn(0.0, 1.0)
