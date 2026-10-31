@@ -14,7 +14,23 @@ open class UIKeybind @JvmOverloads constructor(
     var keycode: Int = -1,
     parent: UIElement? = null,
 ) : UIRect(_x, _y, _width, _height, parent = parent) {
-    open val keyNameText by lazy { UIWrappedText(0.0, 0.0, 100.0, 100.0, "UNKNOWN", true, this) }
+    private var textCodeDirty = false
+    open val keyNameText by lazy {
+        object : UIWrappedText(
+            0.0, 0.0,
+            100.0, 100.0,
+            "UNKNOWN",
+            true,
+            this@UIKeybind,
+        ) {
+            override fun render() {
+                if (textCodeDirty) text = forName(this@UIKeybind.keycode)
+                textCodeDirty = false
+
+                super.render()
+            }
+        }
+    }
     private var toggled = false
 
     open fun setBind(keycode: Int) {
@@ -22,7 +38,7 @@ open class UIKeybind @JvmOverloads constructor(
     }
 
     open fun updateKeyName() {
-        keyNameText.text = forName(keycode)
+        textCodeDirty = true
     }
 
     open fun isMouseButton(): Boolean = keycode < -1
