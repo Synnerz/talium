@@ -24,7 +24,7 @@ open class UISelection @JvmOverloads constructor(
         set(value) {
             if (!value.hasParent()) value.setChildOf(this)
             value.onMouseRelease {
-                if (it.button != 0) return@onMouseRelease
+                if (it.button != Renderer.LMBTN) return@onMouseRelease
                 setOption(this.value + 1)
             }
             field = value
